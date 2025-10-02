@@ -28,6 +28,7 @@ class UserResource extends JsonResource
 //        return [$role => $childResource];
         return [
             $role => ($childResource) ? $childResource[0] : null,
+            'id' => $this->id,
             'email' => $this->email,
             'phone' => $this->phone,
             'whatsApp' => $this->whatsApp,
