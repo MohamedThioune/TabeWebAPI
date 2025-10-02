@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Domain\Users\UseCases;
+
+use App\Domain\Users\Entities\User;
+use App\Domain\Users\Events\UserRegistered;
+use App\Domain\Users\ValueObjects\Phone;
+use App\Domain\Users\ValueObjects\Type;
+use App\Http\Resources\CustomerResource;
+use App\Http\Resources\EnterpriseResource;
+use App\Http\Resources\PartnerResource;
+use App\Infrastructure\Persistence\CustomerRepository;
+use App\Infrastructure\Persistence\EnterpriseRepository;
+use App\Infrastructure\Persistence\PartnerRepository;
+use App\Infrastructure\Persistence\UserRepository;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+class RegisterUser
+{
+
+    public function __construct(private UserRepository $userRepository, private CustomerRepository $customerRepository, private PartnerRepository $partnerRepository, private EnterpriseRepository $enterpriseRepository){}
+
+    public function execute(array $dto) : Object
+    {
+        DB::beginTransaction();
+        try {
+            //Instance of the entity user
+            $user = new User(
+                id: Str::uuid()->toString(),
+                type: $dto['type'],
+                firstName: !isset($dto['first_name']) ? null : $dto['first_name'],
+                lastName: !isset($dto['last_name']) ? null : $dto['last_name'],
+                gender: !isset($dto['gender']) ? null : $dto['gender'],
+                phone: new Phone($dto['phone']),
+                whatsApp: new Phone($dto['whatsApp']),
+                email: $dto['email'],
+                passwordHash: Hash::make($dto['password']),
+                name: !isset($dto['name']) ? null : $dto['name'],
+                customerId: Str::uuid()->toString(),
+                partnerId: Str::uuid()->toString(),
+                enterpriseId: Str::uuid()->toString()
+            );
+
+            //Create the model user
+            $modelUser = $this->userRepository->save($user);
+            /** Now create the child model between('customer', 'partner', 'enterprise')*/
+            $resourceUser = match ($dto['type']) {
+                Type::Customer->value => new CustomerResource($this->customerRepository->save($user)),
+                Type::Enterprise->value => new EnterpriseResource($this->enterpriseRepository->save($user)),
+                Type::Partner->value => new PartnerResource($this->partnerRepository->save($user)),
+            };
+
+            event(new UserRegistered($user));
+            DB::commit();
+
+            return $modelUser;
+        }
+        catch (\Exception $e) {
+            DB::rollBack();
+            return (Object)$e->getMessage();
+        }
+    }
+}
