@@ -45,8 +45,8 @@ class AuthAPIController extends Controller
        $dto = $request->only("type", "first_name", "last_name", "gender", "email", "phone", "whatsApp", "password", "name");
        $model = $this->registerUser->execute($dto);
 
-       if(isset($user['error'])){
-          return $this->error($user['error'], 401);
+       if(!$model){
+          return $this->error("something went wrong !", 403);
        }
 
        $user = new UserResource($model);
