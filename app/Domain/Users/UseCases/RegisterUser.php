@@ -15,14 +15,16 @@ use App\Infrastructure\Persistence\PartnerRepository;
 use App\Infrastructure\Persistence\UserRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Models\User as ModelUser;
 
 class RegisterUser
 {
 
     public function __construct(private UserRepository $userRepository, private CustomerRepository $customerRepository, private PartnerRepository $partnerRepository, private EnterpriseRepository $enterpriseRepository){}
 
-    public function execute(array $dto) : Object
+    public function execute(array $dto) : ?ModelUser
     {
         DB::beginTransaction();
         try {
@@ -59,7 +61,8 @@ class RegisterUser
         }
         catch (\Exception $e) {
             DB::rollBack();
-            return (Object)$e->getMessage();
+            Log::error($e->getMessage());
+            return null;
         }
     }
 }
