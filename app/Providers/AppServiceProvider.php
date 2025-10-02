@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Channels\TwilioChannel;
 use Illuminate\Support\ServiceProvider;
 use Notification;
+use Route;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
         //
         Notification::extend('twilio', function ($app) {
             return new TwilioChannel();
+        });
+
+        Route::bind('phone', function ($value) {
+            return \App\Models\User::where('phone', $value)->firstOrFail();
         });
 
     }
