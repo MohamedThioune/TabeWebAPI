@@ -56,12 +56,12 @@ class AuthAPIController extends Controller
             "purpose" => "login",
             "channel" => "whatsapp"
         ];
-        $this->otp_send($model, $input);
+        $otp_code = $this->otp_send($model, $input);
 
-       return $this->response($user, 'User registered successfully !', 201);
+       return $this->response(["code" => $otp_code, 'user' => $user], 'User registered successfully !', 201);
     }
 
-    public function otp_send(User $user, array $input): void
+    public function otp_send(User $user, array $input): int
     {
         $otp_code = random_int(100000, 999999);
 
@@ -93,14 +93,16 @@ class AuthAPIController extends Controller
         ];
         $instanceOTP = $this->otpRequestRepository->save($dtoOTP);
 
+        return $otp_code;
+
     }
 
     public function otp_request(User $user, OTPAPIRequest $request): JsonResponse
     {
         $input = $request->only('purpose', 'channel', );
         //Call OTP send
-        $this->otp_send($user, $input);
-        return $this->success('OTP send successfully !', 200);
+        $otp_code = $this->otp_send($user, $input);
+        return $this->response($otp_code, 'OTP send successfully !', 200);
     }
 
     public function otp_verify(User $user, OTPAPIRequest $request): JsonResponse
