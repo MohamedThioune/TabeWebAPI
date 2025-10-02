@@ -25,7 +25,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         // Enable hashed storage of client secrets
-        // Passport::hashClientSecrets();
+         Passport::hashClientSecrets();
 
         // Passport::tokensExpireIn(now()->addDays(15));
         // Passport::refreshTokensExpireIn(now()->addDays(30));

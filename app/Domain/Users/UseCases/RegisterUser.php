@@ -15,7 +15,6 @@ use App\Infrastructure\Persistence\PartnerRepository;
 use App\Infrastructure\Persistence\UserRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\User as ModelUser;
 
@@ -48,10 +47,10 @@ class RegisterUser
             //Create the model user
             $modelUser = $this->userRepository->save($user);
             /** Now create the child model between('customer', 'partner', 'enterprise')*/
-            $resourceUser = match ($dto['type']) {
-                Type::Customer->value => new CustomerResource($this->customerRepository->save($user)),
-                Type::Enterprise->value => new EnterpriseResource($this->enterpriseRepository->save($user)),
-                Type::Partner->value => new PartnerResource($this->partnerRepository->save($user)),
+            match ($dto['type']) {
+                Type::Customer->value => $this->customerRepository->save($user),
+                Type::Enterprise->value => $this->enterpriseRepository->save($user),
+                Type::Partner->value => $this->partnerRepository->save($user),
             };
 
             event(new UserRegistered($user));
@@ -61,8 +60,7 @@ class RegisterUser
         }
         catch (\Exception $e) {
             DB::rollBack();
-            Log::error($e->getMessage());
-            return null;
+            return (Object)$e->getMessage();
         }
     }
 }
