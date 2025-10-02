@@ -21,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Domain\Users\DTO\Node;
 use Illuminate\Support\Facades\Hash;
+use phpseclib3\Math\PrimeField\Integer;
 
 class AuthAPIController extends Controller
 {
@@ -50,22 +51,18 @@ class AuthAPIController extends Controller
        }
 
        $user = new UserResource($model);
-        //Create token
-        $token = $model->createToken('authToken')->accessToken;
+        //Request OTP
+        $input = [
+            "purpose" => "login",
+            "channel" => "whatsapp"
+        ];
+        $this->otp_send($model, $input);
 
-        $infos = [
-           'user' => $user,
-           'token' => $token,
-           'token_type' => 'Bearer'
-       ];
-
-       return $this->response($infos, 'User registered successfully !', 201);
+       return $this->response($user, 'User registered successfully !', 201);
     }
 
-    public function otp_request(User $user, OTPAPIRequest $request): JsonResponse
+    public function otp_send(User $user, array $input): void
     {
-        $input = $request->only('purpose', 'channel', );
-
         $otp_code = random_int(100000, 999999);
 
         if($input['channel'] == "sms"):
@@ -91,11 +88,18 @@ class AuthAPIController extends Controller
             'otp_code' => bcrypt($otp_code),
             'purpose' => $input['purpose'],
             'status' => 'pending',
-            'expires_at' => now()->addMinutes(30),
+            'expires_at' => now()->addMinutes(15),
             'created_at' => now(),
         ];
         $instanceOTP = $this->otpRequestRepository->save($dtoOTP);
 
+    }
+
+    public function otp_request(User $user, OTPAPIRequest $request): JsonResponse
+    {
+        $input = $request->only('purpose', 'channel', );
+        //Call OTP send
+        $this->otp_send($user, $input);
         return $this->success('OTP send successfully !', 200);
     }
 
@@ -128,8 +132,14 @@ class AuthAPIController extends Controller
 
         $fields['status'] = "verified";
         $this->otpRequestRepository->update($otp_request, $fields);
-        return $this->response(new UserResource($user), 'OTP verify successfully !', 200);
 
+        $token = $user->createToken('Personal Access Token')->accessToken;
+        $infos = [
+            'user' => new UserResource($user),
+            'token' => $token,
+            'type' => 'Bearer'
+        ];
+        return $this->response($infos, 'OTP verify successfully !', 200);
     }
 
     public function me(Request $request){
