@@ -55,10 +55,10 @@ class User extends Authenticatable
         return $this->whatsApp ? $this->whatsApp : '';
     }
 
-    public function getRouteKeyName()
-    {
-        return 'phone';
-    }
+//    public function getRouteKeyName()
+//    {
+//        return 'phone';
+//    }
 
     public static function ruleCreated(): array
     {

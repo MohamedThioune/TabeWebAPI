@@ -20,10 +20,11 @@ return [
     'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
     'allowed_origins' => [
-        'https://app.example.com',
-        // for dev, you can also add:
+        // for dev, you get it here :
         'http://localhost:3000',
         'http://127.0.0.1:5173',
+        //for pre-prod, you get it here :
+        'https://tabe.thenexcom.com'
     ],
 
     'allowed_origins_patterns' => [],
