@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Domain\GiftCards\UseCases\CardFullyGenerated;
+use App\Domain\Users\DTO\Node;
 use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreateBeneficiaryAPIRequest;
 use App\Http\Requests\API\CreateGiftCardAPIRequest;
@@ -14,10 +15,12 @@ use App\Infrastructure\Persistence\GiftCardRepository;
 use App\Models\GiftCard;
 use App\Models\User;
 use App\Models\Beneficiary;
+use App\Notifications\PushCardNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Number;
 
 /**
  * Class GiftCardController
@@ -135,6 +138,17 @@ class GiftCardAPIController extends AppBaseController
        endif;
 
        $giftCard = GiftCard::findOrFail($event->card->getId());
+
+       $format_beneficiary = $beneficiary->full_name;
+       $format_customer = !empty($user->customer) ? $user->customer[0]->first_name . ' ' . $user->customer[0]->last_name : '';
+       $format_amount = Number::currency($dto['face_amount'], in: 'XOF');
+       if($type == "others"){
+           //Notify via whatsApp
+           $content_variables = json_encode(["1" => $format_beneficiary, "2" => $format_customer, "3" => $format_amount]);
+           $body = "";
+           $node = new Node($body, $content_variables);
+           $user->notify(new PushCardNotification($node, "whatsapp"));
+       }
 
         return $this->sendResponse(new GiftCardResource($giftCard), 'Gift Card saved successfully');
     }
