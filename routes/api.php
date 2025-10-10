@@ -23,6 +23,22 @@ Route::group(['prefix' => 'auth'], function () {
 
 
 Route::group(['middleware' => ['auth:api']], function () {
-      Route::get('/me', [App\Http\Controllers\API\AuthAPIController::class, 'me'])->name('me');
-//    Route::post('/logout', [App\Http\Controllers\API\AuthAPIController::class, 'logout'])->name('auth.logout');
+      Route::get('/me', [App\Http\Controllers\API\AuthAPIController::class, 'me'])->name('auth.me');
+      Route::post('/logout', [App\Http\Controllers\API\AuthAPIController::class, 'logout'])->name('auth.logout');
 });
+
+Route::post('gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store');
+Route::resource('gift-cards', App\Http\Controllers\API\GiftCardAPIController::class)
+    ->except(['create', 'store', 'edit']);
+
+Route::resource('qr-sessions', App\Http\Controllers\API\QRSessionAPIController::class)
+    ->except(['create', 'edit']);
+
+Route::resource('beneficiaries', App\Http\Controllers\API\BeneficiaryAPIController::class)
+    ->except(['create', 'edit']);
+
+Route::resource('designs', App\Http\Controllers\API\DesignAPIController::class)
+    ->except(['create', 'edit']);
+
+Route::resource('card-events', App\Http\Controllers\API\CardEventAPIController::class)
+    ->except(['create', 'edit']);

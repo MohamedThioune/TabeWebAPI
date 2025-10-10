@@ -3,7 +3,6 @@
 namespace App\Domain\Users\UseCases;
 
 use App\Domain\Users\Entities\User;
-use App\Domain\Users\Events\UserRegistered;
 use App\Domain\Users\ValueObjects\Phone;
 use App\Domain\Users\ValueObjects\Type;
 use App\Http\Resources\CustomerResource;
@@ -53,7 +52,6 @@ class RegisterUser
                 Type::Partner->value => $this->partnerRepository->save($user),
             };
 
-            event(new UserRegistered($user));
             DB::commit();
 
             return $modelUser;

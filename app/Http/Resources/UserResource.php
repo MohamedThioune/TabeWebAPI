@@ -3,9 +3,6 @@
 namespace App\Http\Resources;
 
 use App\Domain\Users\ValueObjects\Type;
-use App\Http\Requests\API\CustomerAPIRequest;
-use App\Http\Requests\API\EnterpriseAPIRequest;
-use App\Http\Requests\API\PartnerAPIRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,7 +22,6 @@ class UserResource extends JsonResource
             Type::Enterprise->value => EnterpriseResource::collection($this->whenLoaded('enterprise')),
             Type::Partner->value    => PartnerResource::collection($this->whenLoaded('partner')),
         };
-//        return [$role => $childResource];
         return [
             $role => ($childResource) ? $childResource[0] : null,
             'id' => $this->id,

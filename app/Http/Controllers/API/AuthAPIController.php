@@ -135,6 +135,11 @@ class AuthAPIController extends Controller
         $fields['status'] = "verified";
         $this->otpRequestRepository->update($otp_request, $fields);
 
+        //Phone verified at
+        $user->phone_verified_at = now();
+        $user->save();
+
+        //Create token
         $token = $user->createToken('Personal Access Token')->accessToken;
         $infos = [
             'user' => new UserResource($user),
@@ -144,6 +149,30 @@ class AuthAPIController extends Controller
         return $this->response($infos, 'OTP verify successfully !', 200);
     }
 
+    /**
+     * @OA\Get(
+     *      path="/me",
+     *      summary="Me",
+     *      tags={"Auth"},
+     *      description="Logout",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  ref="#/components/schemas/User"
+     *              ),
+     *          )
+     *      )
+     * )
+     */
     public function me(Request $request){
         $user = $request->user();
 
@@ -152,5 +181,36 @@ class AuthAPIController extends Controller
         }
 
         return $this->response(new UserResource($user), 'User successfully retrived !', 200);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/logout",
+     *      summary="logout",
+     *      tags={"Auth"},
+     *      description="Logout",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        $request->user()->token()->revoke();
+
+        return $this->success('Successfully logged out');
     }
 }
