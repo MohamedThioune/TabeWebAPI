@@ -12,7 +12,7 @@ class Card
     private string $pin_hash;
     private string $pin_mask;
     private int $face_amount;
-    private int $expired_at;
+    private string $expired_at;
     private string $owner_user_id;
     private ?string $beneficiary_id;
     private string $design_id;
