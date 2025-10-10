@@ -10,6 +10,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AppBaseController;
 use App\Http\Resources\QRSessionResource;
+use Illuminate\Support\Facades\Hash;
+use App\Domain\GiftCards\UseCases\CardFullyGenerated;
+use Illuminate\Support\Str;
 
 /**
  * Class QRSessionController
@@ -97,9 +100,24 @@ class QRSessionAPIController extends AppBaseController
      */
     public function store(CreateQRSessionAPIRequest $request): JsonResponse
     {
-        $input = $request->all();
+        $uuid_qr = Str::uuid()->toString();
+        $qr_hashed_url = CardFullyGenerated::qr_url($uuid_qr);
+        $hashed = $qr_hashed_url['hashedUuid'] ?? null;
+        $url = $qr_hashed_url['url'] ?? null;
 
-        $qRSession = $this->qRSessionRepository->create($input);
+        $former_qr = QRSession::where('gift_card_id', $request->gift_card_id)->first();
+        if($former_qr) $former_qr->delete(); //safe delete on the last state of this QR
+
+        $dto = [
+            'id' => $uuid_qr,
+            'status' => "pending",
+            'token' => $hashed,
+            'url' => $url,
+            'expired_at' => now()->addDays(2),
+            'gift_card_id' => $request->gift_card_id
+        ];
+
+        $qRSession = $this->qRSessionRepository->create($dto);
 
         return $this->sendResponse(new QRSessionResource($qRSession), 'QR Session saved successfully');
     }
@@ -257,4 +275,5 @@ class QRSessionAPIController extends AppBaseController
 
         return $this->sendSuccess('QR Session deleted successfully');
     }
+
 }

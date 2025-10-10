@@ -40,7 +40,7 @@ class CardFullyGenerated
                 id : $uuid_qr,
                 token: $hashed,
                 url: $url,
-                expired_at: now()->addDays(3),
+                expired_at: now()->addDays(2),
                 gift_card_id: $card->getId(),
             );
 
