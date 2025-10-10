@@ -25,6 +25,7 @@ class CardFullyGenerated
                 pin_hash: $dto['pin_hash'],
                 face_amount: $dto['face_amount'],
                 pin_mask: $dto['pin_mask'],
+                expired_at: now()->addMonths(3),
                 owner_user_id: $dto['owner_user_id'],
                 beneficiary_id: $dto['beneficiary_id'],
                 design_id: $dto['design_id'],

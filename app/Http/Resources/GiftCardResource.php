@@ -20,6 +20,8 @@ class GiftCardResource extends JsonResource
         $this->load('beneficiary');
         $this->load('design');
 
+        $qrResource = QRSessionResource::collection($this->whenLoaded('qrsessions'));
+
         return [
             'id' => $this->id,
             'belonging_type' => $this->belonging_type,
@@ -27,7 +29,7 @@ class GiftCardResource extends JsonResource
             'pin_mask' => $this->pin_mask,
             'is_active' => $this->is_active,
             'expired_at' => $this->expired_at,
-            'qr' =>  QRSessionResource::collection($this->whenLoaded('qrsessions')),
+            'qr' =>  ($qrResource) ? $qrResource[0] : null,
             'owner' => new UserResource($this->whenLoaded('user')),
             'beneficiary' => new BeneficiaryResource($this->whenLoaded('beneficiary')),
             'design' => new DesignResource($this->whenLoaded('design')),

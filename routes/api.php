@@ -25,9 +25,9 @@ Route::group(['prefix' => 'auth'], function () {
 Route::group(['middleware' => ['auth:api']], function () {
       Route::get('/me', [App\Http\Controllers\API\AuthAPIController::class, 'me'])->name('auth.me');
       Route::post('/logout', [App\Http\Controllers\API\AuthAPIController::class, 'logout'])->name('auth.logout');
+      Route::post('gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store');
 });
 
-Route::post('gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store');
 Route::resource('gift-cards', App\Http\Controllers\API\GiftCardAPIController::class)
     ->except(['create', 'store', 'edit']);
 
