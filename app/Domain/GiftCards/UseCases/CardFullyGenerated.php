@@ -73,7 +73,7 @@ class CardFullyGenerated
         $signature = hash_hmac('sha256', $uuid_qr, config('app.key'));
         $hashedUuid = Hash::make($uuid_qr); //database security
 
-        // URL signée à encoder dans le QR code
+        // Signed URL to be encoded in the QR code
         $url = config('app.frontend_url') . "/scan?uuid={$uuid_qr}&sig={$signature}";
 
         return [
