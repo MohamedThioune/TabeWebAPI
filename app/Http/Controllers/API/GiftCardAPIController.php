@@ -141,7 +141,7 @@ class GiftCardAPIController extends AppBaseController
 
        $format_beneficiary = $beneficiary->full_name;
        $format_customer = !empty($user->customer) ? $user->customer[0]->first_name . ' ' . $user->customer[0]->last_name : '';
-       $format_amount = Number::currency($dto['face_amount'], in: 'XOF');
+       $format_amount = Number::format($dto['face_amount'], locale: 'sv'); //Swedish format (ex: 10 000)
        if($type == "others"){
            //Notify via whatsApp
            $content_variables = json_encode(["1" => $format_beneficiary, "2" => $format_customer, "3" => $format_amount]);
