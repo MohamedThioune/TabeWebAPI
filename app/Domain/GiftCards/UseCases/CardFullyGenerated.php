@@ -60,7 +60,6 @@ class CardFullyGenerated
                errorMessage: null
             );
             event($event);
-//            Log::info($event);
             return $event;
         }
         catch (\Exception $e){

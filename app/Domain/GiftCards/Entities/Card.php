@@ -23,6 +23,7 @@ class Card
      * @param string $pin_hash
      * @param int $face_amount
      * @param string $pin_mask
+     * @param string $expired_at
      * @param string $owner_user_id
      * @param string|null $beneficiary_id
      * @param string $design_id

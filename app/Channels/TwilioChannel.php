@@ -17,8 +17,6 @@ class TwilioChannel
         $to = ($notification->channel == "sms") ? $notifiable->phone : $notifiable->whatsApp;
         $payload = $notification->toTwilio($notifiable);
 
-        Log::info($payload);
-
         $message = $twilio->messages
             ->create($to,
                 $payload
