@@ -13,7 +13,7 @@ class QrSession
 
     /**
      * @param string $id
-     * @param string $token
+     * @param ?string $token
      * @param string $url
      * @param string $expired_at
      * @param string $gift_card_id

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
- use Illuminate\Database\Eloquent\SoftDeletes; use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 /**
  * @OA\Schema(
  *      schema="QRSession",
@@ -55,6 +57,7 @@ class QRSession extends Model
      public $table = 'qr_sessions';
 
     public $fillable = [
+        'status',
         'token',
         'url',
         'expired_at',
@@ -62,15 +65,12 @@ class QRSession extends Model
     ];
 
     protected $casts = [
-        'token' => 'string',
-        'url' => 'string'
+        'url' => 'string',
+        'status' => 'string',
     ];
 
     public static array $rules = [
-        'token' => 'required|string',
-        'expired_at' => 'date',
-        'gift_card_id' => 'string'
-
+        'gift_card_id' => 'required|string|exists:gift_cards,id'
     ];
 
     public function giftcard(){
