@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Domain\GiftCards\Events\CardGenerated;
+use App\Domain\GiftCards\Services\CreateCard;
+use App\Domain\GiftCards\Services\GenerateCardEvents;
+use App\Domain\GiftCards\Services\GenerateQr;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -18,6 +22,11 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        CardGenerated::class => [
+           CreateCard::class,
+           GenerateQr::class,
+           GenerateCardEvents::class
+        ]
     ];
 
     /**

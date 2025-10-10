@@ -8,6 +8,7 @@
         "php": "^8.1",
         "darkaonline/l5-swagger": "^8.6",
         "guzzlehttp/guzzle": "^7.2",
+        "infinitypaul/idempotency-laravel": "^1.0",
         "infyomlabs/adminlte-templates": "^6.0",
         "infyomlabs/laravel-generator": "^6.0",
         "infyomlabs/laravel-ui-adminlte": "^5.2",

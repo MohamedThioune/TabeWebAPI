@@ -89,4 +89,7 @@ class User extends Authenticatable
     public function otp_requests(){
         return $this->hasMany(OtpRequest::class);
     }
+    public function gift_cards(){
+        return $this->hasMany(GiftCard::class);
+    }
 }

@@ -16,9 +16,6 @@ class EnterpriseRepository
             'user_id' => $user->getId(),
         ]);
 
-        //Load relation
-        // $model->load('user');
-
         return $model;
     }
 }

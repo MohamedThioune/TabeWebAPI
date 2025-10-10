@@ -22,8 +22,7 @@ return [
     'allowed_origins' => [
         // for dev, you get it here :
         'http://localhost:3000',
-        'http://127.0.0.1:5173',
-        //for pre-prod, you get it here :
+        // for pre-prod, you get it here :
         'https://tabe.thenexcom.com'
     ],
 
