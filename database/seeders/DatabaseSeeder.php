@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            //RoleSeeder, DesignSeeder
+            //Seeds the roles & designs
             RoleSeeder::class,
             DesignsTableSeeder::class
         ]);
