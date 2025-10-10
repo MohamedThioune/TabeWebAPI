@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('gift_cards', function (Blueprint $table) {
-            $table->enum('belonging_type', ['myself', 'others'])->default('others');
+            $table->enum('belonging_type', ['myself', 'others'])->after('id')->default('others');
         });
     }
 

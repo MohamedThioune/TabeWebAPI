@@ -131,7 +131,7 @@ class GiftCardAPIController extends AppBaseController
        endif;
        if(!empty($event->errorMessage)):
            Log::info('DB Process error :', $event->errorMessage);
-           return $this->sendError("Error on persisting infos on database", 400);
+           return $this->sendError("Error on persisting requests on database", 400);
        endif;
 
        $giftCard = GiftCard::findOrFail($event->card->getId());
