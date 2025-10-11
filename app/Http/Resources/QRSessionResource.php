@@ -15,9 +15,9 @@ class QRSessionResource extends JsonResource
     public function toArray($request)
     {
         return [
-//            'id' => $this->id,
-//            'token' => $this->token,
+            'id' => $this->id,
             'status' => $this->status,
+            'payload' => $this->token,
             'url' => $this->url,
             'expired_at' => $this->expired_at,
 //            'created_at' => $this->created_at,

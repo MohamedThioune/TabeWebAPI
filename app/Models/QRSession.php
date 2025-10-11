@@ -73,6 +73,10 @@ class QRSession extends Model
         'gift_card_id' => 'required|string|exists:gift_cards,id'
     ];
 
+    public static array $rules_verify = [
+        'payload' => 'required|string|exists:qr_sessions,token'
+    ];
+
     public function giftcard(){
         return $this->belongsTo(GiftCard::class);
     }

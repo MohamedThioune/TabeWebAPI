@@ -15,11 +15,11 @@ class CardEventResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+//            'id' => $this->id,
             'type' => $this->type,
             'meta_json' => $this->meta_json,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+//            'updated_at' => $this->updated_at
         ];
     }
 }

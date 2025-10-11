@@ -4,6 +4,7 @@ namespace App\Infrastructure\Persistence;
 
 use App\Models\QRSession;
 use App\Repositories\BaseRepository;
+use Carbon\Carbon;
 
 class QRSessionRepository extends BaseRepository
 {
@@ -19,5 +20,17 @@ class QRSessionRepository extends BaseRepository
     public function model(): string
     {
         return QRSession::class;
+    }
+
+    /**
+     * (Override) Find model record for given id
+     */
+    public function find(string $id, array $columns = ['*'])
+    {
+        $query = $this->model->newQuery();
+        $query->where('status', 'pending')
+              ->where('expired_at', '>', Carbon::now());
+
+        return $query->find($id, $columns);
     }
 }
