@@ -102,7 +102,7 @@ class QRSessionAPIController extends AppBaseController
     {
         $uuid_qr = Str::uuid()->toString();
         $qr_hashed_url = CardFullyGenerated::qr_url($uuid_qr);
-        $hashed = $qr_hashed_url['hashedUuid'] ?? null;
+        $payload = $qr_hashed_url['payload'] ?? null;
         $url = $qr_hashed_url['url'] ?? null;
 
         $former_qr = QRSession::where('gift_card_id', $request->gift_card_id)->first();
@@ -111,7 +111,7 @@ class QRSessionAPIController extends AppBaseController
         $dto = [
             'id' => $uuid_qr,
             'status' => "pending",
-            'token' => $hashed,
+            'token' => $payload,
             'url' => $url,
             'expired_at' => now()->addDays(2),
             'gift_card_id' => $request->gift_card_id
@@ -275,5 +275,53 @@ class QRSessionAPIController extends AppBaseController
 
         return $this->sendSuccess('QR Session deleted successfully');
     }
+
+    public function check($payload): bool
+    {
+        $decoded = base64_decode($payload);
+        list($uuid, $signature) = explode('.', $decoded, 2);
+        if (! hash_equals(hash_hmac('sha256', $uuid, config('app.key')), $signature)) {
+            return 0;
+        }
+
+        return 1;
+    }
+
+    public function verify($id, UpdateQRSessionAPIRequest $request): JsonResponse
+    {
+        /** @var QRSession $qRSession */
+        $qrSession = $this->qRSessionRepository->find($id);
+
+        if (empty($qrSession)) {
+            return $this->sendError('QR Session not found or invalid, Refresh the QR !');
+        }
+
+        //Logging the use
+        $qrSession->status = 'used';
+        $qrSession->updated_at = now();
+
+        //Checkin payload url
+        $check = $this->check($request->payload);
+        if (!$check) {
+            $qrSession->save();
+            $qrSession->delete();
+            return $this->sendError('Payload does not match any QR Session !');
+        }
+
+
+        /*
+         * Dispatch the transaction
+        */
+        // Instructions code here !
+
+
+        $qrSession->save();
+        $qrSession->delete();
+
+        return $this->sendResponse(new QRSessionResource($qrSession), 'QR Session verified successfully');
+
+    }
+
+
 
 }

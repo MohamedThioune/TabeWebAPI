@@ -34,11 +34,11 @@ class CardFullyGenerated
             //New QR session
             $uuid_qr = Str::uuid()->toString();
             $qr_hashed_url = self::qr_url($uuid_qr);
-            $hashed = $qr_hashed_url['hashedUuid'] ?? null;
+            $payload = $qr_hashed_url['payload'] ?? null;
             $url = $qr_hashed_url['url'] ?? null;
             $qr_session = new QrSession(
                 id : $uuid_qr,
-                token: $hashed,
+                token: $payload,
                 url: $url,
                 expired_at: now()->addDays(2),
                 gift_card_id: $card->getId(),
@@ -70,13 +70,14 @@ class CardFullyGenerated
     public static function qr_url(string $uuid_qr) : array
     {
         $signature = hash_hmac('sha256', $uuid_qr, config('app.key'));
-        $hashedUuid = Hash::make($uuid_qr); //database security
+        $combined = $uuid_qr . '.' . $signature;
+        $payload = base64url_encode($combined);
 
         // Signed URL to be encoded in the QR code
-        $url = config('app.frontend_url') . "/scan?uuid={$uuid_qr}&sig={$signature}";
+        $url = config('app.frontend_url') . "/scan/{$payload}";
 
         return [
-            'hashedUuid' => $hashedUuid,
+            'payload' => $payload,
             "url" => $url,
         ];
     }

@@ -28,7 +28,8 @@ Route::group(['middleware' => ['auth:api']], function () {
       Route::post('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store');
 
       Route::resource('qr-sessions', App\Http\Controllers\API\QRSessionAPIController::class)
-        ->except(['create', 'edit']);
+        ->except(['create', 'update', 'edit']);
+      Route::patch('qr-sessions/{qrSession}', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
 
 });
 

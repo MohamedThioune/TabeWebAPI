@@ -114,7 +114,7 @@ abstract class BaseRepository
      *
      * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
      */
-    public function find(int $id, array $columns = ['*'])
+    public function find(string $id, array $columns = ['*'])
     {
         $query = $this->model->newQuery();
 
@@ -126,7 +126,7 @@ abstract class BaseRepository
      *
      * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model
      */
-    public function update(array $input, int $id)
+    public function update(array $input, string $id)
     {
         $query = $this->model->newQuery();
 
@@ -144,7 +144,7 @@ abstract class BaseRepository
      *
      * @return bool|mixed|null
      */
-    public function delete(int $id)
+    public function delete(string $id)
     {
         $query = $this->model->newQuery();
 

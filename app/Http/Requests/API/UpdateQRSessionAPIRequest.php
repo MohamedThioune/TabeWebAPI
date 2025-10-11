@@ -24,8 +24,10 @@ class UpdateQRSessionAPIRequest extends APIRequest
      */
     public function rules()
     {
-        $rules = QRSession::$rules;
-        
-        return $rules;
+        if($this->isMethod('PATCH')) {
+            return QrSession::$rules_verify;
+        }
+
+        return QrSession::$rules;
     }
 }
