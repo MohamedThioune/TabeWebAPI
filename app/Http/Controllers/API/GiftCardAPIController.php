@@ -7,8 +7,8 @@ use App\Domain\Users\DTO\Node;
 use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreateBeneficiaryAPIRequest;
 use App\Http\Requests\API\CreateGiftCardAPIRequest;
-use App\Http\Requests\API\CustomerAPIRequest;
 use App\Http\Requests\API\UpdateGiftCardAPIRequest;
+use App\Http\Requests\API\GetGiftCardsAPIRequest;
 use App\Http\Resources\GiftCardResource;
 use App\Infrastructure\Persistence\BeneficiaryRepository;
 use App\Infrastructure\Persistence\GiftCardRepository;
@@ -39,6 +39,61 @@ class GiftCardAPIController extends AppBaseController
 
     /**
      * @OA\Get(
+     *      path="/gift-cards/users/{user_id}",
+     *      summary="getGiftCardListPerUser",
+     *      tags={"GiftCard"},
+     *      description="Get all GiftCards per user",
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/GiftCard")
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     */
+    public function index(User $user, GetGiftCardsAPIRequest $request): JsonResponse
+    {
+        $search = $request->except(['skip', 'limit']);
+        $search['owner_user_id'] = $user->id;
+        $giftCards = $this->giftCardRepository->all(
+            $search,
+            $request->get('skip'),
+            $request->get('limit')
+        );
+
+        $infos = [
+            'gift_cards' => GiftCardResource::collection($giftCards),
+            'count' => !empty($giftCards) ? count($giftCards) : 0,
+        ];
+
+        return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
+    }
+
+//    public function stats(CreateGiftCardAPIRequest $request): JsonResponse
+//    {
+//
+//        $infos = [
+//            'global_amount' => null,
+//        ];
+//        return $this->sendResponse($infos, 'Gift Cards Stats retrieved successfully');
+//    }
+
+    /**
+     * @OA\Get(
      *      path="/gift-cards",
      *      summary="getGiftCardList",
      *      tags={"GiftCard"},
@@ -65,7 +120,7 @@ class GiftCardAPIController extends AppBaseController
      *      )
      * )
      */
-    public function index(Request $request): JsonResponse
+    public function index_all(GetGiftCardsAPIRequest $request): JsonResponse
     {
         $giftCards = $this->giftCardRepository->all(
             $request->except(['skip', 'limit']),
@@ -73,7 +128,12 @@ class GiftCardAPIController extends AppBaseController
             $request->get('limit')
         );
 
-        return $this->sendResponse(GiftCardResource::collection($giftCards), 'Gift Cards retrieved successfully');
+        $infos = [
+            'gift_cards' => GiftCardResource::collection($giftCards),
+            'count' => !empty($giftCards) ? count($giftCards) : 0,
+        ];
+
+        return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
     }
 
     /**
