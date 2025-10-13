@@ -84,7 +84,8 @@ class GiftCard extends Model
         'is_active' => 'boolean',
         'belonging_type' => 'string|in:myself,others',
         'skip' => 'integer|gt:0',
-        'limit' => 'integer|gt:0'
+        'limit' => 'integer|gt:0',
+        'with_summary' => 'boolean',
     ];
 
 

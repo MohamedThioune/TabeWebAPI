@@ -77,8 +77,12 @@ class GiftCardAPIController extends AppBaseController
 
         $infos = [
             'gift_cards' => GiftCardResource::collection($giftCards),
-            'count' => !empty($giftCards) ? count($giftCards) : 0,
+            'count' => !empty($giftCards) ? count($giftCards) : 0
         ];
+
+        if($request->get('with_summary')){
+            $infos['total_amount_user'] = $this->giftCardRepository->all(['owner_user_id', $user->id])->sum('face_amount');
+        }
 
         return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
     }
