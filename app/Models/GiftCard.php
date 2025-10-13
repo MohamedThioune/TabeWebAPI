@@ -48,6 +48,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class GiftCard extends Model
 {
     use HasUuids, SoftDeletes, HasFactory;
+
     public $table = 'gift_cards';
 
     public $fillable = [
@@ -78,6 +79,14 @@ class GiftCard extends Model
         'is_active' => 'boolean',
 //        'design_id' => 'required|integer|exists:designs,id'
     ];
+
+    public static array $rules_listed = [
+        'is_active' => 'boolean',
+        'belonging_type' => 'string|in:myself,others',
+        'skip' => 'integer|gt:0',
+        'limit' => 'integer|gt:0'
+    ];
+
 
     public function user(){
         return $this->belongsTo(User::class, 'owner_user_id');
