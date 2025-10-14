@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure\Persistence;
 
-use App\Models\QRSession;
+use App\Models\QrSession;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
 
@@ -19,7 +19,7 @@ class QRSessionRepository extends BaseRepository
 
     public function model(): string
     {
-        return QRSession::class;
+        return QrSession::class;
     }
 
     /**

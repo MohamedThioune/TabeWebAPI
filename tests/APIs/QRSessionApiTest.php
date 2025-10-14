@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 use Tests\ApiTestTrait;
-use App\Models\QRSession;
+use App\Models\QrSession;
 
 class QRSessionApiTest extends TestCase
 {
@@ -17,7 +17,7 @@ class QRSessionApiTest extends TestCase
      */
     public function test_create_q_r_session()
     {
-        $qRSession = QRSession::factory()->make()->toArray();
+        $qRSession = QrSession::factory()->make()->toArray();
 
         $this->response = $this->json(
             'POST',
@@ -32,7 +32,7 @@ class QRSessionApiTest extends TestCase
      */
     public function test_read_q_r_session()
     {
-        $qRSession = QRSession::factory()->create();
+        $qRSession = QrSession::factory()->create();
 
         $this->response = $this->json(
             'GET',
@@ -47,16 +47,16 @@ class QRSessionApiTest extends TestCase
      */
     public function test_update_q_r_session()
     {
-        $qRSession = QRSession::factory()->create();
-        $editedQRSession = QRSession::factory()->make()->toArray();
+        $qRSession = QrSession::factory()->create();
+        $editedQrSession = QrSession::factory()->make()->toArray();
 
         $this->response = $this->json(
             'PUT',
             '/api/q-r-sessions/'.$qRSession->id,
-            $editedQRSession
+            $editedQrSession
         );
 
-        $this->assertApiResponse($editedQRSession);
+        $this->assertApiResponse($editedQrSession);
     }
 
     /**
@@ -64,7 +64,7 @@ class QRSessionApiTest extends TestCase
      */
     public function test_delete_q_r_session()
     {
-        $qRSession = QRSession::factory()->create();
+        $qRSession = QrSession::factory()->create();
 
         $this->response = $this->json(
             'DELETE',

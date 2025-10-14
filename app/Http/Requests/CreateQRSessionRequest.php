@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\QRSession;
+use App\Models\QrSession;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateQRSessionRequest extends FormRequest
@@ -24,6 +24,6 @@ class CreateQRSessionRequest extends FormRequest
      */
     public function rules()
     {
-        return QRSession::$rules;
+        return QrSession::$rules;
     }
 }
