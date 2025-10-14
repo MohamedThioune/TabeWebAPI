@@ -161,7 +161,7 @@ return [
     'validation' => [
         // The pattern to validate idempotency keys against
         // Default is a UUID pattern
-        'pattern' => env('IDEMPOTENCY_KEY_PATTERN', '/^[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}$/i'),
+        'pattern' => env('IDEMPOTENCY_KEY_PATTERN', '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i'),
 
         // Maximum length for idempotency keys
         'max_length' => env('IDEMPOTENCY_KEY_MAX_LENGTH', 255),

@@ -29,7 +29,10 @@ Route::group(['middleware' => ['auth:api']], function () {
 
       //Gift cards resource
       Route::post('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store');
+      Route::post('/gift-cards/', [App\Http\Controllers\API\GiftCardAPIController::class, 'storeAuth'])->middleware('idempotency')->name('gift-cards.store.me');
       Route::get('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'index'])->name('gift-cards.index');
+      Route::get('/gift-cards/', [App\Http\Controllers\API\GiftCardAPIController::class, 'indexAuth'])->name('gift-cards.index.me');
+
       Route::resource('gift-cards', App\Http\Controllers\API\GiftCardAPIController::class)
         ->except(['create', 'store', 'index', 'edit']);
 
