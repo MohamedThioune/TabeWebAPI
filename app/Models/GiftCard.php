@@ -77,7 +77,7 @@ class GiftCard extends Model
         'belonging_type' => 'required|string|in:myself,others',
         'face_amount' => 'required|integer|between:10000,150000',
         'is_active' => 'boolean',
-//        'design_id' => 'required|integer|exists:designs,id'
+        'design_id' => 'required|integer|exists:designs,id'
     ];
 
     public static array $rules_listed = [

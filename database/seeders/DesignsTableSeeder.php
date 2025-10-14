@@ -15,9 +15,9 @@ class DesignsTableSeeder extends Seeder
      */
     public function run()
     {
-        Design::firstOrCreate(['name' => 'Standard']);
+        Design::firstOrCreate(['name' => 'Classique']);
+        Design::firstOrCreate(['name' => 'Moderne']);
         Design::firstOrCreate(['name' => 'Elegant']);
         Design::firstOrCreate(['name' => 'Premium']);
-        Design::firstOrCreate(['name' => 'Elite']);
     }
 }
