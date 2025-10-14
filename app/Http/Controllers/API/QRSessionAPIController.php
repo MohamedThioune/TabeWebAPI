@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Requests\API\CreateQRSessionAPIRequest;
 use App\Http\Requests\API\UpdateQRSessionAPIRequest;
-use App\Models\QRSession;
+use App\Models\QrSession;
 use App\Infrastructure\Persistence\QRSessionRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -160,7 +160,7 @@ class QRSessionAPIController extends AppBaseController
      */
     public function show($id): JsonResponse
     {
-        /** @var QRSession $qRSession */
+        /** @var QrSession $qRSession */
         $qRSession = $this->qRSessionRepository->find($id);
 
         if (empty($qRSession)) {
@@ -214,7 +214,7 @@ class QRSessionAPIController extends AppBaseController
     {
         $input = $request->all();
 
-        /** @var QRSession $qRSession */
+        /** @var QrSession $qRSession */
         $qRSession = $this->qRSessionRepository->find($id);
 
         if (empty($qRSession)) {
@@ -264,7 +264,7 @@ class QRSessionAPIController extends AppBaseController
      */
     public function destroy($id): JsonResponse
     {
-        /** @var QRSession $qRSession */
+        /** @var QrSession $qRSession */
         $qRSession = $this->qRSessionRepository->find($id);
 
         if (empty($qRSession)) {
@@ -289,7 +289,7 @@ class QRSessionAPIController extends AppBaseController
 
     public function verify($id, UpdateQRSessionAPIRequest $request): JsonResponse
     {
-        /** @var QRSession $qRSession */
+        /** @var QrSession $qRSession */
         $qrSession = $this->qRSessionRepository->find($id);
 
         if (empty($qrSession)) {

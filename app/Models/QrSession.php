@@ -51,7 +51,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *      )
  * )
  */
-class QRSession extends Model
+class QrSession extends Model
 {
      use HasUuids, SoftDeletes, HasFactory;
      public $table = 'qr_sessions';

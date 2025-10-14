@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\API;
 
-use App\Models\QRSession;
+use App\Models\QrSession;
 use InfyOm\Generator\Request\APIRequest;
 
 class UpdateQRSessionAPIRequest extends APIRequest

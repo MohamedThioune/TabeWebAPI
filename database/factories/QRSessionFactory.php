@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\QRSession;
+use App\Models\QrSession;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 
@@ -13,7 +13,7 @@ class QRSessionFactory extends Factory
      *
      * @var string
      */
-    protected $model = QRSession::class;
+    protected $model = QrSession::class;
 
     /**
      * Define the model's default state.

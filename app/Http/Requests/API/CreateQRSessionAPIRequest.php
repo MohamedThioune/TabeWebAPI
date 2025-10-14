@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\API;
 
-use App\Models\QRSession;
+use App\Models\QrSession;
 use InfyOm\Generator\Request\APIRequest;
 
 class CreateQRSessionAPIRequest extends APIRequest
@@ -24,6 +24,6 @@ class CreateQRSessionAPIRequest extends APIRequest
      */
     public function rules()
     {
-        return QRSession::$rules;
+        return QrSession::$rules;
     }
 }
