@@ -258,7 +258,7 @@ class GiftCardAPIController extends AppBaseController
             'pin_mask' => substr($request->pin, 0, 2),
             'owner_user_id' => $user->id,
             'beneficiary_id' => $beneficiary instanceof Beneficiary ? $beneficiary->id : null,
-            'design_id' => 1
+            'design_id' => $request->design_id
         ];
 
         //Make all the process here
