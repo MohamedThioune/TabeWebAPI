@@ -25,12 +25,12 @@ class UserResource extends JsonResource
         };
         $childResource = ($childResources) ? $childResources[0] : null;
         if($role == Type::Customer->value):
-            $sigla = ($childResource->first_name) ? $childResource->first_name[0] . ' ' : null;
-            $sigla .= ($childResource->last_name) ? $childResource->last_name[0] : null;
+            $sigla = ($childResource->first_name) ? $childResource->first_name[0] : '';
+            $sigla .= ($childResource->last_name) ?  ' ' . $childResource->last_name[0] : '';
         else:
-            list($first, $last) = explode('.', $childResource->name, 2);
-            $sigla = isset($first) ? $first[0] . ' ' : null;
-            $sigla .= isset($last) ? $last[0] : null;
+            $full = explode(' ', $childResource->name, 2);
+            $sigla = isset($full[0]) ? substr($full[0], 0, 1) : '';
+            $sigla .= isset($full[1]) ?  ' ' . substr($full[1], 0, 1) : '';
         endif;
 
         return [

@@ -16,13 +16,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\User as ModelUser;
+use function Laravel\Prompts\error;
 
 class RegisterUser
 {
 
     public function __construct(private UserRepository $userRepository, private CustomerRepository $customerRepository, private PartnerRepository $partnerRepository, private EnterpriseRepository $enterpriseRepository){}
 
-    public function execute(array $dto) : ?ModelUser
+    public function execute(array $dto)
     {
         DB::beginTransaction();
         try {
@@ -58,6 +59,7 @@ class RegisterUser
         }
         catch (\Exception $e) {
             DB::rollBack();
+            Log:error($e->getMessage());
             return (Object)$e->getMessage();
         }
     }
