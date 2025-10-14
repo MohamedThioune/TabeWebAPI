@@ -49,7 +49,7 @@ class AuthAPIController extends Controller
 //       die();
 
        if(!$model instanceof User){
-          return $this->error("something went wrong, check your data(ex : whatsapp and phone must be unique) !", 403);
+          return $this->error("something went wrong, check your data(ex : whatsapp and phone must be unique and in format) !", 403);
        }
 
        $user = new UserResource($model);
