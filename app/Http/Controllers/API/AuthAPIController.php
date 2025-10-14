@@ -45,9 +45,11 @@ class AuthAPIController extends Controller
 
        $dto = $request->only("type", "first_name", "last_name", "gender", "email", "phone", "whatsApp", "password", "name");
        $model = $this->registerUser->execute($dto);
+//       var_dump($model);
+//       die();
 
-       if(!$model){
-          return $this->error("something went wrong !", 403);
+       if(!$model instanceof User){
+          return $this->error("something went wrong, check your data(ex : whatsapp and phone must be unique) !", 403);
        }
 
        $user = new UserResource($model);
