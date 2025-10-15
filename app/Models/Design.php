@@ -34,6 +34,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *          format="date-time"
  *      )
  * )
+ * @method static firstOrCreate(string[] $array)
  */
 class Design extends Model
 {

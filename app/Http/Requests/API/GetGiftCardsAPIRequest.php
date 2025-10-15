@@ -20,7 +20,7 @@ class GetGiftCardsAPIRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        // Keep only the fields you want
+        // Keep only the fields wanted
         $this->replace($this->only(['is_active', 'belonging_type', 'skip', 'limit', 'with_summary']));
     }
 

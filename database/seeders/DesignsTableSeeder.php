@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Domain\Users\ValueObjects\Type;
 use App\Models\Design;
 use Illuminate\Database\Seeder;
 
@@ -13,9 +12,9 @@ class DesignsTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run() : void
     {
-        Design::firstOrCreate(['name' => 'Classique']);
+        Design::firstOrCreate(['name' => 'Classic']);
         Design::firstOrCreate(['name' => 'Moderne']);
         Design::firstOrCreate(['name' => 'Elegant']);
         Design::firstOrCreate(['name' => 'Premium']);
