@@ -45,8 +45,6 @@ class AuthAPIController extends Controller
 
        $dto = $request->only("type", "first_name", "last_name", "gender", "email", "phone", "whatsApp", "password", "name");
        $model = $this->registerUser->execute($dto);
-//       var_dump($model);
-//       die();
 
        if(!$model instanceof User){
           return $this->error("something went wrong, check your data(ex : whatsapp and phone must be unique and in format) !", 403);
@@ -156,7 +154,7 @@ class AuthAPIController extends Controller
      *      path="/me",
      *      summary="Me",
      *      tags={"Auth"},
-     *      description="Logout",
+     *      description="Auth user",
      *      security={{"passport":{}}},
      *      @OA\Response(
      *          response=200,
@@ -213,6 +211,6 @@ class AuthAPIController extends Controller
     {
         $request->user()->token()->revoke();
 
-        return $this->success('Successfully logged out');
+        return $this->success('Successfully logged out', 200);
     }
 }

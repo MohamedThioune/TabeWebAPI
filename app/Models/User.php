@@ -27,6 +27,7 @@ class User extends Authenticatable
         'phone',
         'whatsApp',
         'password',
+        'phone_verified_at',
         'is_active',
     ];
 
@@ -72,9 +73,28 @@ class User extends Authenticatable
         ];
     }
 
+    public static function ruleListed(): array
+    {
+        return [
+            'type' => ["string", new Enum(Type::class)],
+            'is_phone_verified' => ["boolean"],
+            'is_active' => ["boolean"],
+            'country' => ["string", "max:255"],
+            'city' => ["string", "max:255"],
+            'address' => ["string", "max:255"],
+        ];
+    }
+
     public function findForPassport(string $username): User
     {
-        return $this->where('phone', $username)->first();
+        $user = $this->where('phone', $username)->first();
+
+        if (! $user)
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                "phone" => "Phone number not found on records",
+            ]);
+
+        return $user;
     }
 
     public function customer(){

@@ -37,6 +37,25 @@ class GiftCardAPIController extends AppBaseController
         $this->cardFullyGenerated = $cardFullyGenerated;
     }
 
+    public function detached_index(User $user, array $search, Request $request) : array
+    {
+        $giftCards = $this->giftCardRepository->all(
+            $search,
+            $request->get('skip'),
+            $request->get('limit')
+        );
+
+        $infos = [
+            'gift_cards' => GiftCardResource::collection($giftCards),
+            'count' => !empty($giftCards) ? count($giftCards) : 0
+        ];
+
+        if($request->get('with_summary')){
+            $infos['total_amount_user'] = $this->giftCardRepository->all(['owner_user_id', $user->id])->sum('face_amount');
+        }
+
+        return $infos;
+    }
     /**
      * @OA\Get(
      *      path="/gift-cards/users/{user_id}",
@@ -69,56 +88,22 @@ class GiftCardAPIController extends AppBaseController
     {
         $search = $request->except(['skip', 'limit']);
         $search['owner_user_id'] = $user->id;
-        $giftCards = $this->giftCardRepository->all(
-            $search,
-            $request->get('skip'),
-            $request->get('limit')
-        );
 
-        $infos = [
-            'gift_cards' => GiftCardResource::collection($giftCards),
-            'count' => !empty($giftCards) ? count($giftCards) : 0
-        ];
-
-        if($request->get('with_summary')){
-            $infos['total_amount_user'] = $this->giftCardRepository->all(['owner_user_id', $user->id])->sum('face_amount');
-        }
+        $infos = $this->detached_index($user, $search, $request);
 
         return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
     }
-
     public function indexAuth(GetGiftCardsAPIRequest $request): JsonResponse
     {
         $user = $request->user();
         //Test user instance of model user
         $search = $request->except(['skip', 'limit']);
         $search['owner_user_id'] = $user->id;
-        $giftCards = $this->giftCardRepository->all(
-            $search,
-            $request->get('skip'),
-            $request->get('limit')
-        );
 
-        $infos = [
-            'gift_cards' => GiftCardResource::collection($giftCards),
-            'count' => !empty($giftCards) ? count($giftCards) : 0
-        ];
-
-        if($request->get('with_summary')){
-            $infos['total_amount_user'] = $this->giftCardRepository->all(['owner_user_id', $user->id])->sum('face_amount');
-        }
+        $infos = $this->detached_index($user, $search, $request);
 
         return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
     }
-
-//    public function stats(CreateGiftCardAPIRequest $request): JsonResponse
-//    {
-//
-//        $infos = [
-//            'global_amount' => null,
-//        ];
-//        return $this->sendResponse($infos, 'Gift Cards Stats retrieved successfully');
-//    }
 
     /**
      * @OA\Get(
@@ -164,6 +149,47 @@ class GiftCardAPIController extends AppBaseController
         return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
     }
 
+    public function detached_store(string $type, User $user, Request $request, ?Beneficiary $beneficiary): mixed
+    {
+        $dto = [
+            'belonging_type' => $type,
+            'pin_hash' => hash::make($request->pin),
+            'face_amount' => $request->face_amount,
+            'pin_mask' => substr($request->pin, 0, 2),
+            'owner_user_id' => $user->id,
+            'beneficiary_id' => $beneficiary instanceof Beneficiary ? $beneficiary->id : 0,
+            'design_id' => 1
+        ];
+
+        //Make all the process here
+        $event = $this->cardFullyGenerated->execute($dto);
+
+        //Processing error
+        if(!$event):
+            return ["error" => "Something went wrong on the process !"];
+        endif;
+
+        if(!empty($event->errorMessage)):
+            Log::info('DB Process error :', $event->errorMessage);
+            return ["error" => "Error on persisting requests on database"];
+        endif;
+
+        $giftCard = GiftCard::findOrFail($event->card->getId());
+
+        //Notify via whatsApp
+        if($type == "others"){
+            $format_beneficiary = $beneficiary->full_name;
+            $format_customer = !empty($user->customer) ? $user->customer[0]->first_name . ' ' . $user->customer[0]->last_name : '';
+            $format_amount = Number::format($dto['face_amount'], locale: 'sv'); //Swedish format (ex: 10 000)
+            $content_variables = json_encode(["1" => $format_beneficiary, "2" => $format_customer, "3" => $format_amount]);
+            $body = "";
+            $node = new Node($body, $content_variables);
+            $user->notify(new PushCardNotification($node, "whatsapp"));
+        }
+
+        return $giftCard;
+    }
+
     /**
      * @OA\Post(
      *      path="/gift-cards",
@@ -198,45 +224,17 @@ class GiftCardAPIController extends AppBaseController
     public function store(User $user, CreateGiftCardAPIRequest $request): JsonResponse
     {
         $type = $request->get("belonging_type");
+        $beneficiary = null;
         if($type == 'others'):
             $dto_beneficiary = app(CreateBeneficiaryAPIRequest::class)->validated();
             $beneficiary = ( Beneficiary::where('phone', $dto_beneficiary['phone'])->first()) ?: $this->beneficiaryRepository->create($dto_beneficiary);
         endif;
 
-        $dto = [
-            'belonging_type' => $type,
-            'pin_hash' => hash::make($request->pin),
-            'face_amount' => $request->face_amount,
-            'pin_mask' => substr($request->pin, 0, 2),
-            'owner_user_id' => $user->id,
-            'beneficiary_id' => $beneficiary instanceof Beneficiary ? $beneficiary->id : 0,
-            'design_id' => 1
-        ];
+        $giftCard = $this->detached_store($type, $user, $request, $beneficiary);
 
-        //Make all the process here
-       $event = $this->cardFullyGenerated->execute($dto);
-
-       //Processing error
-       if(!$event):
-           return $this->sendError("Something went wrong on the process !", 400);
-       endif;
-       if(!empty($event->errorMessage)):
-           Log::info('DB Process error :', $event->errorMessage);
-           return $this->sendError("Error on persisting requests on database", 400);
-       endif;
-
-       $giftCard = GiftCard::findOrFail($event->card->getId());
-
-       $format_beneficiary = $beneficiary->full_name;
-       $format_customer = !empty($user->customer) ? $user->customer[0]->first_name . ' ' . $user->customer[0]->last_name : '';
-       $format_amount = Number::format($dto['face_amount'], locale: 'sv'); //Swedish format (ex: 10 000)
-       if($type == "others"){
-           //Notify via whatsApp
-           $content_variables = json_encode(["1" => $format_beneficiary, "2" => $format_customer, "3" => $format_amount]);
-           $body = "";
-           $node = new Node($body, $content_variables);
-           $user->notify(new PushCardNotification($node, "whatsapp"));
-       }
+        //Catch errors
+        if(isset($giftCard['error']))
+            return $this->sendError($giftCard['error'], 401);
 
         return $this->sendResponse(new GiftCardResource($giftCard), 'Gift Card saved successfully');
     }
@@ -251,40 +249,11 @@ class GiftCardAPIController extends AppBaseController
             $beneficiary = ( Beneficiary::where('phone', $dto_beneficiary['phone'])->first()) ?: $this->beneficiaryRepository->create($dto_beneficiary);
         endif;
 
-        $dto = [
-            'belonging_type' => $type,
-            'pin_hash' => hash::make($request->pin),
-            'face_amount' => $request->face_amount,
-            'pin_mask' => substr($request->pin, 0, 2),
-            'owner_user_id' => $user->id,
-            'beneficiary_id' => $beneficiary instanceof Beneficiary ? $beneficiary->id : null,
-            'design_id' => $request->design_id
-        ];
+        $giftCard = $this->detached_store($type, $user, $request, $beneficiary);
 
-        //Make all the process here
-        $event = $this->cardFullyGenerated->execute($dto);
-
-        //Processing error
-        if(!$event):
-            return $this->sendError("Something went wrong on the process !", 400);
-        endif;
-        if(!empty($event->errorMessage)):
-            Log::info('DB Process error :', $event->errorMessage);
-            return $this->sendError("Error on persisting requests on database", 400);
-        endif;
-
-        $giftCard = GiftCard::findOrFail($event->card->getId());
-
-        if($type == "others"){
-            $format_beneficiary = $beneficiary->full_name;
-            $format_customer = !empty($user->customer) ? $user->customer[0]->first_name . ' ' . $user->customer[0]->last_name : '';
-            $format_amount = Number::format($dto['face_amount'], locale: 'sv'); //Swedish format (ex: 10 000)
-            //Notify via whatsApp
-            $content_variables = json_encode(["1" => $format_beneficiary, "2" => $format_customer, "3" => $format_amount]);
-            $body = "";
-            $node = new Node($body, $content_variables);
-            $user->notify(new PushCardNotification($node, "whatsapp"));
-        }
+        //Catch errors
+        if(isset($giftCard['error']))
+            return $this->sendError($giftCard['error'], 401);
 
         return $this->sendResponse(new GiftCardResource($giftCard), 'Gift Card saved successfully');
     }

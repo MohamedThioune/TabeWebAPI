@@ -164,7 +164,7 @@ class QRSessionAPIController extends AppBaseController
         $qRSession = $this->qRSessionRepository->find($id);
 
         if (empty($qRSession)) {
-            return $this->sendError('QR Session not found');
+            return $this->sendError('QR Session not found, invalid or expired');
         }
 
         return $this->sendResponse(new QRSessionResource($qRSession), 'QR Session retrieved successfully');
@@ -218,7 +218,7 @@ class QRSessionAPIController extends AppBaseController
         $qRSession = $this->qRSessionRepository->find($id);
 
         if (empty($qRSession)) {
-            return $this->sendError('QR Session not found');
+            return $this->sendError('QR Session not found, invalid or expired');
         }
 
         $qRSession = $this->qRSessionRepository->update($input, $id);
@@ -268,7 +268,7 @@ class QRSessionAPIController extends AppBaseController
         $qRSession = $this->qRSessionRepository->find($id);
 
         if (empty($qRSession)) {
-            return $this->sendError('QR Session not found');
+            return $this->sendError('QR Session not found, invalid or expired');
         }
 
         $qRSession->delete();
