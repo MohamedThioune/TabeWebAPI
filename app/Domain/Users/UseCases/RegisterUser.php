@@ -46,6 +46,8 @@ class RegisterUser
 
             //Create the model user
             $modelUser = $this->userRepository->save($user);
+            //Assign the role of the user
+            $modelUser->assignRole($dto['type']);
             /** Now create the child model between('customer', 'partner', 'enterprise')*/
             match ($dto['type']) {
                 Type::Customer->value => $this->customerRepository->save($user),
@@ -54,7 +56,6 @@ class RegisterUser
             };
 
             DB::commit();
-
             return $modelUser;
         }
         catch (\Exception $e) {

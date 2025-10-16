@@ -2,14 +2,18 @@
 
 namespace Database\Factories;
 
+use App\Models\Partner;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
-class UserFactory extends Factory
+class PartnerFactory extends Factory
 {
+    protected $model = Partner::class;
+
     /**
      * Define the model's default state.
      *
@@ -17,25 +21,24 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $user = \App\Models\User::factory()->create();
+        $user->assignRole('partner');
         return [
-            'id' => fake()->uuid(),
-            'phone' => fake()->phoneNumber(),
-            'whatsapp' =>'whatsapp:' . fake()->phoneNumber(),
-            'email' => fake()->unique()->safeEmail(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'remember_token' => Str::random(10),
+            'name' => fake()->company(),
+            'legal_name' => fake()->company(),
+            'user_id' => $user->id,
         ];
     }
 
     /**
-     * Indicate that the model's phone number should be unverified.
+     * Indicate that the model's email address should be unverified.
      *
      * @return $this
      */
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
-            'phone_verified_at' => null,
+            'email_verified_at' => null,
         ]);
     }
 }

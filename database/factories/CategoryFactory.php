@@ -2,18 +2,18 @@
 
 namespace Database\Factories;
 
-use App\Models\Design;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 
-class DesignFactory extends Factory
+class CategoryFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Design::class;
+    protected $model = Category::class;
 
     /**
      * Define the model's default state.
@@ -22,11 +22,11 @@ class DesignFactory extends Factory
      */
     public function definition()
     {
-        
+
         return [
-            'name' => $this->faker->text($this->faker->numberBetween(5, 255)),
-            'created_at' => $this->faker->date('Y-m-d H:i:s'),
-            'updated_at' => $this->faker->date('Y-m-d H:i:s')
+            'name' => fake()->word(),
+            'created_at' => fake()->date('Y-m-d H:i:s'),
+            'updated_at' => fake()->date('Y-m-d H:i:s')
         ];
     }
 }

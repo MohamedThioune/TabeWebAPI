@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\API;
 
-use App\Models\User;
+use App\Models\File;
 use Illuminate\Foundation\Http\FormRequest;
 
-class GetUsersAPIRequest extends FormRequest
+class StoreFileAPIRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -15,12 +15,6 @@ class GetUsersAPIRequest extends FormRequest
         return true;
     }
 
-    protected function prepareForValidation() : void
-    {
-       //Keep only the fields wanted
-        $this->replace($this->only(['type', 'is_active', 'is_phone_verified', 'city', 'country', 'address', 'skip', 'limit']));
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -28,6 +22,10 @@ class GetUsersAPIRequest extends FormRequest
      */
     public function rules(): array
     {
-        return User::ruleListed();
+        if($this->method() === 'POST') {
+           return File::rulesUpload();
+        }
+
+        return File::$rules;
     }
 }

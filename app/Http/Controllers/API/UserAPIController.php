@@ -22,9 +22,9 @@ class UserAPIController extends AppBaseController
         );
 
         //Load relations
-        $users->load('customer');
-        $users->load('partner');
-        $users->load('enterprise');
+//        $users->load('customer');
+//        $users->load('partner');
+//        $users->load('enterprise');
 
         $infos = [
             'users' => UserResource::collection($users),

@@ -22,13 +22,13 @@ class BeneficiaryFactory extends Factory
      */
     public function definition()
     {
-        
+
         return [
-            'fullname' => $this->faker->firstName,
-            'phone' => $this->faker->numerify('0##########'),
-            'email' => $this->faker->email,
-            'created_at' => $this->faker->date('Y-m-d H:i:s'),
-            'updated_at' => $this->faker->date('Y-m-d H:i:s')
+            'full_name' => fake()->name(),
+            'phone' => fake()->phoneNumber(),
+            'email' => fake()->unique()->safeEmail(),
+            'created_at' => fake()->date('Y-m-d H:i:s'),
+            'updated_at' => fake()->date('Y-m-d H:i:s')
         ];
     }
 }

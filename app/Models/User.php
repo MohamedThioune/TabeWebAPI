@@ -12,6 +12,12 @@ use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Domain\Users\ValueObjects\Type;
 
+/**
+ * @method static find(string $user_id)
+ * @method static create(array $user)
+ * @method static pluck(string $string)
+ */
+
 class User extends Authenticatable
 {
     use HasUuids, HasApiTokens, HasRoles, HasFactory, Notifiable;
@@ -47,8 +53,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        // 'email_verified_at' => 'datetime',
-        'phone_verified_at' => 'datetime',
+//        'phone_verified_at' => 'datetime',
     ];
 
     public function whatsAppTwilio(): string
@@ -112,4 +117,13 @@ class User extends Authenticatable
     public function gift_cards(){
         return $this->hasMany(GiftCard::class);
     }
+    public function files(){
+        return $this->hasMany(File::class);
+    }
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'user_categories')
+            ->withTimestamps();
+    }
+
 }

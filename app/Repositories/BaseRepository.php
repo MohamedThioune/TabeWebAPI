@@ -98,6 +98,16 @@ abstract class BaseRepository
     }
 
     /**
+     * find first record with given filter criteria
+     */
+    public function findFirst(array $search = [], array $columns = ['*']): ?Model
+    {
+        $query = $this->allQuery($search,null, null);
+
+        return $query->first($columns);
+    }
+
+    /**
      * Create model record
      */
     public function create(array $input): Model

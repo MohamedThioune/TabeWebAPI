@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @method static pluck(string $string)
+ */
 class Partner extends Model
 {
     use HasUuids, HasFactory;
@@ -40,4 +43,6 @@ class Partner extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
+
+
 }

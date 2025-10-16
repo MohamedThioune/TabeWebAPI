@@ -16,30 +16,43 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $role = ($this->roles) ? $this->roles->pluck('name')->toArray()[0] : Type::Customer->value;
+        //Load relation
+//        if(isset($this->roles->pluck('name')->toArray()[0]))
+
+        $role = $this->roles->pluck('name')->toArray()[0] ?? Type::Customer->value;
         $this->load($role);
+        $this->load('categories');
+
+
+        //Child resources part
         $childResources = match ($role) {
             Type::Customer->value   => CustomerResource::collection($this->whenLoaded('customer')),
             Type::Enterprise->value => EnterpriseResource::collection($this->whenLoaded('enterprise')),
             Type::Partner->value    => PartnerResource::collection($this->whenLoaded('partner')),
         };
-        $childResource = ($childResources) ? $childResources[0] : null;
-        if($role == Type::Customer->value):
-            $sigla = ($childResource->first_name) ? $childResource->first_name[0] : '';
-            $sigla .= ($childResource->last_name) ?  ' ' . $childResource->last_name[0] : '';
-        else:
-            $full = explode(' ', $childResource->name, 2);
-            $sigla = isset($full[0]) ? substr($full[0], 0, 1) : '';
-            $sigla .= isset($full[1]) ?  ' ' . substr($full[1], 0, 1) : '';
+        $childResource = isset($childResources[0]) ? $childResources[0] : null;
+        $sigla = null;
+        if($childResource):
+            if($role == Type::Customer->value ):
+                $sigla = ($childResource->first_name) ? $childResource->first_name[0] : '';
+                $sigla .= ($childResource->last_name) ?  ' ' . $childResource->last_name[0] : '';
+            else:
+                $full = explode(' ', $childResource->name, 2);
+                $sigla = isset($full[0]) ? substr($full[0], 0, 1) : '';
+                $sigla .= isset($full[1]) ?  ' ' . substr($full[1], 0, 1) : '';
+            endif;
         endif;
 
         return [
             $role => $childResource,
             'id' => $this->id,
             'sigla' => strtoupper($sigla),
+            'avatar' => new FileResource($this->files->where('meaning', 'avatar')->first()),
+            'banner' => new FileResource($this->files->where('meaning', 'banner')->first()),
             'email' => $this->email,
             'phone' => $this->phone,
             'whatsApp' => $this->whatsApp,
+            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'bio' => $this->bio,
             'country' => $this->country,
             'city' => $this->city,

@@ -11,8 +11,8 @@ class BeneficiariesTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run() : void
     {
-
+         \App\Models\Beneficiary::factory(10)->create();
     }
 }
