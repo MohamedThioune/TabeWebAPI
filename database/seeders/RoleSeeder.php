@@ -19,9 +19,9 @@ class RoleSeeder extends Seeder
         Role::firstOrCreate(['name' => Type::Enterprise, 'guard_name' => 'api']);
         Role::firstOrCreate(['name' => Type::Admin, 'guard_name' => 'api']);
 
-//        Role::firstOrCreate(['name' => Type::Customer, 'guard_name' => 'web']);
-//        Role::firstOrCreate(['name' => Type::Partner, 'guard_name' => 'web']);
-//        Role::firstOrCreate(['name' => Type::Enterprise, 'guard_name' => 'web']);
-//        Role::firstOrCreate(['name' => Type::Admin, 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => Type::Customer, 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => Type::Partner, 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => Type::Enterprise, 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => Type::Admin, 'guard_name' => 'web']);
     }
 }
