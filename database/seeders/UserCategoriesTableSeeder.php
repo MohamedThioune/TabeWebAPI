@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class CardEventsTableSeeder extends Seeder
+class UserCategoriesTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -13,6 +13,6 @@ class CardEventsTableSeeder extends Seeder
      */
     public function run()
     {
-        \App\Models\CardEvent::factory(20)->create();
+        \App\Models\UserCategory::factory(5)->create();
     }
 }

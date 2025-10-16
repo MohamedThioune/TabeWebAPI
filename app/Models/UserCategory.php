@@ -7,27 +7,20 @@ use Illuminate\Database\Eloquent\Model;
  use Illuminate\Database\Eloquent\SoftDeletes; use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * @OA\Schema(
- *      schema="Beneficiary",
- *      required={"full_name","phone"},
+ *      schema="UserCategory",
+ *      required={"user_id","category_id"},
  *      @OA\Property(
- *          property="full_name",
+ *          property="user_id",
  *          description="",
- *          readOnly=false,
+ *          readOnly=true,
  *          nullable=false,
  *          type="string",
  *      ),
  *      @OA\Property(
- *          property="phone",
+ *          property="category_id",
  *          description="",
- *          readOnly=false,
+ *          readOnly=true,
  *          nullable=false,
- *          type="string",
- *      ),
- *      @OA\Property(
- *          property="email",
- *          description="",
- *          readOnly=false,
- *          nullable=true,
  *          type="string",
  *      ),
  *      @OA\Property(
@@ -47,33 +40,23 @@ use Illuminate\Database\Eloquent\Model;
  *          format="date-time"
  *      )
  * )
- * @method static pluck(string $string)
  */
-class Beneficiary extends Model
+class UserCategory extends Model
 {
     use HasUuids, SoftDeletes, HasFactory;
-    public $table = 'beneficiaries';
-
+    public $table = 'user_categories';
     public $fillable = [
-        'full_name',
-        'phone',
-        'email'
+        'user_id',
+        'category_id'
     ];
 
     protected $casts = [
-        'full_name' => 'string',
-        'phone' => 'string',
-        'email' => 'string'
     ];
 
     public static array $rules = [
-        'full_name' => 'required|string|max:255',
-        'phone' => 'required|string|max:255',
-        'email' => 'string|email|max:255'
+        'user_id' => 'required|string|exists:partners,id',
+        'category_id' => 'required|string|exists:categories,id'
     ];
 
-    public function GiftCards(){
-        return $this->hasMany(GiftCard::class, );
-    }
 
 }

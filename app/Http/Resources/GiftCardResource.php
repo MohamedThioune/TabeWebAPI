@@ -29,7 +29,7 @@ class GiftCardResource extends JsonResource
             'pin_mask' => $this->pin_mask,
             'is_active' => $this->is_active,
             'expired_at' => $this->expired_at,
-            'qr' =>  ($qrResource) ? $qrResource[0] : null,
+            'qr' =>  isset($qrResource[0]) ? $qrResource[0] : null,
             'owner' => new UserResource($this->whenLoaded('user')),
             'beneficiary' => new BeneficiaryResource($this->whenLoaded('beneficiary')),
             'design' => new DesignResource($this->whenLoaded('design')),

@@ -2,7 +2,8 @@
 
 namespace App\Infrastructure\Persistence;
 
-use App\Models\User;
+use App\Domain\Users\Entities\User;
+use App\Models\User as ModelUser;
 use App\Repositories\BaseRepository;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -28,7 +29,7 @@ class UserRepository extends BaseRepository
 
     public function model(): string
     {
-        return User::class;
+        return ModelUser::class;
     }
 
     /**
@@ -47,5 +48,21 @@ class UserRepository extends BaseRepository
                 : $query->whereNull('phone_verified_at');
 
         return $query->get($columns);
+    }
+
+    public function save(User $user): ModelUser
+    {
+        $model = ModelUser::create([
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'phone' => (String)$user->getPhone(),
+            'whatsApp' => "whatsapp:" . (String)$user->getwhatsApp(),
+            'password' => $user->getPasswordHash(),
+        ]);
+
+        //Assign role
+        $model->assignRole($user->getType());
+
+        return $model->load($user->getType());
     }
 }

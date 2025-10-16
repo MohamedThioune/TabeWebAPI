@@ -39,7 +39,14 @@ Route::group(['middleware' => ['auth:api']], function () {
         ->except(['create', 'update', 'edit']);
       Route::patch('qr-sessions/{qrSession}', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
 
+      //User actions
       Route::get('/users/', [App\Http\Controllers\API\UserAPIController::class, 'index'])->name('users.index');
+      Route::post('/file/upload', [App\Http\Controllers\API\FileAPIController::class, 'upload'])->name('files.upload');
+
+      //Categories resource
+      Route::resource('categories', App\Http\Controllers\API\CategoryAPIController::class)
+          ->except(['create', 'edit']);
+
 });
 
 //Route::resource('beneficiaries', App\Http\Controllers\API\BeneficiaryAPIController::class)
@@ -47,3 +54,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 
 //Route::resource('designs', App\Http\Controllers\API\DesignAPIController::class)
 //    ->except(['create', 'edit']);
+
+
+Route::resource('partner-categories', App\Http\Controllers\API\UserCategoryAPIController::class)
+    ->except(['create', 'edit']);

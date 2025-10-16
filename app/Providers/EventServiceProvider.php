@@ -6,6 +6,8 @@ use App\Domain\GiftCards\Events\CardGenerated;
 use App\Domain\GiftCards\Services\CreateCard;
 use App\Domain\GiftCards\Services\GenerateCardEvents;
 use App\Domain\GiftCards\Services\GenerateQr;
+use App\Events\FileProcessed;
+use App\Listeners\RegisterFileProcessed;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -26,6 +28,9 @@ class EventServiceProvider extends ServiceProvider
            CreateCard::class,
            GenerateQr::class,
            GenerateCardEvents::class
+        ],
+        FileProcessed::class => [
+            RegisterFileProcessed::class
         ]
     ];
 

@@ -60,6 +60,8 @@ return [
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost'),
 
+    'prefix_aws' => env('AWS_PATH_PREFIX', 'dev/'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
