@@ -23,10 +23,6 @@ class Partner extends Model
         'sector', //ex: mode, beauté, gastronomie
         'office_phone',
 
-        'address',
-        'city',
-        'country',
-
         'payout_method', //bank_transfer, mobile_money, wallet
         'payout_account',  //ex: RIB, numéro OM/Wave
 
@@ -38,6 +34,16 @@ class Partner extends Model
 
     public static array $ruleCreated = [
         'name' => 'required|string|max:255',
+    ];
+
+    public static array $ruleUpdated = [
+        'name' => 'string|max:255',
+        'legal_name' => 'string|max:255',
+        'sector' => 'string|in:Mode,Beauté,Gastronomie,Technologie,Bien-être,Décoration',
+        'office_phone' => 'string|max:255',
+        'payout_method' => 'string|in:bank_transfer,mobile_money',
+        'payout_account' => 'string|max:255',
+        'kyc_status' => 'string|in:pending,verified,rejected,not_submitted',
     ];
 
     public function user(){

@@ -65,4 +65,23 @@ class UserRepository extends BaseRepository
 
         return $model->load($user->getType());
     }
+
+    /**
+     * @Override Update method
+     */
+    public function update(array $input, string $id)
+    {
+        $query = $this->model->newQuery();
+
+        $model = $query->findOrFail($id);
+
+        $model->fill($input);
+
+        if(isset($input['categories']))
+            $model->categories()->syncWithoutDetaching($input['categories']);
+
+        $model->save();
+
+        return $model;
+    }
 }

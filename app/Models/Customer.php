@@ -41,6 +41,17 @@ class Customer extends Model
         'gender' => 'required|string|in:male,female',
     ];
 
+    public static array $ruleUpdated = [
+        'first_name' => 'string|max:255',
+        'last_name' => 'string|max:255',
+        'gender' => 'string|in:male,female',
+        'birthdate' => 'date',
+        'address' => 'string|max:255',
+        'city' => 'string|max:255',
+        'country' => 'string|max:255',
+        'preferences' => 'array',
+    ];
+
     public function user(){
         return $this->belongsTo(User::class);
     }

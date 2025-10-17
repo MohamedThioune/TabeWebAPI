@@ -4,9 +4,24 @@ namespace App\Infrastructure\Persistence;
 
 use App\Domain\Users\Entities\User;
 use App\Models\Enterprise;
+use App\Repositories\BaseRepository;
 
-class EnterpriseRepository
+class EnterpriseRepository extends BaseRepository
 {
+    protected $fieldSearchable = [
+        'id',
+        'name'
+    ];
+
+    public function getFieldsSearchable(): array
+    {
+        return $this->fieldSearchable;
+    }
+
+    public function model(): string
+    {
+        return Enterprise::class;
+    }
 
     public function save(User $user): Enterprise
     {
