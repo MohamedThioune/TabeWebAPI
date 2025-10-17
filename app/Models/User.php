@@ -33,8 +33,13 @@ class User extends Authenticatable
         'phone',
         'whatsApp',
         'password',
-        'phone_verified_at',
+        'bio',
+        'website',
+        'country',
+        'city',
+        'address',
         'is_active',
+        'phone_verified_at',
     ];
 
     /**
@@ -89,6 +94,16 @@ class User extends Authenticatable
             'address' => ["string", "max:255"],
         ];
     }
+
+    public static array $ruleUpdated = [
+        'email' => "string|email|unique:users,email",
+        'website' => "string|url",
+        'bio' => "string",
+        'categories' => "array",
+        'country' => "string|max:255",
+        'city' => "string|max:255",
+        'address' => "string|max:255",
+    ];
 
     public function findForPassport(string $username): User
     {

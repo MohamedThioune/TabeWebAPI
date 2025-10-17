@@ -52,6 +52,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'whatsApp' => $this->whatsApp,
+            'website' => $this->website,
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'bio' => $this->bio,
             'country' => $this->country,

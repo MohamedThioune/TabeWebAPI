@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\API;
 
-use App\Models\User;
+use App\Models\Enterprise;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserRequest extends FormRequest
+class UpdateEnterpriseAPIRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,6 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-        if($this->method() == 'PATCH') {
-            return User::$ruleUpdated;
-        }
-        return User::ruleCreated();
-
+        return Enterprise::$ruleUpdated;
     }
 }
