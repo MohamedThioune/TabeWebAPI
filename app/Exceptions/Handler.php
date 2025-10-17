@@ -5,6 +5,8 @@ namespace App\Exceptions;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -58,5 +60,18 @@ class Handler extends ExceptionHandler
 
         return response()->json(['error' => 'Unauthenticated.'], 401);
     }
+
+    public function render($request, Throwable $e)
+    {
+        if ($e instanceof UnauthorizedException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User does not have the right roles or permissions.',
+            ], Response::HTTP_FORBIDDEN); // 403
+        }
+
+        return parent::render($request, $e);
+    }
+
 
 }

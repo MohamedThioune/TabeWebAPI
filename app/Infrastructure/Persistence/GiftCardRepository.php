@@ -15,10 +15,10 @@ class GiftCardRepository extends BaseRepository
         'is_active',
         'expired_at',
         'limit',
-        'skip'
-//        'owner_user_id',
-//        'beneficiary_id',
-//        'design_id'
+        'skip',
+        'owner_user_id',
+        'beneficiary_id',
+        'design_id'
     ];
 
     public function getFieldsSearchable(): array
