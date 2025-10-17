@@ -26,21 +26,25 @@ Route::group(['middleware' => ['auth:api']], function () {
       Route::get('/me', [App\Http\Controllers\API\AuthAPIController::class, 'me'])->name('auth.me');
       Route::delete('/oauth/logout', [App\Http\Controllers\API\AuthAPIController::class, 'logout'])->name('auth.logout');
 
-      //Gift cards resource
+      Route::group(['middleware' => ['role:partner|admin']], function () {
+
+          //Gift cards resource
       Route::post('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store');
-      Route::post('/gift-cards/', [App\Http\Controllers\API\GiftCardAPIController::class, 'storeAuth'])->middleware('idempotency')->name('gift-cards.store.me');
+      Route::post('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'storeAuth'])->middleware('idempotency')->name('gift-cards.store.me');
       Route::get('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'index'])->name('gift-cards.index');
-      Route::get('/gift-cards/', [App\Http\Controllers\API\GiftCardAPIController::class, 'indexAuth'])->name('gift-cards.index.me');
+      Route::get('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'indexAuth'])->name('gift-cards.index.me');
       Route::resource('gift-cards', App\Http\Controllers\API\GiftCardAPIController::class)
-        ->except(['create', 'store', 'index', 'edit']);
+          ->except(['create', 'store', 'index', 'edit']);
 
       //Qr sessions resource
       Route::resource('qr-sessions', App\Http\Controllers\API\QRSessionAPIController::class)
         ->except(['create', 'update', 'edit']);
       Route::patch('qr-sessions/{qrSession}', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
 
+      });
+
       //User actions
-      Route::get('/users/', [App\Http\Controllers\API\UserAPIController::class, 'index'])->name('users.index');
+      Route::get('/users', [App\Http\Controllers\API\UserAPIController::class, 'index'])->name('users.index');
       Route::post('/file/upload', [App\Http\Controllers\API\FileAPIController::class, 'upload'])->name('files.upload');
 
       //Categories resource
