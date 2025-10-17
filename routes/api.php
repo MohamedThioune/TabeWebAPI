@@ -26,7 +26,7 @@ Route::group(['middleware' => ['auth:api']], function () {
       Route::get('/me', [App\Http\Controllers\API\AuthAPIController::class, 'me'])->name('auth.me');
       Route::delete('/oauth/logout', [App\Http\Controllers\API\AuthAPIController::class, 'logout'])->name('auth.logout');
 
-      Route::group(['middleware' => ['role:partner|admin']], function () {
+      Route::group(['middleware' => ['role:customer|admin']], function () {
 
           //Gift cards resource
       Route::post('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store');
