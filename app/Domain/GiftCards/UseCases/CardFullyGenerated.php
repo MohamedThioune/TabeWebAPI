@@ -22,9 +22,8 @@ class CardFullyGenerated
             $card = new Card(
                 id : Str::uuid()->toString(),
                 belonging_type: $dto['belonging_type'],
-                pin_hash: $dto['pin_hash'],
+                type: $dto['type'],
                 face_amount: $dto['face_amount'],
-                pin_mask: $dto['pin_mask'],
                 expired_at: now()->addMonths(3),
                 owner_user_id: $dto['owner_user_id'],
                 beneficiary_id: $dto['beneficiary_id'],

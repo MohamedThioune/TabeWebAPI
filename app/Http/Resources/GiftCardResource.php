@@ -25,8 +25,8 @@ class GiftCardResource extends JsonResource
         return [
             'id' => $this->id,
             'belonging_type' => $this->belonging_type,
+            'type' => $this->type,
             'face_amount' => $this->face_amount,
-            'pin_mask' => $this->pin_mask,
             'is_active' => $this->is_active,
             'expired_at' => $this->expired_at,
             'qr' =>  isset($qrResource[0]) ? $qrResource[0] : null,

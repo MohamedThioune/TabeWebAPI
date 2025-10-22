@@ -39,7 +39,7 @@ class Partner extends Model
     public static array $ruleUpdated = [
         'name' => 'string|max:255',
         'legal_name' => 'string|max:255',
-        'sector' => 'string|in:Mode,Beauté,Gastronomie,Technologie,Bien-être,Décoration',
+        'sector' => 'string|in:Mode,Beauté,Gastronomie,Technologie,Bien-être,Décoration,Sport,Librairie',
         'office_phone' => 'string|max:255',
         'payout_method' => 'string|in:bank_transfer,mobile_money',
         'payout_account' => 'string|max:255',

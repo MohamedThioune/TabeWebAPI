@@ -20,8 +20,8 @@ class CustomerResource extends JsonResource
             'last_name' => $this->last_name,
             'birthdate' => $this->birthdate,
             'gender' => $this->gender,
-            // 'user'  => new UserResource($this->whenLoaded('user')),
             'address' => $this->address,
+
             'city' => $this->city,
             'country' => $this->country,
 

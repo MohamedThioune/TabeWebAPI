@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Domain\Users\DTO\Node;
 use App\Domain\Users\ValueObjects\Type;
 use App\Http\Controllers\AppBaseController;
-use App\Http\Requests\API\CustomerAPIRequest;
-use App\Http\Requests\API\EnterpriseAPIRequest;
 use App\Http\Requests\API\GetUsersAPIRequest;
-use App\Http\Requests\API\PartnerAPIRequest;
 use App\Http\Requests\API\UpdateCustomerAPIRequest;
 use App\Http\Requests\API\UpdateEnterpriseAPIRequest;
 use App\Http\Requests\API\UpdatePartnerAPIRequest;
@@ -18,6 +16,7 @@ use App\Infrastructure\Persistence\EnterpriseRepository;
 use App\Infrastructure\Persistence\PartnerRepository;
 use App\Infrastructure\Persistence\UserRepository;
 use App\Models\User;
+use App\Notifications\ProfileUpdateNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -63,7 +62,8 @@ class UserAPIController extends AppBaseController
         };
 
     }
-    public function update(User $user, UserRequest $request):  JsonResponse{
+    public function update(User $user, UserRequest $request): JsonResponse
+    {
         $input = $request->all();
 
         if (empty($user)) {
@@ -77,6 +77,33 @@ class UserAPIController extends AppBaseController
         $this->sample_update_child($role, $user, $input);
 
         return $this->sendResponse(new UserResource($user), 'Users retrieved successfully.');
+    }
 
+    public function updateAuth(UserRequest $request): JsonResponse
+    {
+        $user = $request->user();
+        $input = $request->all();
+
+        if (empty($user)) {
+            return $this->sendError('User not found, invalid');
+        }
+
+        $user = $this->userRepository->update($input, $user->id);
+
+        $role = $user->roles->pluck('name')->toArray()[0] ?? Type::Customer->value;
+
+        $this->sample_update_child($role, $user, $input);
+
+        $node = new Node(
+            content: null,
+            contentVariables: null,
+            level: "Info",
+            model: "profile", //
+            title: "Profil mis à jour",
+            body: "Vos informations de profil ont été modifiées avec succès"
+        );
+        $user->notify(new ProfileUpdateNotification($node,  "whatsapp"));
+
+        return $this->sendResponse(new UserResource($user), 'Users retrieved successfully.');
     }
 }

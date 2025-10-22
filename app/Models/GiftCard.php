@@ -54,9 +54,8 @@ class GiftCard extends Model
     public $fillable = [
         'id',
         'belonging_type', //me or others
+        'type', //physical or digital
         'face_amount',
-        'pin_mask',
-        'pin_hash',
         'is_active',
         'expired_at',
         'owner_user_id',
@@ -69,12 +68,11 @@ class GiftCard extends Model
     ];
 
     protected $hidden = [
-        'pin_hash'
     ];
 
     public static array $rules = [
-        'pin' => 'required|string',
         'belonging_type' => 'required|string|in:myself,others',
+        'type' => 'required|string|in:physical,digital',
         'face_amount' => 'required|integer|between:10000,150000',
         'is_active' => 'boolean',
         'design_id' => 'required|integer|exists:designs,id'
@@ -83,6 +81,7 @@ class GiftCard extends Model
     public static array $rules_listed = [
         'is_active' => 'boolean',
         'belonging_type' => 'string|in:myself,others',
+        'type' => 'string|in:physical,digital',
         'skip' => 'integer|gt:0',
         'limit' => 'integer|gt:0',
         'with_summary' => 'boolean',

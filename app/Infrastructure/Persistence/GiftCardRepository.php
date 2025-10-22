@@ -10,8 +10,8 @@ class GiftCardRepository extends BaseRepository
 {
     protected $fieldSearchable = [
         'belonging_type',
+        'type',
         'face_amount',
-        'pin_mask',
         'is_active',
         'expired_at',
         'limit',

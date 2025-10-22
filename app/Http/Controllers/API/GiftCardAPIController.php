@@ -149,13 +149,12 @@ class GiftCardAPIController extends AppBaseController
         return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
     }
 
-    public function detached_store(string $type, User $user, Request $request, ?Beneficiary $beneficiary): mixed
+    public function detached_store(string $belonging_type, User $user, Request $request, ?Beneficiary $beneficiary): mixed
     {
         $dto = [
-            'belonging_type' => $type,
-            'pin_hash' => hash::make($request->pin),
+            'belonging_type' => $belonging_type,
+            'type' => $request->type,
             'face_amount' => $request->face_amount,
-            'pin_mask' => substr($request->pin, 0, 2),
             'owner_user_id' => $user->id,
             'beneficiary_id' => $beneficiary instanceof Beneficiary ? $beneficiary->id : null,
             'design_id' => $request->design_id,
@@ -177,14 +176,21 @@ class GiftCardAPIController extends AppBaseController
         $giftCard = GiftCard::findOrFail($event->card->getId());
 
         //Notify via whatsApp
-        if($type == "others"){
+        if($belonging_type == "others"){
             $format_beneficiary = $beneficiary->full_name;
             $format_customer = !empty($user->customer) ? $user->customer[0]->first_name . ' ' . $user->customer[0]->last_name : '';
             $format_amount = Number::format($dto['face_amount'], locale: 'sv'); //Swedish format (ex: 10 000)
             $content_variables = json_encode(["1" => $format_beneficiary, "2" => $format_customer, "3" => $format_amount]);
             $body = "";
-            $node = new Node($body, $content_variables);
-            $user->notify(new PushCardNotification($node, "whatsapp"));
+            $node = new Node(
+                content: $body,
+                contentVariables: $content_variables,
+                level: "Info",
+                model: "card",
+                title: "Nouvelle carte créée",
+                body: "Une carte-cadeau de {$format_amount} FCFA a été créée avec succès pour {$format_beneficiary}"
+            );
+            $user->notify(new PushCardNotification($node, $beneficiary->phone, "whatsapp"));
         }
 
         return $giftCard;
@@ -223,14 +229,14 @@ class GiftCardAPIController extends AppBaseController
      */
     public function store(User $user, CreateGiftCardAPIRequest $request): JsonResponse
     {
-        $type = $request->get("belonging_type");
+        $belonging_type = $request->get("belonging_type");
         $beneficiary = null;
-        if($type == 'others'):
+        if($belonging_type == 'others'):
             $dto_beneficiary = app(CreateBeneficiaryAPIRequest::class)->validated();
             $beneficiary = ( Beneficiary::where('phone', $dto_beneficiary['phone'])->first()) ?: $this->beneficiaryRepository->create($dto_beneficiary);
         endif;
 
-        $giftCard = $this->detached_store($type, $user, $request, $beneficiary);
+        $giftCard = $this->detached_store($belonging_type, $user, $request, $beneficiary);
 
         //Catch errors
         if(isset($giftCard['error']))
