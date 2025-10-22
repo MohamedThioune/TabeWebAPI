@@ -33,7 +33,7 @@ class RegisterUser
                 type: $dto['type'],
                 firstName: !isset($dto['first_name']) ? null : $dto['first_name'],
                 lastName: !isset($dto['last_name']) ? null : $dto['last_name'],
-                gender: !isset($dto['gender']) ? null : $dto['gender'],
+                gender: null,
                 phone: new Phone($dto['phone']),
                 whatsApp: new Phone($dto['whatsApp']),
                 email: $dto['email'],

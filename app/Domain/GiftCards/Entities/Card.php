@@ -9,8 +9,7 @@ class Card
 {
     private string $id;
     private string $belonging_type;
-    private string $pin_hash;
-    private string $pin_mask;
+    private string $type;
     private int $face_amount;
     private string $expired_at;
     private string $owner_user_id;
@@ -20,21 +19,18 @@ class Card
     /**
      * @param string $id
      * @param string $belonging_type
-     * @param string $pin_hash
      * @param int $face_amount
-     * @param string $pin_mask
      * @param string $expired_at
      * @param string $owner_user_id
      * @param string|null $beneficiary_id
      * @param string $design_id
      */
-    public function __construct(string $id, string $belonging_type, string $pin_hash, int $face_amount, string $pin_mask, string $expired_at, string $owner_user_id, ?string $beneficiary_id, string $design_id)
+    public function __construct(string $id, string $belonging_type, string $type, int $face_amount, string $expired_at, string $owner_user_id, ?string $beneficiary_id, string $design_id)
     {
         $this->id = $id;
         $this->belonging_type = $belonging_type;
-        $this->pin_hash = $pin_hash;
+        $this->type = $type;
         $this->face_amount = $face_amount;
-        $this->pin_mask = $pin_mask;
         $this->expired_at = $expired_at;
         $this->owner_user_id = $owner_user_id;
         $this->beneficiary_id = $beneficiary_id;
@@ -46,51 +42,12 @@ class Card
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function getBelongingType(): string
-    {
-        return $this->belonging_type;
-    }
-
-    public function getPinHash(): string
-    {
-        return $this->pin_hash;
-    }
-
-    public function getPinMask(): string
-    {
-        return $this->pin_mask;
-    }
-
-    public function getFaceAmount(): int
-    {
-        return $this->face_amount;
-    }
-
-    public function getOwnerUserId(): string
-    {
-        return $this->owner_user_id;
-    }
-
-    public function getBeneficiaryId(): ?string
-    {
-        return $this->beneficiary_id;
-    }
-
-    public function getDesignId(): string
-    {
-        return $this->design_id;
-    }
-
     public function toArray(): array
     {
         return [
             'id' => $this->id,
             'belonging_type' => $this->belonging_type,
-            'pin_hash' => $this->pin_hash,
-            'pin_mask' => $this->pin_mask,
+            'type' => $this->type,
             'face_amount' => $this->face_amount,
             'expired_at' => $this->expired_at,
             'owner_user_id' => $this->owner_user_id,

@@ -67,7 +67,14 @@ class AuthAPIController extends Controller
 
         if($input['channel'] == "sms"):
             //Notify via sms
-            $node = new Node($otp_code, null);
+            $node = new Node(
+                content : $otp_code,
+                contentVariables: null,
+                level: null,
+                model: null,
+                title: null,
+                body: null
+            );
             $user->notify(new PushSMSNotification($node, $input['channel']));
         endif;
 
@@ -76,7 +83,14 @@ class AuthAPIController extends Controller
             $content_variables = json_encode(["1" => (String)$otp_code]);
 
             $body = "{{1}} est votre code de vérification. Pour votre sécurité, ne communiquez ce code à personne.";
-            $node = new Node($body, $content_variables);
+            $node = new Node(
+                content : $body,
+                contentVariables: $content_variables,
+                level: null,
+                model: null,
+                title: null,
+                body: null
+            );
 
             $user->notify(new PushWhatsAppNotification($node, $input['channel']));
         endif;

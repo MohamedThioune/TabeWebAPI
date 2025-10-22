@@ -38,7 +38,6 @@ class Customer extends Model
     public static array $ruleCreated = [
         'first_name' => 'required|string|max:255',
         'last_name' => 'required|string|max:255',
-        'gender' => 'required|string|in:male,female',
     ];
 
     public static array $ruleUpdated = [
