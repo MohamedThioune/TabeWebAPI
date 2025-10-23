@@ -6,7 +6,6 @@ use App\Http\Controllers\AppBaseController;
 use App\Http\Resources\NotificationResource;
 use App\Infrastructure\Persistence\NotificationRepository;
 use App\Models\Notification;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -41,15 +40,13 @@ class NotificationAPIController extends AppBaseController
         ];
 
         $notifs = $this->notificationRepository->all(
-            $search,
-            $request->get('skip'),
-            $request->get('limit')
+                $search
         );
 
         $notif = isset($notifs[0]) ? $notifs[0] : null;
 
         if (empty($notif)) {
-            return ['errors' => "No notification found matching your search terms."];
+            return ['error' => "No notification found matching your search terms."];
         }
 
         $input = ['is_read' => 1, 'read_at' => now()];
@@ -61,48 +58,49 @@ class NotificationAPIController extends AppBaseController
     {
         $user = $request->user();
         $notif = $this->sample_read($request, $user->id, $id);
+        if (isset($notif['error']))
+            return $this->sendError($notif['error']);
 
-        return $this->sendResponse(new NotificationResource($notif),  'Notification updated successfully');
+        return $this->sendResponse(new NotificationResource($notif),  'Notification read successfully !');
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function readAll(Request $request): JsonResponse
     {
-        //
-    }
+        $user = $request->user();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(notification $notification)
-    {
-        //
-    }
+        //Update all matching queries
+        $affectedRows = Notification::where('notifiable_id', $user->id)->where('is_read', 0)->update(['is_read' => 1]);
+        $message = ($affectedRows > 0) ? 'All notifications read successfully !' : 'No changes were made.';
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(notification $notification)
-    {
-        //
-    }
+//        $notifs = $this->notificationRepository->all(
+//            ['notifiable_id' => $user->id],
+//            $request->get('skip'),
+//            $request->get('limit')
+//        );
+//
+//        $notif = isset($notifs[0]) ? $notifs[0] : null;
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, notification $notification)
-    {
-        //
+        return $this->sendSuccess($message);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(notification $notification)
+    public function destroy(Request $request, string $id): JsonResponse
     {
-        //
+        $user = $request->user();
+        $notifs = $this->notificationRepository->all(
+            ['notifiable_id' => $user->id, 'id' => $id],
+        );
+
+        $notif = isset($notifs[0]) ? $notifs[0] : null;
+
+        if (empty($notif)) {
+            return $this->sendError('No notification found matching your search terms.');
+        }
+
+        $notif->delete();
+
+        return $this->sendSuccess('Notif deleted successfully');
     }
 }
