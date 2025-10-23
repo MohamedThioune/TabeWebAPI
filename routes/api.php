@@ -25,13 +25,16 @@ Route::group(['middleware' => ['auth:api']], function () {
       Route::get('/me', [App\Http\Controllers\API\AuthAPIController::class, 'me'])->name('auth.me');
       Route::delete('/oauth/logout', [App\Http\Controllers\API\AuthAPIController::class, 'logout'])->name('auth.logout');
 
-      //User actions (list users, update user, upload file, get notifications, read notification)
+      //User actions (list users, update user, upload file, notifications)
       Route::patch('/users', [App\Http\Controllers\API\UserAPIController::class, 'updateAuth'])->name('users.update.me');
       Route::post('/file/upload', [App\Http\Controllers\API\FileAPIController::class, 'upload'])->name('files.upload');
+      //Notifications (get notifications, read notification, read all notifications, delete notification)
       Route::get('/notifications/me', [App\Http\Controllers\API\NotificationAPIController::class, 'index'])->name('notifications.me');
       Route::patch('/notifications/me/{notification}', [App\Http\Controllers\API\NotificationAPIController::class, 'readAuth'])->name('notifications.read.me');
+      Route::patch('/notifications/read/all', [App\Http\Controllers\API\NotificationAPIController::class, 'readAll'])->name('notifications.read.all');
+      Route::delete('/notifications/me/{notification}', [App\Http\Controllers\API\NotificationAPIController::class, 'destroy'])->name('notifications.destroy.me');
 
-    //Customer scope
+      //Customer scope
       Route::group(['middleware' => ['role:customer|admin']], function () {
           //Gift cards
           Route::post('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'storeAuth'])->middleware('idempotency')->name('gift-cards.store.me');

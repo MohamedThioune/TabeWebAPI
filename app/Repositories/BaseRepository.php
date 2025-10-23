@@ -84,6 +84,7 @@ abstract class BaseRepository
             $query->limit($limit);
         }
 
+        $query->orderBy('created_at', 'desc');
         return $query;
     }
 

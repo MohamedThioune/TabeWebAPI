@@ -4,10 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+
+/**
+ * @method static where(string $string, mixed $id)
+ */
 class Notification extends Model
 {
-    use HasUuids;
+    use HasUuids, Softdeletes;
 
     protected $table = 'notifications';
 
