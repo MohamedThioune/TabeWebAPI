@@ -4,12 +4,14 @@ namespace App\Infrastructure\Persistence;
 
 use App\Models\Notification;
 use App\Repositories\BaseRepository;
-use Carbon\Carbon;
 
 class NotificationRepository extends BaseRepository
 {
     protected $fieldSearchable = [
-        'expired_at'
+        'data',
+        'notifiable_id',
+        'is_read',
+        'read_at',
     ];
 
     public function getFieldsSearchable(): array
