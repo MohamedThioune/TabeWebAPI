@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\UserResource;
 
 class PartnerResource extends JsonResource
 {
@@ -15,20 +14,18 @@ class PartnerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        //Context admin
+        $context_admin = $request->user()?->can('seeSensitiveData', $this);
         return [
             'name' => $this->name,
-            'legal_name' => $this->legal_name,
+            'legal_name' => $this->when($context_admin, $this->legal_name),
             'sector'  => $this->sector,
             'office_phone' => $this->office_phone,
-            // 'user' => new UserResource($this->whenLoaded('user')),
-            'address' => $this->address,
-            'city' => $this->city,
-            'country' => $this->country,
 
-            'payout_method' => $this->payout_method,
-            'payout_account' => $this->payout_account,
+            'payout_method' => $this->when($context_admin, $this->payout_method),
+            'payout_account' => $this->when($context_admin, $this->payout_account),
 
-            'kyc_status' => $this->kyc_status
+            'kyc_status' => $this->when($context_admin, $this->kyc_status)
         ];
     }
 }

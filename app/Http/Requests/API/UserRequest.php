@@ -26,6 +26,5 @@ class UserRequest extends FormRequest
             return User::$ruleUpdated;
         }
         return User::ruleCreated();
-
     }
 }

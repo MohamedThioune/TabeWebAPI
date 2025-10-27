@@ -35,7 +35,7 @@ class Enterprise extends Model
     public static array $ruleUpdated = [
         'name' => 'string|max:255',
         'office_phone' => 'string|max:255',
-        'kyc_status' => 'string|in:pending,verified,rejected,not_submitted'
+//        'kyc_status' => 'string|in:pending,verified,rejected,not_submitted'
     ];
 
     public function user(){
