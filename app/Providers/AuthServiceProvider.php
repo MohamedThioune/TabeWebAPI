@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+use App\Policies\SensitiveDataPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
@@ -14,7 +16,10 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+        \App\Models\Partner::class => \App\Policies\SensitiveDataPolicy::class,
+        \App\Models\Customer::class => \App\Policies\SensitiveDataPolicy::class,
+        \App\Models\Enterprise::class => \App\Policies\SensitiveDataPolicy::class,
+        \App\Models\File::class => \App\Policies\SensitiveDataPolicy::class,
     ];
 
     /**
@@ -23,9 +28,11 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPolicies();
+        Gate::define('seeSensitiveData', [SensitiveDataPolicy::class, 'seeSensitiveData']);
+        Gate::define('seeMySensitiveData', [SensitiveDataPolicy::class, 'seeMySensitiveData']);
 
         // Enable hashed storage of client secrets
-//         Passport::hashClientSecrets();
+        // Passport::hashClientSecrets();
 
         // Passport::tokensExpireIn(now()->addDays(15));
         // Passport::refreshTokensExpireIn(now()->addDays(30));

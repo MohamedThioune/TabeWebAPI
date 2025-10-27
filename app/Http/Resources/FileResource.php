@@ -20,16 +20,19 @@ class FileResource extends JsonResource
             $this->path . $this->id,
             now()->addHours(2)
         );
+        //Context admin
+        $context_admin = $request->user()?->can('seeSensitiveData', $this);
+        $context_super_admin = $request->user()?->can('seeSensitiveData');
         return [
-            'id' => $this->id,
+            'id' => $this->when($context_admin, $this->id),
             'type' => $this->type,
-            'path' => $this->path,
-            'key' => $key,
+            'path' => $this->when($context_super_admin, $this->path),
+            'key' => $this->when($context_super_admin, $key),
             'temporary_url' => $temporaryUrl,
-            'meaning' => $this->meaning,
-            'description' => $this->description,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'meaning' => $this->when($context_super_admin, $this->meaning),
+            'description' => $this->when($context_super_admin, $this->description),
+            'created_at' => $this->when($context_super_admin, $this->created_at),
+            'updated_at' => $this->when($context_super_admin, $this->updated_at)
         ];
     }
 }

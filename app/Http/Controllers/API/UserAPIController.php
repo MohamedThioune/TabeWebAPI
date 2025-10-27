@@ -24,10 +24,10 @@ class UserAPIController extends AppBaseController
 {
     public function __construct(private UserRepository $userRepository, private EnterpriseRepository $enterpriseRepository, private PartnerRepository $partnerRepository, private CustomerRepository $customerRepository){}
 
-    public function index(GetUsersAPIRequest $request): JsonResponse
+    public function detached_index(array $search, Request $request): array
     {
         $users = $this->userRepository->all(
-            $request->except(['skip', 'limit']),
+            $search,
             $request->get('skip'),
             $request->get('limit')
         );
@@ -37,7 +37,24 @@ class UserAPIController extends AppBaseController
             'count' => !empty($users) ? count($users) : 0
         ];
 
+        return $infos;
+    }
+    public function index(GetUsersAPIRequest $request): JsonResponse
+    {
+        $search = $request->except(['skip', 'limit']);
+
+        $infos = $this->detached_index($search, $request);
+
         return $this->sendResponse($infos, 'Users retrieved successfully.');
+    }
+    public function indexPartner(GetUsersAPIRequest $request): JsonResponse
+    {
+        $search = $request->except(['skip', 'limit']);
+        $search['type'] = Type::Partner->value;
+
+        $infos = $this->detached_index($search, $request);
+
+        return $this->sendResponse($infos, 'Partners retrieved successfully.');
     }
 
     public function sample_update_child(string $role, mixed $user, array $input): mixed
@@ -78,7 +95,6 @@ class UserAPIController extends AppBaseController
 
         return $this->sendResponse(new UserResource($user), 'Users retrieved successfully.');
     }
-
     public function updateAuth(UserRequest $request): JsonResponse
     {
         $user = $request->user();

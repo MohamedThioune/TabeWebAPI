@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\UserResource;
 
 class EnterpriseResource extends JsonResource
 {
@@ -15,10 +14,12 @@ class EnterpriseResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        //Context admin
+        $context_admin = $request->user()?->can('seeSensitiveData', $this);
         return [
             'name' => $this->name,
             'office_phone' => $this->office_phone,
-            'kyc_status' => $this->kyc_status,
+            'kyc_status' => $this->when($context_admin, $this->kyc_status)
         ];
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\AppBaseController;
+use App\Http\Requests\API\GetGiftCardsAPIRequest;
 use App\Http\Resources\NotificationResource;
 use App\Infrastructure\Persistence\NotificationRepository;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,18 +19,47 @@ class NotificationAPIController extends AppBaseController
     {
         $this->notificationRepository = $notifRepo;
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): JsonResponse
+
+    public function detached_index(User $user, array $search, Request $request) : array
     {
         $notifs = $this->notificationRepository->all(
-            $request->except(['skip', 'limit']),
+            $search,
             $request->get('skip'),
             $request->get('limit')
         );
 
-        return $this->sendResponse(NotificationResource::collection($notifs), 'Your Notifications retrieved successfully');
+        $infos = [
+            'notifs' => NotificationResource::collection($notifs),
+            'count' => !empty($notifs) ? count($notifs) : 0
+        ];
+
+        return $infos;
+    }
+
+    public function indexAuth(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        //Test user instance of model user
+        $search = $request->except(['skip', 'limit']);
+        $search['notifiable_id'] = $user->id;
+
+        $infos = $this->detached_index($user, $search, $request);
+
+        return $this->sendResponse($infos, 'Your Notifications retrieved successfully');
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(User $user, Request $request): JsonResponse
+    {
+        //Test user instance of model user
+        $search = $request->except(['skip', 'limit']);
+        $search['notifiable_id'] = $user->id;
+
+        $infos = $this->detached_index($user, $search, $request);
+
+        return $this->sendResponse($infos, 'Notifications retrieved successfully');
     }
 
     public function sample_read(Request $request, string $user_id,  string $id): Mixed

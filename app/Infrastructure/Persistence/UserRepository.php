@@ -46,7 +46,6 @@ class UserRepository extends BaseRepository
             ($search['is_phone_verified'])
                 ? $query->whereNotNull('phone_verified_at')
                 : $query->whereNull('phone_verified_at');
-
         return $query->get($columns);
     }
 

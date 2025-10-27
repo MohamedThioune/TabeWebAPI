@@ -25,11 +25,12 @@ Route::group(['middleware' => ['auth:api']], function () {
       Route::get('/me', [App\Http\Controllers\API\AuthAPIController::class, 'me'])->name('auth.me');
       Route::delete('/oauth/logout', [App\Http\Controllers\API\AuthAPIController::class, 'logout'])->name('auth.logout');
 
-      //User actions (list users, update user, upload file, notifications)
+      //User actions (list partner, update user, upload file, notifications)
+      Route::get('/partners', [App\Http\Controllers\API\UserAPIController::class, 'indexPartner'])->name('users.index.partner');
       Route::patch('/users', [App\Http\Controllers\API\UserAPIController::class, 'updateAuth'])->name('users.update.me');
       Route::post('/file/upload', [App\Http\Controllers\API\FileAPIController::class, 'upload'])->name('files.upload');
       //Notifications (get notifications, read notification, read all notifications, delete notification)
-      Route::get('/notifications/me', [App\Http\Controllers\API\NotificationAPIController::class, 'index'])->name('notifications.me');
+      Route::get('/notifications/me', [App\Http\Controllers\API\NotificationAPIController::class, 'indexAuth'])->name('notifications.me');
       Route::patch('/notifications/me/{notification}', [App\Http\Controllers\API\NotificationAPIController::class, 'readAuth'])->name('notifications.read.me');
       Route::patch('/notifications/read/all', [App\Http\Controllers\API\NotificationAPIController::class, 'readAll'])->name('notifications.read.all');
       Route::delete('/notifications/me/{notification}', [App\Http\Controllers\API\NotificationAPIController::class, 'destroy'])->name('notifications.destroy.me');
@@ -48,14 +49,17 @@ Route::group(['middleware' => ['auth:api']], function () {
 
       //Admin scope
       Route::group(['middleware' => ['role:admin']], function () {
+          //Qr Sessions resource
           Route::resource('qr-sessions', App\Http\Controllers\API\QRSessionAPIController::class)
               ->except(['create', 'edit', 'store', 'update', 'show']); //list, destroy
 
+          //Gift cards resource
           Route::get('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'index'])->name('gift-cards.index'); //List any gift cards via user id
           Route::post('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store'); //Store any gift cards via user id
           Route::resource('gift-cards', App\Http\Controllers\API\GiftCardAPIController::class)
               ->except(['create', 'edit', 'store', 'index']); //show, update, destroy
 
+          //Users resource
           Route::get('/users', [App\Http\Controllers\API\UserAPIController::class, 'index'])->name('users.index');
           Route::patch('/users/{user}', [App\Http\Controllers\API\UserAPIController::class, 'update'])->name('users.update'); //Update any users
 
@@ -64,6 +68,9 @@ Route::group(['middleware' => ['auth:api']], function () {
 
           //Designs resource
           Route::resource('designs', App\Http\Controllers\API\DesignAPIController::class);
+
+          //Notifications resource
+          Route::get('/notifications/users/{user}', [App\Http\Controllers\API\NotificationAPIController::class, 'index'])->name('notifications.index');
       });
 
 });

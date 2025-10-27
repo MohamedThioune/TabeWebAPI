@@ -17,10 +17,8 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         //Load relation
-//        if(isset($this->roles->pluck('name')->toArray()[0]))
-
         $role = $this->roles->pluck('name')->toArray()[0] ?? Type::Customer->value;
-        $this->load($role);
+        if ($role != Type::Admin->value) $this->load($role);
         $this->load('categories');
 
 
@@ -29,6 +27,9 @@ class UserResource extends JsonResource
             Type::Customer->value   => CustomerResource::collection($this->whenLoaded('customer')),
             Type::Enterprise->value => EnterpriseResource::collection($this->whenLoaded('enterprise')),
             Type::Partner->value    => PartnerResource::collection($this->whenLoaded('partner')),
+
+            default => null,
+
         };
         $childResource = isset($childResources[0]) ? $childResources[0] : null;
         $sigla = null;
@@ -43,24 +44,27 @@ class UserResource extends JsonResource
             endif;
         endif;
 
+
+        //Context admin
+        $context_admin = $request->user()?->can('seeMySensitiveData', $this->resource);
         return [
             $role => $childResource,
-            'id' => $this->id,
+            'id' => $this->when($context_admin, $this->id),
             'sigla' => strtoupper($sigla),
             'avatar' => new FileResource($this->files->where('meaning', 'avatar')->first()),
             'banner' => new FileResource($this->files->where('meaning', 'banner')->first()),
-            'email' => $this->email,
+            'email' => $this->when($context_admin, $this->email),
             'phone' => $this->phone,
-            'whatsApp' => $this->whatsApp,
+            'whatsApp' => $this->when($context_admin, $this->whatsApp),
             'website' => $this->website,
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'bio' => $this->bio,
             'country' => $this->country,
-            'city' => $this->city,
-            'address' => $this->address,
-            'is_active' => $this->is_active,
-            'phone_verified_at' => $this->phone_verified_at,
-            'user_registered_at' => $this->created_at->format('M Y'),
+            'city' => $this->when($context_admin, $this->city),
+            'address' => $this->when($context_admin, $this->address),
+            'is_active' => $this->when($context_admin, $this->is_active),
+            'phone_verified_at' => $this->when($context_admin, $this->phone_verified_at),
+            'user_registered_at' => $this->when($context_admin, $this->created_at?->format('M Y') ),
         ];
     }
 }
