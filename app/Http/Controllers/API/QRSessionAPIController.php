@@ -276,44 +276,35 @@ class QRSessionAPIController extends AppBaseController
         return $this->sendSuccess('QR Session deleted successfully');
     }
 
-    public function check($payload): bool
+    public function check($payload): ?string
     {
         $decoded = base64_decode($payload);
         list($uuid, $signature) = explode('.', $decoded, 2);
         if (! hash_equals(hash_hmac('sha256', $uuid, config('app.key')), $signature)) {
-            return 0;
+            return null;
         }
 
-        return 1;
+        return (string)$uuid;
     }
 
-    public function verify($id, UpdateQRSessionAPIRequest $request): JsonResponse
+    public function verify(UpdateQRSessionAPIRequest $request): JsonResponse
     {
         /** @var QrSession $qRSession */
-        $qrSession = $this->qRSessionRepository->find($id);
+        $uuid = $this->check($request->payload); //return uuid or null
 
+        $qrSession = $this->qRSessionRepository->find($uuid);
         if (empty($qrSession)) {
-            return $this->sendError('QR Session not found or invalid, Refresh the QR !');
+            return $this->sendError('QR Session or Payload not found/invalid, Refresh the QR !');
         }
 
         //Logging the use
         $qrSession->status = 'used';
         $qrSession->updated_at = now();
 
-        //Checkin payload url
-        $check = $this->check($request->payload);
-        if (!$check) {
-            $qrSession->save();
-            $qrSession->delete();
-            return $this->sendError('Payload does not match any QR Session !');
-        }
-
-
         /*
          * Dispatch the transaction
         */
         // Instructions code here !
-
 
         $qrSession->save();
         $qrSession->delete();

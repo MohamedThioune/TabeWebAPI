@@ -30,12 +30,12 @@ class NotificationAPIController extends AppBaseController
 
         $infos = [
             'notifs' => NotificationResource::collection($notifs),
-            'count' => !empty($notifs) ? count($notifs) : 0
+            'count_read' => $notifs->where('is_read', true)->count(),
+            'count_not_read' => $notifs->where('is_read', false)->count(),
         ];
 
         return $infos;
     }
-
     public function indexAuth(Request $request): JsonResponse
     {
         $user = $request->user();
