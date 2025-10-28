@@ -29,7 +29,6 @@ class UserResource extends JsonResource
             Type::Partner->value    => PartnerResource::collection($this->whenLoaded('partner')),
 
             default => null,
-
         };
         $childResource = isset($childResources[0]) ? $childResources[0] : null;
         $sigla = null;
@@ -44,9 +43,8 @@ class UserResource extends JsonResource
             endif;
         endif;
 
-
         //Context admin
-        $context_admin = $request->user()?->can('seeMySensitiveData', $this->resource);
+        $context_admin = $request->user()?->can('seeSensitiveData', $this->resource);
         return [
             $role => $childResource,
             'id' => $this->when($context_admin, $this->id),
