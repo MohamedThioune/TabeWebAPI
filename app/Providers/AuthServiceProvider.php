@@ -29,7 +29,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
         Gate::define('seeSensitiveData', [SensitiveDataPolicy::class, 'seeSensitiveData']);
-        Gate::define('seeMySensitiveData', [SensitiveDataPolicy::class, 'seeMySensitiveData']);
+//        Gate::define('seeMySensitiveData', [SensitiveDataPolicy::class, 'seeMySensitiveData']);
 
         // Enable hashed storage of client secrets
         // Passport::hashClientSecrets();

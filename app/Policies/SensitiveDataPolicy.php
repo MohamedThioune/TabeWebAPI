@@ -18,16 +18,12 @@ class SensitiveDataPolicy
     public function seeSensitiveData(User $user, mixed $model = null): bool
     {
         if (!$model)
-        return $user->hasRole(Type::Admin->value);
+            return $user->hasRole(Type::Admin->value);
 
-        $isOwner = property_exists($model, 'user_id') && $user->id === $model->user_id;
-        return $user->hasRole(Type::Admin->value) || $isOwner;
-    }
+        $isOwner = ($model instanceof User) ?
+            (String) $user->id === (String) $model?->id :
+            (String) $user->id === (String) $model?->user_id;
 
-    public function seeMySensitiveData(User $user, User $model): bool
-    {
-
-        $isOwner = property_exists($model, 'user_id') && $user->id === $model->id;
         return $user->hasRole(Type::Admin->value) || $isOwner;
     }
 
