@@ -30,9 +30,9 @@ class FileResource extends JsonResource
             'key' => $this->when($context_super_admin, $key),
             'temporary_url' => $temporaryUrl,
             'meaning' => $this->when($context_super_admin, $this->meaning),
-            'description' => $this->when($context_super_admin, $this->description),
-            'created_at' => $this->when($context_super_admin, $this->created_at),
-            'updated_at' => $this->when($context_super_admin, $this->updated_at)
+            'description' => $this->when($context_admin, $this->description),
+            'created_at' => $this->when($context_admin, $this->created_at),
+            'updated_at' => $this->when($context_admin, $this->updated_at)
         ];
     }
 }
