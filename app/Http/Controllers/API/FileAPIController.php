@@ -44,6 +44,7 @@ class FileAPIController extends AppBaseController
      *      summary="uploadFile",
      *      tags={"Document"},
      *      description="Upload file",
+     *      security={{"passport":{}}},
      *      @OA\RequestBody(
      *        @OA\MediaType(
      *          mediaType="multipart/form-data",

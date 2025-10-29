@@ -30,7 +30,8 @@ class DesignAPIController extends AppBaseController
      *      path="/designs",
      *      summary="getDesignList",
      *      tags={"Design"},
-     *      description="Get all Designs",
+     *      description="Get all Designs | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
@@ -69,7 +70,8 @@ class DesignAPIController extends AppBaseController
      *      path="/designs",
      *      summary="createDesign",
      *      tags={"Design"},
-     *      description="Create Design",
+     *      description="Create Design | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\RequestBody(
      *        required=true,
      *        @OA\JsonContent(ref="#/components/schemas/Design")
@@ -109,7 +111,8 @@ class DesignAPIController extends AppBaseController
      *      path="/designs/{id}",
      *      summary="getDesignItem",
      *      tags={"Design"},
-     *      description="Get Design",
+     *      description="Get Design | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Design",
@@ -157,7 +160,8 @@ class DesignAPIController extends AppBaseController
      *      path="/designs/{id}",
      *      summary="updateDesign",
      *      tags={"Design"},
-     *      description="Update Design",
+     *      description="Update Design | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Design",
@@ -213,7 +217,8 @@ class DesignAPIController extends AppBaseController
      *      path="/designs/{id}",
      *      summary="deleteDesign",
      *      tags={"Design"},
-     *      description="Delete Design",
+     *      description="Delete Design | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Design",

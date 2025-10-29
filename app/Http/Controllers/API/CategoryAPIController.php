@@ -30,7 +30,8 @@ class CategoryAPIController extends AppBaseController
      *      path="/categories",
      *      summary="getCategoryList",
      *      tags={"Category"},
-     *      description="Get all Categories",
+     *      description="Get all Categories | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
@@ -69,7 +70,8 @@ class CategoryAPIController extends AppBaseController
      *      path="/categories",
      *      summary="createCategory",
      *      tags={"Category"},
-     *      description="Create Category",
+     *      description="Create Category | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\RequestBody(
      *        required=true,
      *        @OA\JsonContent(ref="#/components/schemas/Category")
@@ -109,7 +111,8 @@ class CategoryAPIController extends AppBaseController
      *      path="/categories/{id}",
      *      summary="getCategoryItem",
      *      tags={"Category"},
-     *      description="Get Category",
+     *      description="Get Category | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Category",
@@ -157,7 +160,8 @@ class CategoryAPIController extends AppBaseController
      *      path="/categories/{id}",
      *      summary="updateCategory",
      *      tags={"Category"},
-     *      description="Update Category",
+     *      description="Update Category | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Category",
@@ -213,7 +217,8 @@ class CategoryAPIController extends AppBaseController
      *      path="/categories/{id}",
      *      summary="deleteCategory",
      *      tags={"Category"},
-     *      description="Delete Category",
+     *      description="Delete Category | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Category",

@@ -33,7 +33,8 @@ class QRSessionAPIController extends AppBaseController
      *      path="/qr-sessions",
      *      summary="getQRSessionList",
      *      tags={"QRSession"},
-     *      description="Get all QRSessions",
+     *      description="Get all QRSessions | Only for admin",
+     *      security={{"passport":{}}},
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
@@ -73,6 +74,7 @@ class QRSessionAPIController extends AppBaseController
      *      summary="createQRSession",
      *      tags={"QRSession"},
      *      description="Create QRSession",
+     *      security={{"passport":{}}},
      *      @OA\RequestBody(
      *        required=true,
      *        @OA\JsonContent(ref="#/components/schemas/QRSession")
@@ -311,40 +313,6 @@ class QRSessionAPIController extends AppBaseController
 
         return $this->sendResponse(new QRSessionResource($qrSession), 'QR Session verified successfully');
     }
-
-//    public function verify($id, UpdateQRSessionAPIRequest $request): JsonResponse
-//    {
-//        /** @var QrSession $qRSession */
-//        $qrSession = $this->qRSessionRepository->find($id);
-//
-//        if (empty($qrSession)) {
-//            return $this->sendError('QR Session not found or invalid, Refresh the QR !');
-//        }
-//
-//        //Logging the use
-//        $qrSession->status = 'used';
-//        $qrSession->updated_at = now();
-//
-//        //Checkin payload url
-//        $check = $this->check($request->payload);
-//        if (!$check) {
-//            $qrSession->save();
-//            $qrSession->delete();
-//            return $this->sendError('Payload does not match any QR Session !');
-//        }
-//
-//        /*
-//         * Dispatch the transaction
-//        */
-//        // Instructions code here !
-//
-//        $qrSession->save();
-//        $qrSession->delete();
-//
-//        return $this->sendResponse(new QRSessionResource($qrSession), 'QR Session verified successfully');
-//
-//    }
-
 
 
 }
