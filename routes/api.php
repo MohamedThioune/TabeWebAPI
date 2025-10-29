@@ -49,6 +49,13 @@ Route::group(['middleware' => ['auth:api']], function () {
 
       //Admin scope
       Route::group(['middleware' => ['role:admin']], function () {
+          //Swagger url
+//          Route::middleware('auth:api')->group(function () {
+//              Route::get('api/documentation', function () {
+//                  return view('swagger.index'); // ou la vue du L5-Swagger
+//              });
+//          });
+
           //Qr Sessions resource
           Route::resource('qr-sessions', App\Http\Controllers\API\QRSessionAPIController::class)
               ->except(['create', 'edit', 'store', 'update', 'show']); //list, destroy

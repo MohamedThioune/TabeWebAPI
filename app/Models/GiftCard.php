@@ -10,22 +10,57 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * @OA\Schema(
  *      schema="GiftCard",
- *      required={"pin_hash","face_amount", "expired_at"},
+ *      required={"belonging_type","type","face_amount","is_active","design_id"},
  *      @OA\Property(
- *          property="pin_hash",
- *          description="",
+ *          property="belonging_type",
+ *          description="myself or others",
  *          readOnly=false,
  *          nullable=false,
  *          type="string",
  *      ),
  *      @OA\Property(
+ *           property="type",
+ *           description="physical or digital",
+ *           readOnly=false,
+ *           nullable=false,
+ *           type="string",
+ *       ),
+ *      @OA\Property(
  *          property="face_amount",
- *          description="",
+ *          description="amount of the card between [10000, 150000] ",
  *          readOnly=false,
  *          nullable=false,
  *          type="integer",
  *          format="int32"
  *      ),
+ *      @OA\Property(
+ *           property="is_active",
+ *           description="state of the card",
+ *           readOnly=true,
+ *           nullable=false,
+ *           type="boolean",
+ *       ),
+ *       @OA\Property(
+ *            property="owner_user_id",
+ *            description="creator of the card",
+ *            readOnly=true,
+ *            nullable=false,
+ *            type="string",
+ *      ),
+ *      @OA\Property(
+ *            property="beneficiary_id",
+ *            description="beneficiary of the card",
+ *            readOnly=true,
+ *            nullable=false,
+ *            type="integer",
+ *      ),
+ *      @OA\Property(
+ *           property="design_id",
+ *           description="designs of the card(1:Classique, 2:Moderne, 3:Elegant, 4:Premium)",
+ *           readOnly=false,
+ *           nullable=false,
+ *           type="integer",
+ *       ),
  *      @OA\Property(
  *          property="created_at",
  *          description="",

@@ -18,6 +18,124 @@ use App\Domain\Users\ValueObjects\Type;
  * @method static pluck(string $string)
  */
 
+/**
+ * @OA\Schema(
+ *      schema="User",
+ *      required={"email","phone","whatsApp","password"},
+ *      @OA\Property(
+ *           property="sigla",
+ *           description="",
+ *           readOnly=true,
+ *           nullable=false,
+ *           type="string",
+ *       ),
+ *      @OA\Property(
+ *          property="email",
+ *          description="",
+ *          readOnly=false,
+ *          nullable=false,
+ *          type="string",
+ *          format="email"
+ *      ),
+ *      @OA\Property(
+ *          property="phone",
+ *          description="",
+ *          readOnly=false,
+ *          nullable=false,
+ *          type="string",
+ *      ),
+ *      @OA\Property(
+ *           property="whatsApp",
+ *           description="",
+ *           readOnly=false,
+ *           nullable=false,
+ *           type="string",
+ *       ),
+ *      @OA\Property(
+ *            property="password",
+ *            description="",
+ *            readOnly=false,
+ *            nullable=false,
+ *            type="string",
+ *            format="password"
+ *        ),
+ *      @OA\Property(
+ *            property="bio",
+ *            description="",
+ *            readOnly=false,
+ *            nullable=true,
+ *            type="string",
+ *            format="textarea"
+ *        ),
+ *      @OA\Property(
+ *             property="website",
+ *             description="",
+ *             readOnly=false,
+ *             nullable=true,
+ *             type="string",
+ *             format="uri"
+ *         ),
+ *      @OA\Property(
+ *          property="country",
+ *          description="",
+ *          readOnly=false,
+ *          nullable=true,
+ *          type="string",
+ *      ),
+ *      @OA\Property(
+ *          property="city",
+ *          description="",
+ *          readOnly=false,
+ *          nullable=true,
+ *          type="string",
+ *      ),
+ *      @OA\Property(
+ *          property="address",
+ *          description="",
+ *          readOnly=false,
+ *          nullable=true,
+ *          type="string",
+ *      ),
+ *      @OA\Property(
+ *            property="is_active",
+ *            description="",
+ *            readOnly=true,
+ *            nullable=true,
+ *            type="boolean",
+ *        ),
+ *      @OA\Property(
+ *            property="phone_verified_at",
+ *            description="",
+ *            readOnly=true,
+ *            nullable=true,
+ *            type="string",
+ *            format="date-time"
+ *        ),
+ *     @OA\Property(
+ *           property="user_registered_at",
+ *           description="",
+ *           readOnly=true,
+ *           nullable=true,
+ *           type="string",
+ *       ),
+ *      @OA\Property(
+ *           property="created_at",
+ *           description="",
+ *           readOnly=true,
+ *           nullable=true,
+ *           type="string",
+ *           format="date-time"
+ *       ),
+ *       @OA\Property(
+ *           property="updated_at",
+ *           description="",
+ *           readOnly=true,
+ *           nullable=true,
+ *           type="string",
+ *           format="date-time"
+ *       )
+ * )
+ */
 class User extends Authenticatable
 {
     use HasUuids, HasApiTokens, HasRoles, HasFactory, Notifiable;
@@ -29,7 +147,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
+    protected $fillable = array(
         'id',
         'email',
         'phone',
@@ -42,7 +160,7 @@ class User extends Authenticatable
         'address',
         'is_active',
         'phone_verified_at',
-    ];
+    );
 
     /**
      * The attributes that should be hidden for serialization.

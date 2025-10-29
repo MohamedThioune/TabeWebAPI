@@ -40,7 +40,7 @@ class FileAPIController extends AppBaseController
 
     /**
      * @OA\Post(
-     *      path="/upload",
+     *      path="/file/upload",
      *      summary="uploadFile",
      *      tags={"Document"},
      *      description="Upload file",
@@ -52,10 +52,6 @@ class FileAPIController extends AppBaseController
      *                 property="file",
      *                 type="string",
      *                 format="binary"
-     *             ),
-     *             @OA\Property(
-     *                 property="path",
-     *                 type="string",
      *             ),
      *             @OA\Property(
      *                 property="meaning",
