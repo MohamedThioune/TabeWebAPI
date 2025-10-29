@@ -39,6 +39,80 @@ class UserAPIController extends AppBaseController
 
         return $infos;
     }
+    /**
+     * @OA\Get(
+     *      path="/users",
+     *      summary="ListUsers",
+     *      tags={"User"},
+     *      description="List the users | Only for admin !!",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *          name="type",
+     *          in="query",
+     *          description="Filter users by role (customer, partner)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string",
+     *              enum={"customer", "partner"}
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *          name="is_active",
+     *          in="query",
+     *          description="Filter users by status (0:inactive, 1:active)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="boolean",
+     *          )
+     *      ),
+     *     @OA\Parameter(
+     *           name="is_phone_verified",
+     *           in="query",
+     *           description="Filter users by status (0:inactive, 1:active)",
+     *           required=false,
+     *           @OA\Schema(
+     *               type="boolean",
+     *           )
+     *       ),
+     *      @OA\Parameter(
+     *          name="skip",
+     *          in="query",
+     *          description="Skip",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *           name="limit",
+     *           in="query",
+     *           description="Limit",
+     *           required=false,
+     *           @OA\Schema(
+     *               type="integer"
+     *           )
+     *       ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  ref="#/components/schemas/User"
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+     */
     public function index(GetUsersAPIRequest $request): JsonResponse
     {
         $search = $request->except(['skip', 'limit']);
@@ -47,6 +121,52 @@ class UserAPIController extends AppBaseController
 
         return $this->sendResponse($infos, 'Users retrieved successfully.');
     }
+    /**
+     * @OA\Get(
+     *      path="/partners",
+     *      summary="ListPartners",
+     *      tags={"Partner"},
+     *      description="List the partners",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *          name="skip",
+     *          in="query",
+     *          description="Skip",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *           name="limit",
+     *           in="query",
+     *           description="Limit",
+     *           required=false,
+     *           @OA\Schema(
+     *               type="integer"
+     *           )
+     *       ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  ref="#/components/schemas/User"
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+     */
     public function indexPartner(GetUsersAPIRequest $request): JsonResponse
     {
         $search = $request->except(['skip', 'limit']);
@@ -95,6 +215,86 @@ class UserAPIController extends AppBaseController
 
         return $this->sendResponse(new UserResource($user), 'Users retrieved successfully.');
     }
+    /**
+     * @OA\Patch(
+     *      path="/users",
+     *      summary="updateUser",
+     *      tags={"User"},
+     *      description="Update the user",
+     *      @OA\RequestBody(
+     *        @OA\MediaType(
+     *          mediaType="multipart/form-data",
+     *           @OA\Schema(
+     *             @OA\Property(
+     *                 property="first_name",
+     *                 type="string",
+     *                 description="if user a customer"
+     *             ),
+     *             @OA\Property(
+     *                  property="last_name",
+     *                  type="string",
+     *                  description="if user a customer"
+     *             ),
+     *             @OA\Property(
+     *                   property="gender",
+     *                   type="string",
+     *                   description="if user a customer",
+     *                   enum={"male","female"}
+     *             ),
+     *             @OA\Property(
+     *                    property="birthdate",
+     *                    type="string",
+     *                    description="if user a customer",
+     *                    format="date-time"
+     *              ),
+     *              @OA\Property(
+     *                    property="name",
+     *                    type="string",
+     *                    description="if user a partner",
+     *               ),
+     *              @OA\Property(
+     *                    property="sector",
+     *                    type="string",
+     *                    description="if user a partner",
+     *                    enum={"Mode","Beauté","Gastronomie","Technologie","Bien-être","Décoration","Sport","Librairie"}
+     *               ),
+     *              @OA\Property(
+     *                  property="office_phone",
+     *                  type="string",
+     *                  description="if user a partner",
+     *              ),
+     *             @OA\Property(
+     *                    property="country",
+     *                    type="string",
+     *              ),
+     *             @OA\Property(
+     *                    property="city",
+     *                    type="string",
+     *             ),
+     *             @OA\Property(
+     *                     property="address",
+     *                     type="string",
+     *              ),
+     *           ),
+     *        ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation !",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="Success",
+     *              ),
+     *          ),
+     *     ),
+     * )
+     */
     public function updateAuth(UserRequest $request): JsonResponse
     {
         $user = $request->user();

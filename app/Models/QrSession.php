@@ -10,29 +10,45 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * @OA\Schema(
  *      schema="QRSession",
- *      required={"token","url"},
+ *      required={"gift_card_id"},
  *      @OA\Property(
- *          property="token",
+ *           property="status",
+ *           description="",
+ *           readOnly=true,
+ *           nullable=true,
+ *           type="string",
+ *       ),
+ *      @OA\Property(
+ *          property="payload",
  *          description="",
- *          readOnly=false,
- *          nullable=false,
+ *          readOnly=true,
+ *          nullable=true,
  *          type="string",
+ *          format="byte"
  *      ),
  *      @OA\Property(
  *          property="url",
  *          description="",
- *          readOnly=false,
+ *          readOnly=true,
  *          nullable=false,
  *          type="string",
+ *          format="uri"
  *      ),
  *      @OA\Property(
  *          property="expired_at",
  *          description="",
- *          readOnly=false,
+ *          readOnly=true,
  *          nullable=true,
  *          type="string",
  *          format="date-time"
  *      ),
+ *     @OA\Property(
+ *           property="gift_card_id",
+ *           description="",
+ *           readOnly=false,
+ *           nullable=true,
+ *           type="string",
+ *       ),
  *      @OA\Property(
  *          property="created_at",
  *          description="",
@@ -57,6 +73,7 @@ class QrSession extends Model
      public $table = 'qr_sessions';
 
     public $fillable = [
+        'id',
         'status',
         'token',
         'url',

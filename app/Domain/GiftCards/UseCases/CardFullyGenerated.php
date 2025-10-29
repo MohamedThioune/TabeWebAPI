@@ -74,6 +74,7 @@ class CardFullyGenerated
         $payload = base64url_encode($combined);
 
         // Signed URL to be encoded in the QR code
+        // $url = config('app.frontend_url') . "/scan/{$uuid_qr}/{$payload}";
         $url = config('app.frontend_url') . "/scan/{$payload}";
 
         return [

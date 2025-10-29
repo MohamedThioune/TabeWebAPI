@@ -29,6 +29,77 @@ class AuthAPIController extends Controller
 
     public function __construct(private RegisterUser $registerUser, private OTPRequestRepository $otpRequestRepository){}
 
+    /**
+     * @OA\Post(
+     *      path="/auth/register",
+     *      summary="register",
+     *      tags={"Auth"},
+     *      description="Register a user",
+     *      @OA\RequestBody(
+     *        @OA\MediaType(
+     *          mediaType="multipart/form-data",
+     *           @OA\Schema(
+     *              @OA\Property(
+     *                  property="type",
+     *                  type="string",
+     *                  description="type user(customer, partner, enterprise)",
+     *                  enum={"customer", "partner", "enterprise"}
+     *              ),
+     *              @OA\Property(
+     *                   property="first_name",
+     *                   type="string",
+     *                   description="first name | if a customer"
+     *               ),
+     *              @OA\Property(
+     *                  property="last_name",
+     *                  type="string",
+     *                  description="first name | if a customer"
+     *              ),
+     *              @OA\Property(
+     *                  property="email",
+     *                  type="string",
+     *                  description="nullable"
+     *              ),
+     *              @OA\Property(
+     *                   property="phone",
+     *                   type="string",
+     *                   description="use it as a identifier(username)"
+     *               ),
+     *              @OA\Property(
+     *                    property="whatsApp",
+     *                    type="string",
+     *              ),
+     *              @OA\Property(
+     *                  property="password",
+     *                  type="string",
+     *              ),
+     *              @OA\Property(
+     *                   property="password_confirmation",
+     *                   type="string",
+     *               ),
+     *           ),
+     *        ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="status",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     */
     public function register(UserRequest $request): JsonResponse
     {
        $dto = array();
@@ -111,6 +182,60 @@ class AuthAPIController extends Controller
 
     }
 
+    /**
+     * @OA\Post(
+     *      path="/auth/otp/request/{phone}",
+     *      summary="OTPRequest",
+     *      tags={"OTP"},
+     *      description="OTP request",
+     *      @OA\Parameter(
+     *          name="phone",
+     *          description="phone number to receive the OTP",
+     *           @OA\Schema(
+     *             type="string"
+     *          ),
+     *          required=true,
+     *          in="path"
+     *      ),
+     *      @OA\RequestBody(
+     *         @OA\MediaType(
+     *           mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *              @OA\Property(
+     *                   property="purpose",
+     *                   type="string",
+     *                   description="purpose of this request ('login', 'reset_password', 'activate_card', 'verify_card', 'others')",
+     *                   enum={"login", "reset_password", "activate_card", "verify_card", "others"}
+     *              ),
+     *              @OA\Property(
+     *                    property="channel",
+     *                    type="string",
+     *                    description="channel used('whatsapp', 'sms')",
+     *                    enum={"whatsapp", "sms"}
+     *              ),
+     *           ),
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="status",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     */
     public function otp_request(User $user, OTPAPIRequest $request): JsonResponse
     {
         $input = $request->only('purpose', 'channel', );
@@ -119,6 +244,59 @@ class AuthAPIController extends Controller
         return $this->response($otp_code, 'OTP send successfully !', 200);
     }
 
+    /**
+     * @OA\Put(
+     *      path="/auth/otp/verify/{phone}",
+     *      summary="OTPVerify",
+     *      tags={"OTP"},
+     *      description="OTP verify",
+     *      @OA\Parameter(
+     *          name="phone",
+     *          description="phone number to receive the OTP",
+     *           @OA\Schema(
+     *             type="string"
+     *          ),
+     *          required=true,
+     *          in="path"
+     *      ),
+     *      @OA\RequestBody(
+     *         @OA\MediaType(
+     *           mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *              @OA\Property(
+     *                   property="purpose",
+     *                   type="string",
+     *                   description="purpose of this request ('login', 'reset_password', 'activate_card', 'verify_card', 'others')",
+     *                   enum={"login", "reset_password", "activate_card", "verify_card", "others"}
+     *              ),
+     *              @OA\Property(
+     *                    property="otp_code",
+     *                    type="integer",
+     *                    description="code otp to test"
+     *              ),
+     *           ),
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="status",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     */
     public function otp_verify(User $user, OTPAPIRequest $request): JsonResponse
     {
         $input = $request->only('purpose', 'otp_code');
@@ -167,7 +345,7 @@ class AuthAPIController extends Controller
      * @OA\Get(
      *      path="/me",
      *      summary="Me",
-     *      tags={"Auth"},
+     *      tags={"User"},
      *      description="Auth user",
      *      security={{"passport":{}}},
      *      @OA\Response(
@@ -183,6 +361,10 @@ class AuthAPIController extends Controller
      *                  property="data",
      *                  ref="#/components/schemas/User"
      *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
      *          )
      *      )
      * )
@@ -198,7 +380,7 @@ class AuthAPIController extends Controller
     }
 
     /**
-     * @OA\Post(
+     * @OA\Delete(
      *      path="/logout",
      *      summary="logout",
      *      tags={"Auth"},
@@ -210,7 +392,7 @@ class AuthAPIController extends Controller
      *          @OA\JsonContent(
      *              type="object",
      *              @OA\Property(
-     *                  property="success",
+     *                  property="status",
      *                  type="boolean"
      *              ),
      *              @OA\Property(
