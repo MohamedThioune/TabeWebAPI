@@ -24,20 +24,21 @@ class UserAPIController extends AppBaseController
 {
     public function __construct(private UserRepository $userRepository, private EnterpriseRepository $enterpriseRepository, private PartnerRepository $partnerRepository, private CustomerRepository $customerRepository){}
 
-    public function detached_index(array $search, Request $request): array
+    public function detached_index(array $search, Request $request, int $perPage = 8): array
     {
-        $users = $this->userRepository->all(
+        $query_users = $this->userRepository->allQuery(
             $search,
             $request->get('skip'),
             $request->get('limit')
         );
 
-        $infos = [
-            'users' => UserResource::collection($users),
-            'count' => !empty($users) ? count($users) : 0
-        ];
+        $count_users = $this->userRepository->countQuery($query_users);
+        $paginated_users = $this->userRepository->paginate($query_users, $perPage);
 
-        return $infos;
+        return [
+            'users' => UserResource::collection($paginated_users),
+            'count' => $count_users,
+        ];
     }
     /**
      * @OA\Get(
@@ -63,15 +64,17 @@ class UserAPIController extends AppBaseController
      *          required=false,
      *          @OA\Schema(
      *              type="boolean",
+     *              enum={"0","1"}
      *          )
      *      ),
-     *     @OA\Parameter(
+     *      @OA\Parameter(
      *           name="is_phone_verified",
      *           in="query",
-     *           description="Filter users by status (0:inactive, 1:active)",
+     *           description="Filter users by status (0:not_verified, 1:verified)",
      *           required=false,
      *           @OA\Schema(
      *               type="boolean",
+     *               enum={"0","1"}
      *           )
      *       ),
      *      @OA\Parameter(
@@ -129,18 +132,18 @@ class UserAPIController extends AppBaseController
      *      description="List the partners",
      *      security={{"passport":{}}},
      *      @OA\Parameter(
-     *          name="skip",
+     *          name="per_page",
      *          in="query",
-     *          description="Skip",
+     *          description="number items per page",
      *          required=false,
      *          @OA\Schema(
      *              type="integer"
      *          )
      *      ),
      *      @OA\Parameter(
-     *           name="limit",
+     *           name="page",
      *           in="query",
-     *           description="Limit",
+     *           description="page number",
      *           required=false,
      *           @OA\Schema(
      *               type="integer"
@@ -169,10 +172,11 @@ class UserAPIController extends AppBaseController
      */
     public function indexPartner(GetUsersAPIRequest $request): JsonResponse
     {
-        $search = $request->except(['skip', 'limit']);
+        $search = $request->except(['skip', 'limit', 'page']);
         $search['type'] = Type::Partner->value;
+        $perPage = $request->get('per_page', 8);
 
-        $infos = $this->detached_index($search, $request);
+        $infos = $this->detached_index($search, $request, $perPage);
 
         return $this->sendResponse($infos, 'Partners retrieved successfully.');
     }

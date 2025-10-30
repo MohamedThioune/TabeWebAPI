@@ -99,7 +99,10 @@ class GiftCard extends Model
     ];
 
     protected $casts = [
-        'face_amount' => 'integer'
+        'face_amount' => 'integer',
+        'is_active' => 'boolean',
+        'is_verified' => 'boolean',
+        'with_summary' => 'boolean',
     ];
 
     protected $hidden = [

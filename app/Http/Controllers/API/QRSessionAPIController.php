@@ -71,9 +71,9 @@ class QRSessionAPIController extends AppBaseController
     /**
      * @OA\Post(
      *      path="/qr-sessions",
-     *      summary="createQRSession",
+     *      summary="refreshQRSession",
      *      tags={"QRSession"},
-     *      description="Create QRSession",
+     *      description="Refresh QR Session",
      *      security={{"passport":{}}},
      *      @OA\RequestBody(
      *        required=true,
@@ -129,7 +129,7 @@ class QRSessionAPIController extends AppBaseController
      *      path="/qr-sessions/{id}",
      *      summary="getQRSessionItem",
      *      tags={"QRSession"},
-     *      description="Get QRSession",
+     *      description="Get QR Session",
      *      @OA\Parameter(
      *          name="id",
      *          description="id of QRSession",

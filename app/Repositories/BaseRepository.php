@@ -52,16 +52,6 @@ abstract class BaseRepository
     }
 
     /**
-     * Paginate records for scaffold.
-     */
-    public function paginate(int $perPage, array $columns = ['*']): LengthAwarePaginator
-    {
-        $query = $this->allQuery();
-
-        return $query->paginate($perPage, $columns);
-    }
-
-    /**
      * Build a query for retrieving all records.
      */
     public function allQuery(array $search = [], int $skip = null, int $limit = null): Builder
@@ -89,6 +79,23 @@ abstract class BaseRepository
     }
 
     /**
+     * Count records for scaffold.
+     */
+    public static function countQuery(Builder $query): int
+    {
+        // dd($query->toSql(), $query->getBindings());
+        return $query->count();
+    }
+
+    /**
+     * Paginate records for scaffold.
+     */
+    public static function paginate(Builder $query, int $perPage = 8, array $columns = ['*']): LengthAwarePaginator
+    {
+        return $query->paginate($perPage, $columns);
+    }
+
+    /**
      * Retrieve all records with given filter criteria
      */
     public function all(array $search = [], int $skip = null, int $limit = null, array $columns = ['*']): Collection
@@ -97,6 +104,7 @@ abstract class BaseRepository
 
         return $query->get($columns);
     }
+
 
     /**
      * find first record with given filter criteria

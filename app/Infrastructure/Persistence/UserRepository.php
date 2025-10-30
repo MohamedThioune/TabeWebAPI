@@ -5,6 +5,7 @@ namespace App\Infrastructure\Persistence;
 use App\Domain\Users\Entities\User;
 use App\Models\User as ModelUser;
 use App\Repositories\BaseRepository;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class UserRepository extends BaseRepository
@@ -33,11 +34,11 @@ class UserRepository extends BaseRepository
     }
 
     /**
-     * @Override All method
+     * @Override All Query method
      */
-    public function all(array $search = [], int $skip = null, int $limit = null, array $columns = ['*']): Collection
+    public function allQuery(array $search = [], int $skip = null, int $limit = null): Builder
     {
-        $query = $this->allQuery($search, $skip, $limit);
+        $query = $this->model->newQuery();
 
         if(isset($search['type']))
             $query->role($search['type']);
@@ -46,23 +47,25 @@ class UserRepository extends BaseRepository
             ($search['is_phone_verified'])
                 ? $query->whereNotNull('phone_verified_at')
                 : $query->whereNull('phone_verified_at');
-        return $query->get($columns);
-    }
 
-    public function save(User $user): ModelUser
-    {
-        $model = ModelUser::create([
-            'id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'phone' => (String)$user->getPhone(),
-            'whatsApp' => "whatsapp:" . (String)$user->getwhatsApp(),
-            'password' => $user->getPasswordHash(),
-        ]);
+        if (count($search)) {
+            foreach($search as $key => $value) {
+                if (in_array($key, $this->getFieldsSearchable())) {
+                    $query->where($key, $value);
+                }
+            }
+        }
 
-        //Assign role
-        $model->assignRole($user->getType());
+        if (!is_null($skip)) {
+            $query->skip($skip);
+        }
 
-        return $model->load($user->getType());
+        if (!is_null($limit)) {
+            $query->limit($limit);
+        }
+
+        $query->orderBy('created_at', 'desc');
+        return $query;
     }
 
     /**
@@ -83,4 +86,21 @@ class UserRepository extends BaseRepository
 
         return $model;
     }
+
+    public function save(User $user): ModelUser
+    {
+        $model = ModelUser::create([
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'phone' => (String)$user->getPhone(),
+            'whatsApp' => "whatsapp:" . (String)$user->getwhatsApp(),
+            'password' => $user->getPasswordHash(),
+        ]);
+
+        //Assign role
+        $model->assignRole($user->getType());
+
+        return $model->load($user->getType());
+    }
+
 }
