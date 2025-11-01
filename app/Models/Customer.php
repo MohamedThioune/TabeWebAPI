@@ -42,9 +42,6 @@ class Customer extends Model
         'last_name' => 'string|max:255',
         'gender' => 'string|in:male,female',
         'birthdate' => 'date',
-        'address' => 'string|max:255',
-        'city' => 'string|max:255',
-        'country' => 'string|max:255',
         'preferences' => 'array',
     ];
 
