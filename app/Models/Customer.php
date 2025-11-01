@@ -24,9 +24,6 @@ class Customer extends Model
         'last_name',
         'birthdate',
         'gender',
-        'address',
-        'city',
-        'country',
         'preferences',
         'user_id'
     ];
