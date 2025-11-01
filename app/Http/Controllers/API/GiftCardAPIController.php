@@ -51,7 +51,7 @@ class GiftCardAPIController extends AppBaseController
         ];
 
         if($request->get('with_summary')){
-            $infos['total_amount_user'] = $this->giftCardRepository->all(['owner_user_id', $user->id],null, null)->sum('face_amount');
+            $infos['total_amount_user'] = $giftCards->sum('face_amount');
         }
 
         return $infos;
