@@ -51,7 +51,7 @@ class GiftCardAPIController extends AppBaseController
         ];
 
         if($request->get('with_summary')){
-            $infos['total_amount_user'] = $this->giftCardRepository->all(['owner_user_id', $user->id])->sum('face_amount');
+            $infos['total_amount_user'] = $this->giftCardRepository->all($user->id)->sum('face_amount');
         }
 
         return $infos;
@@ -193,7 +193,7 @@ class GiftCardAPIController extends AppBaseController
      *             description="Get the total amounts of the user (0:inactive, 1:active)",
      *             required=false,
      *             @OA\Schema(
-    *                  type="integer",
+     *                  type="integer",
      *                 enum={0,1}
      *             )
      *       ),
