@@ -186,11 +186,6 @@ class User extends Authenticatable
         return $this->whatsApp ? $this->whatsApp : '';
     }
 
-//    public function getRouteKeyName()
-//    {
-//        return 'phone';
-//    }
-
     public static function ruleCreated(): array
     {
         return [
@@ -207,11 +202,13 @@ class User extends Authenticatable
     {
         return [
             'type' => ["string", new Enum(Type::class)],
+            'sector' => ["string", "in:Mode,Beauté,Gastronomie,Technologie,Bien-être,Décoration,Sport,Librairie"],
+            'q' => ["string", "max:255"],
             'is_phone_verified' => ["boolean"],
             'is_active' => ["boolean"],
             'country' => ["string", "max:255"],
             'city' => ["string", "max:255"],
-            'address' => ["string", "max:255"],
+            'address' => ["string", "max:255"]
         ];
     }
 
@@ -257,8 +254,7 @@ class User extends Authenticatable
     }
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'user_categories')
-            ->withTimestamps();
+        return $this->belongsToMany(Category::class, 'user_categories')->withTimestamps();
     }
 
 }

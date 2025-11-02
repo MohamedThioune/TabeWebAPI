@@ -18,7 +18,7 @@ class GetUsersAPIRequest extends FormRequest
     protected function prepareForValidation() : void
     {
        //Keep only the fields wanted
-        $this->replace($this->only(['type', 'is_active', 'is_phone_verified', 'city', 'country', 'address', 'skip', 'limit', 'per_page', 'page']));
+        $this->replace($this->only(['type', 'sector', 'q', 'is_active', 'is_phone_verified', 'city', 'country', 'address', 'skip', 'limit', 'per_page', 'page']));
     }
 
     /**
