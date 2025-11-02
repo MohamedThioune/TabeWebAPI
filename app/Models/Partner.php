@@ -28,7 +28,6 @@ class Partner extends Model
 
         'kyc_status', //active, suspended, pending_approval
          // 'tax_id', //NINEA, registre commerce
-
         'user_id'
     ];
 

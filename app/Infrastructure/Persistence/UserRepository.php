@@ -11,14 +11,14 @@ use Illuminate\Database\Eloquent\Collection;
 class UserRepository extends BaseRepository
 {
     protected $fieldSearchable = [
-        'phone',
-        'email',
-        'whatsApp',
-        'country',
-        'city',
-        'address',
-        'bio',
-        'website',
+//        'phone',
+//        'email',
+//        'whatsApp',
+//        'country',
+//        'city',
+//        'address',
+//        'bio',
+//        'website',
         'is_active',
         'phone_verified_at',
     ];
@@ -40,14 +40,30 @@ class UserRepository extends BaseRepository
     {
         $query = $this->model->newQuery();
 
-        if(isset($search['type']))
-            $query->role($search['type']);
+        $role = isset($search['type']) ? $search['type'] : null;
 
-        if(isset($search['is_phone_verified']))
-            ($search['is_phone_verified'])
-                ? $query->whereNotNull('phone_verified_at')
-                : $query->whereNull('phone_verified_at');
+        // sector or q(name of the partner) query
+        $sector = $search['sector'] ?? null;
+        $q = $search['q'] ?? null;
 
+        if($role == "partner")
+            $query->whereHas('partner', function ($partner_query) use ($search, $sector, $q) {
+                //sector is defined
+                if($sector)
+                    $partner_query->where('sector', $search['sector']);
+
+                //q is defined for the name partner
+                if($q)
+                    $partner_query->where('name', 'LIKE', '%' . trim($q) .'%');
+            });
+
+        // q(name of the categories belonged to the user) query
+        if($q)
+            $query->orWhereHas('categories', function ($category_query) use ($search, $q, $query) {
+                $category_query->where('name', 'LIKE', '%' . trim($q) .'%');
+            });
+
+        //research (active user state, ...) queries
         if (count($search)) {
             foreach($search as $key => $value) {
                 if (in_array($key, $this->getFieldsSearchable())) {
@@ -55,6 +71,16 @@ class UserRepository extends BaseRepository
                 }
             }
         }
+
+        // phone verified query
+        if(isset($search['is_phone_verified']))
+            ($search['is_phone_verified'])
+                ? $query->whereNotNull('phone_verified_at')
+                : $query->whereNull('phone_verified_at');
+
+        // role user (customer, partner, enterprise) query
+        if($role)
+            $query->role($role);
 
         if (!is_null($skip)) {
             $query->skip($skip);

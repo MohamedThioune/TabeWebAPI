@@ -172,7 +172,8 @@ class UserAPIController extends AppBaseController
      */
     public function indexPartner(GetUsersAPIRequest $request): JsonResponse
     {
-        $search = $request->except(['skip', 'limit', 'page']);
+        $search = $request->except(['skip', 'limit', 'page', 'per_page']);
+//        dd($search);
         $search['type'] = Type::Partner->value;
         $perPage = $request->get('per_page', 8);
 
