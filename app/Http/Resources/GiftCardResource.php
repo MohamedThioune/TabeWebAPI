@@ -15,12 +15,12 @@ class GiftCardResource extends JsonResource
     public function toArray($request)
     {
         //Load the relations
-        $this->load('qrsessions');
+        $this->load('qrSessions');
         $this->load('user');
         $this->load('beneficiary');
         $this->load('design');
 
-        $qrResource = QRSessionResource::collection($this->whenLoaded('qrsessions'));
+        $qrResource = QRSessionResource::collection($this->whenLoaded('qrSessions'));
 
         return [
             'id' => $this->id,

@@ -129,7 +129,7 @@ class GiftCard extends Model
     public function user(){
         return $this->belongsTo(User::class, 'owner_user_id');
     }
-    public function qrsessions(){
+    public function qrSessions(){
         return $this->hasMany(QrSession::class);
     }
     public function beneficiary()
@@ -142,6 +142,4 @@ class GiftCard extends Model
     public function cardevent(){
         return $this->hasMany(CardEvent::class);
     }
-
-
 }

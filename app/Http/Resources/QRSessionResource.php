@@ -20,8 +20,8 @@ class QRSessionResource extends JsonResource
             'payload' => $this->token,
             'url' => $this->url,
             'expired_at' => $this->expired_at,
-//            'created_at' => $this->created_at,
-//            'updated_at' => $this->updated_at
+            'created_at' => $this->created_at,
+             // 'updated_at' => $this->updated_at
         ];
     }
 }

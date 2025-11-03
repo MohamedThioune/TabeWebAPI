@@ -36,6 +36,62 @@ class NotificationAPIController extends AppBaseController
 
         return $infos;
     }
+    /**
+     * @OA\Get(
+     *      path="/notifications/me",
+     *      summary="ListNotifications",
+     *      tags={"Notification"},
+     *      description="List the notifications",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *          name="type",
+     *          in="query",
+     *          description="Filter users by read (read, not_read)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer",
+     *              enum={0,1}
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="skip",
+     *          in="query",
+     *          description="Skip",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *           name="limit",
+     *           in="query",
+     *           description="Limit",
+     *           required=false,
+     *           @OA\Schema(
+     *               type="integer"
+     *           )
+     *       ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  ref="#/components/schemas/Notification"
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+     */
     public function indexAuth(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -47,7 +103,6 @@ class NotificationAPIController extends AppBaseController
 
         return $this->sendResponse($infos, 'Your Notifications retrieved successfully');
     }
-
     /**
      * Display a listing of the resource.
      */
@@ -84,7 +139,43 @@ class NotificationAPIController extends AppBaseController
 
         return $this->notificationRepository->update($input, $id);
     }
-
+    /**
+     * @OA\Patch(
+     *      path="/notifications/me/{id}",
+     *      summary="ReadNotification",
+     *      tags={"Notification"},
+     *      description="Read a notification",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *           name="id",
+     *           description="id of Notification",
+     *            @OA\Schema(
+     *              type="string"
+     *           ),
+     *           required=true,
+     *           in="path"
+     *       ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation !",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="status",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                   property="data",
+     *                   ref="#/components/schemas/Notification"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="Success",
+     *              ),
+     *          ),
+     *     ),
+     * )
+     */
     public function readAuth(Request $request, string $id): JsonResponse
     {
         $user = $request->user();
@@ -94,7 +185,30 @@ class NotificationAPIController extends AppBaseController
 
         return $this->sendResponse(new NotificationResource($notif),  'Notification read successfully !');
     }
-
+    /**
+     * @OA\Patch(
+     *      path="/notifications/read/all",
+     *      summary="ReadAllNotifications",
+     *      tags={"Notification"},
+     *      description="Read all notifications",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation !",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="status",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="Success",
+     *              ),
+     *          ),
+     *     ),
+     * )
+     */
     public function readAll(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -115,7 +229,37 @@ class NotificationAPIController extends AppBaseController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *      path="/notifications/me/{id}",
+     *      summary="deleteNotification",
+     *      tags={"QRSession"},
+     *      description="Delete Notification",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="id of Notification",
+     *           @OA\Schema(
+     *             type="string"
+     *          ),
+     *          required=true,
+     *          in="path"
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="status",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
      */
     public function destroy(Request $request, string $id): JsonResponse
     {

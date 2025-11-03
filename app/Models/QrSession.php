@@ -69,8 +69,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class QrSession extends Model
 {
-     use HasUuids, SoftDeletes, HasFactory;
-     public $table = 'qr_sessions';
+    use HasUuids, SoftDeletes, HasFactory;
+    public $table = 'qr_sessions';
 
     public $fillable = [
         'id',
@@ -94,8 +94,8 @@ class QrSession extends Model
         'payload' => 'required|string|exists:qr_sessions,token'
     ];
 
-    public function giftcard(){
-        return $this->belongsTo(GiftCard::class);
+    public function giftCard(){
+        return $this->belongsTo(GiftCard::class , 'gift_card_id');
     }
 
 }
