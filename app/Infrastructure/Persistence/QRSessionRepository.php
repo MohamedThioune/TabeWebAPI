@@ -3,6 +3,7 @@
 namespace App\Infrastructure\Persistence;
 
 use App\Models\QrSession;
+use App\Models\User as ModelUser;
 use App\Repositories\BaseRepository;
 use Carbon\Carbon;
 

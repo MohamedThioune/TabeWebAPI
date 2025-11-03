@@ -50,31 +50,29 @@ Route::group(['middleware' => ['auth:api']], function () {
       //Admin scope
       Route::group(['middleware' => ['role:admin']], function () {
           //Swagger url
-//          Route::middleware('auth:api')->group(function () {
-//              Route::get('api/documentation', function () {
-//                  return view('swagger.index'); // ou la vue du L5-Swagger
-//              });
+//          Route::get('api/documentation', function () {
+//              return view('swagger.index'); // ou la vue du L5-Swagger
 //          });
 
-          //Qr Sessions resource
+          //Qr sessions resource
           Route::resource('qr-sessions', App\Http\Controllers\API\QRSessionAPIController::class)
-              ->except(['create', 'edit', 'store', 'update', 'show']); //list, destroy
+              ->except(['store', 'update']); //list, show, destroy
 
           //Gift cards resource
           Route::get('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'index'])->name('gift-cards.index'); //List any gift cards via user id
           Route::post('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store'); //Store any gift cards via user id
           Route::resource('gift-cards', App\Http\Controllers\API\GiftCardAPIController::class)
-              ->except(['create', 'edit', 'store', 'index']); //show, update, destroy
+              ->except(['store', 'index']); //show, update, destroy
 
           //Users resource
           Route::get('/users', [App\Http\Controllers\API\UserAPIController::class, 'index'])->name('users.index');
           Route::patch('/users/{user}', [App\Http\Controllers\API\UserAPIController::class, 'update'])->name('users.update'); //Update any users
 
           //Categories resource
-          Route::resource('categories', App\Http\Controllers\API\CategoryAPIController::class); //list, store, show, update, destroy,
+          Route::resource('categories', App\Http\Controllers\API\CategoryAPIController::class); //list, store, show, update, destroy
 
           //Designs resource
-          Route::resource('designs', App\Http\Controllers\API\DesignAPIController::class);
+          Route::resource('designs', App\Http\Controllers\API\DesignAPIController::class); //list, store, show, update, destroy
 
           //Notifications resource
           Route::get('/notifications/users/{user}', [App\Http\Controllers\API\NotificationAPIController::class, 'index'])->name('notifications.index');

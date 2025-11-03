@@ -6,19 +6,10 @@ use App\Domain\Users\Entities\User;
 use App\Models\User as ModelUser;
 use App\Repositories\BaseRepository;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 
 class UserRepository extends BaseRepository
 {
     protected $fieldSearchable = [
-//        'phone',
-//        'email',
-//        'whatsApp',
-//        'country',
-//        'city',
-//        'address',
-//        'bio',
-//        'website',
         'is_active',
         'phone_verified_at',
     ];

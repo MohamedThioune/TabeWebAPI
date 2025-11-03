@@ -234,6 +234,7 @@ class User extends Authenticatable
         return $user;
     }
 
+    //Relationship query builder
     public function customer(){
         return $this->hasMany(Customer::class);
     }
@@ -246,9 +247,6 @@ class User extends Authenticatable
     public function otp_requests(){
         return $this->hasMany(OtpRequest::class);
     }
-    public function gift_cards(){
-        return $this->hasMany(GiftCard::class);
-    }
     public function files(){
         return $this->hasMany(File::class);
     }
@@ -256,5 +254,31 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Category::class, 'user_categories')->withTimestamps();
     }
+    public function qr_sessions()
+    {
+        return $this->hasManyThrough(
+            QrSession::class,    // Final related model
+            GiftCard::class,    // Intermediate model
+            'user_id',          // Foreign key on gift_cards table
+            'gift_card_id',   // Foreign key on qr_sessions table
+            'id',              //  Local key on users table
+            'id'         //  Local key on gift_cards table
+        );
+    }
+    public function gift_cards(){
+        return $this->hasMany(GiftCard::class, 'owner_user_id');
+    }
 
+//    public function active_gift_cards(){
+//        return $this->hasMany(GiftCard::class)->withAttributes(['is_active' => 1]);
+//    }
+
+    //Relationship filtering (active gift card, pending qr session)
+    public function activeGiftCard(string $giftCardId): ?GiftCard
+    {
+        return $this->gift_cards()
+            ->where('id', $giftCardId)
+            ->where('is_active', 1)
+            ->first();
+    }
 }
