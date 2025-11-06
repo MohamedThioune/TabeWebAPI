@@ -5,12 +5,14 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Validation\Rules\Enum;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Domain\Users\ValueObjects\Type;
+
 
 /**
  * @method static find(string $user_id)
@@ -138,7 +140,7 @@ use App\Domain\Users\ValueObjects\Type;
  */
 class User extends Authenticatable
 {
-    use HasUuids, HasApiTokens, HasRoles, HasFactory, Notifiable;
+    use HasUuids, HasApiTokens, HasRoles, HasFactory, Notifiable, SoftDeletes;
 
     protected $guard_name = 'api'; // ou 'api' selon ton auth
 
@@ -254,12 +256,17 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Category::class, 'user_categories')->withTimestamps();
     }
+    public function user_categories()
+    {
+        return $this->hasMany(UserCategory::class);
+    }
+
     public function qr_sessions()
     {
         return $this->hasManyThrough(
             QrSession::class,    // Final related model
             GiftCard::class,    // Intermediate model
-            'user_id',          // Foreign key on gift_cards table
+            'owner_user_id',          // Foreign key on gift_cards table
             'gift_card_id',   // Foreign key on qr_sessions table
             'id',              //  Local key on users table
             'id'         //  Local key on gift_cards table

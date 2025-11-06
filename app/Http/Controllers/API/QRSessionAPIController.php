@@ -374,7 +374,7 @@ class QRSessionAPIController extends AppBaseController
 
         Log::info(json_encode(['gift_card' => $gift_card]));
 
-        //Updated gift card (event)
+        //Updated gift card (log event)
         UpdatedCard::execute($gift_card, $status);
 
         /*

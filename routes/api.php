@@ -24,6 +24,7 @@ Route::group(['middleware' => ['auth:api']], function () {
       //Oauth user
       Route::get('/me', [App\Http\Controllers\API\AuthAPIController::class, 'me'])->name('auth.me');
       Route::delete('/oauth/logout', [App\Http\Controllers\API\AuthAPIController::class, 'logout'])->name('auth.logout');
+      Route::delete('/me', [App\Http\Controllers\API\UserAPIController::class, 'destroy'])->name('auth.delete'); // delete all data relatives to the connected user !!
 
       //User actions (list partner, update user, upload file, notifications)
       Route::get('/partners', [App\Http\Controllers\API\UserAPIController::class, 'indexPartner'])->name('users.index.partner');
@@ -51,10 +52,6 @@ Route::group(['middleware' => ['auth:api']], function () {
 
       //Admin scope
       Route::group(['middleware' => ['role:admin']], function () {
-          //Swagger url
-          // Route::get('api/documentation', function () {
-          // return view('swagger.index'); // ou la vue du L5-Swagger
-          // });
 
           //Qr sessions resource
           Route::resource('qr-sessions', App\Http\Controllers\API\QRSessionAPIController::class)

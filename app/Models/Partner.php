@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Partner extends Model
 {
-    use HasUuids, HasFactory;
+    use HasUuids, HasFactory, SoftDeletes;
 
     protected $table = 'partners';
 

@@ -114,7 +114,7 @@ class UserCategoryAPIController extends AppBaseController
      *          name="id",
      *          description="id of UserCategory",
      *           @OA\Schema(
-     *             type="integer"
+     *             type="string"
      *          ),
      *          required=true,
      *          in="path"
@@ -162,7 +162,7 @@ class UserCategoryAPIController extends AppBaseController
      *          name="id",
      *          description="id of UserCategory",
      *           @OA\Schema(
-     *             type="integer"
+     *             type="string"
      *          ),
      *          required=true,
      *          in="path"
@@ -218,7 +218,7 @@ class UserCategoryAPIController extends AppBaseController
      *          name="id",
      *          description="id of UserCategory",
      *           @OA\Schema(
-     *             type="integer"
+     *             type="string"
      *          ),
      *          required=true,
      *          in="path"
