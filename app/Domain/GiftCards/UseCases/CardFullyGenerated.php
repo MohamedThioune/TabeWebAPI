@@ -8,7 +8,7 @@ use App\Domain\GiftCards\ValueObjects\QrSession;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use App\Domain\GiftCards\Events\CardGenerated;
+use App\Domain\GiftCards\Events\CardOperated;
 
 class CardFullyGenerated
 {
@@ -52,7 +52,7 @@ class CardFullyGenerated
             );
 
             //Use event
-            $event = new CardGenerated(
+            $event = new CardOperated(
                card:  $card,
                qrSession: $qr_session,
                cardEvent: $card_event,

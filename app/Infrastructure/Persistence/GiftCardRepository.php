@@ -12,7 +12,7 @@ class GiftCardRepository extends BaseRepository
         'belonging_type',
         'type',
         'face_amount',
-        'is_active',
+        'status',
         'expired_at',
         'limit',
         'skip',

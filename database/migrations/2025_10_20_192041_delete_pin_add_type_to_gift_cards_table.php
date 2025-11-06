@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('gift_cards', function (Blueprint $table) {
             $table->dropColumn('pin_hash');
             $table->dropColumn('pin_mask');
-            $table->enum('type', ['physical', 'digital'])->default('digital');
+            $table->enum('type', ['physical', 'digital'])->default('digital')->after('is_active');
         });
     }
 

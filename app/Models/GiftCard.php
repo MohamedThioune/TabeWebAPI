@@ -92,6 +92,7 @@ class GiftCard extends Model
         'type', //physical or digital
         'face_amount',
         'is_active',
+        'status', //active, inactive, used, expired
         'expired_at',
         'owner_user_id',
         'beneficiary_id',
@@ -100,7 +101,6 @@ class GiftCard extends Model
 
     protected $casts = [
         'face_amount' => 'integer',
-        'is_active' => 'boolean',
         'is_verified' => 'boolean',
         'with_summary' => 'boolean',
     ];
@@ -112,12 +112,11 @@ class GiftCard extends Model
         'belonging_type' => 'required|string|in:myself,others',
         'type' => 'required|string|in:physical,digital',
         'face_amount' => 'required|integer|between:10000,150000',
-        'is_active' => 'boolean',
         'design_id' => 'required|integer|exists:designs,id'
     ];
 
     public static array $rules_listed = [
-        'is_active' => 'boolean',
+        'status' => 'string|in:active,inactive,used,expired',
         'belonging_type' => 'string|in:myself,others',
         'type' => 'string|in:physical,digital',
         'skip' => 'integer|gt:0',

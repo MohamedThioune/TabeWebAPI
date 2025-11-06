@@ -37,22 +37,24 @@ Route::group(['middleware' => ['auth:api']], function () {
 
       //Customer scope
       Route::group(['middleware' => ['role:customer|admin']], function () {
-          //Gift cards
-          Route::post('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'storeAuth'])->middleware('idempotency')->name('gift-cards.store.me');
-          Route::get('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'indexAuth'])->name('gift-cards.index.me');
+          Route::group(['middleware' => ['is_verified_phone']], function () {
+              //Gift cards
+              Route::post('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'storeAuth'])->middleware('idempotency')->name('gift-cards.store.me');
+              Route::get('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'indexAuth'])->name('gift-cards.index.me');
 
-          //Qr sessions
-          Route::post('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'store'])->name('qr-sessions.store');
-          Route::patch('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
-          Route::get('qr-sessions/{qrSession}', [App\Http\Controllers\API\QRSessionAPIController::class, 'show'])->name('qr-sessions.show');
+              //Qr sessions
+              Route::post('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'store'])->name('qr-sessions.store');
+              Route::patch('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
+              Route::get('qr-sessions/{qrSession}', [App\Http\Controllers\API\QRSessionAPIController::class, 'show'])->name('qr-sessions.show');
+          });
       });
 
       //Admin scope
       Route::group(['middleware' => ['role:admin']], function () {
           //Swagger url
-//          Route::get('api/documentation', function () {
-//              return view('swagger.index'); // ou la vue du L5-Swagger
-//          });
+          // Route::get('api/documentation', function () {
+          // return view('swagger.index'); // ou la vue du L5-Swagger
+          // });
 
           //Qr sessions resource
           Route::resource('qr-sessions', App\Http\Controllers\API\QRSessionAPIController::class)

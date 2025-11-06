@@ -2,7 +2,7 @@
 
 namespace App\Domain\GiftCards\Services;
 
-use App\Domain\GiftCards\Events\CardGenerated;
+use App\Domain\GiftCards\Events\CardOperated;
 use App\Infrastructure\Persistence\QRSessionRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,11 +13,10 @@ class GenerateQr
     /**
      * Handle the event.
      */
-    public function handle(CardGenerated $event)
+    public function handle(CardOperated $event)
     {
         try {
             $this->qrSessionRepository->create($event->qrSession->toArray());
-            // Log::info($event->qrSession->toArray());
             DB::commit();
         }
         catch (\Exception $e){

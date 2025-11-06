@@ -63,13 +63,13 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Get all GiftCards | Only for admin !!",
      *      @OA\Parameter(
-     *           name="is_active",
+     *           name="status",
      *           in="query",
-     *           description="Filter users by status (0:inactive, 1:active)",
+     *           description="Filter users by status ('active', 'inactive', 'used', 'expired')",
      *           required=false,
      *           @OA\Schema(
-     *               type="integer",
-     *               enum={0,1}
+     *               type="string",
+     *               enum={"inactive","active", "used", "expired"}
      *           )
      *      ),
      *      @OA\Parameter(
@@ -158,13 +158,13 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Get all GiftCards per user",
      *      @OA\Parameter(
-     *            name="is_active",
+     *            name="status",
      *            in="query",
-     *            description="Filter users by status (0:inactive, 1:active)",
+     *            description="Filter users by status ('active', 'inactive', 'used', 'expired')",
      *            required=false,
      *            @OA\Schema(
-     *                type="integer",
-     *                enum={0,1}
+     *                type="string",
+     *                enum={"active", "inactive", "used", "expired"}
      *            )
      *       ),
      *       @OA\Parameter(
@@ -290,24 +290,6 @@ class GiftCardAPIController extends AppBaseController
 
         $giftCard = GiftCard::findOrFail($event->card->getId());
 
-        //Notify via whatsApp
-        if($belonging_type == "others"){
-            $format_beneficiary = $beneficiary->full_name;
-            $format_customer = !empty($user->customer) ? $user->customer[0]->first_name . ' ' . $user->customer[0]->last_name : '';
-            $format_amount = Number::format($dto['face_amount'], locale: 'sv'); //Swedish format (ex: 10 000)
-            $content_variables = json_encode(["1" => $format_beneficiary, "2" => $format_customer, "3" => $format_amount]);
-            $body = "";
-            $node = new Node(
-                content: $body,
-                contentVariables: $content_variables,
-                level: "Info",
-                model: "card",
-                title: "Nouvelle carte créée",
-                body: "Une carte-cadeau de {$format_amount} FCFA a été créée avec succès pour {$format_beneficiary}"
-            );
-            $user->notify(new PushCardNotification($node, $beneficiary->phone, "whatsapp"));
-        }
-
         return $giftCard;
     }
 
@@ -317,7 +299,7 @@ class GiftCardAPIController extends AppBaseController
         $beneficiary = null;
         if($belonging_type == 'others'):
             $dto_beneficiary = app(CreateBeneficiaryAPIRequest::class)->validated();
-            $beneficiary = ( Beneficiary::where('phone', $dto_beneficiary['phone'])->first()) ?: $this->beneficiaryRepository->create($dto_beneficiary);
+            $beneficiary = $this->beneficiaryRepository->create($dto_beneficiary);
         endif;
 
         $giftCard = $this->detached_store($belonging_type, $user, $request, $beneficiary);
@@ -362,11 +344,6 @@ class GiftCardAPIController extends AppBaseController
      *                  property="face_amount",
      *                  type="integer",
      *              ),
-     *              @OA\Property(
-     *                   property="is_active",
-     *                   type="integer",
-     *                   enum={0,1}
-     *               ),
      *              @OA\Property(
      *                    property="full_name",
      *                    type="string",
