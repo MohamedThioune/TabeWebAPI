@@ -409,4 +409,5 @@ class AuthAPIController extends Controller
 
         return $this->success('Successfully logged out', 200);
     }
+
 }

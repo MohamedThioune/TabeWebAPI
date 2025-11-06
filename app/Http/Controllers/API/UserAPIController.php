@@ -10,6 +10,9 @@ use App\Http\Requests\API\UpdateCustomerAPIRequest;
 use App\Http\Requests\API\UpdateEnterpriseAPIRequest;
 use App\Http\Requests\API\UpdatePartnerAPIRequest;
 use App\Http\Requests\API\UserRequest;
+use App\Http\Resources\CustomerResource;
+use App\Http\Resources\EnterpriseResource;
+use App\Http\Resources\PartnerResource;
 use App\Http\Resources\UserResource;
 use App\Infrastructure\Persistence\CustomerRepository;
 use App\Infrastructure\Persistence\EnterpriseRepository;
@@ -19,6 +22,7 @@ use App\Models\User;
 use App\Notifications\ProfileUpdateNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserAPIController extends AppBaseController
 {
@@ -326,5 +330,78 @@ class UserAPIController extends AppBaseController
         $user->notify(new ProfileUpdateNotification($node,  "whatsapp"));
 
         return $this->sendResponse(new UserResource($user), 'Users retrieved successfully.');
+    }
+
+    /**
+     * @OA\Delete(
+     *      path="/user/{id}",
+     *      summary="deletePermanentlyAccount",
+     *      tags={"User"},
+     *      description="Delete permanently account user",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="id of User",
+     *           @OA\Schema(
+     *             type="string"
+     *          ),
+     *          required=true,
+     *          in="path"
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="status",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     * @throws \Throwable
+     */
+    public function destroy(Request $request): JsonResponse{
+        $user = $request->user();
+
+        if (empty($user)) {
+            return $this->sendError('User not found, invalid');
+        }
+
+        $role = $user->roles->pluck('name')->toArray()[0] ?? Type::Customer->value;
+
+        DB::beginTransaction();
+        try{
+            //Delete entity depending on the user roles
+            match ($role) {
+                Type::Customer->value   => $user->customer()->delete(),
+                Type::Enterprise->value => $user->enterprise()->delete(),
+                Type::Partner->value    => $user->partner()->delete(),
+
+                default => null,
+            };
+
+            $user->files()?->delete(); //delete user files
+            $user->user_categories()?->delete(); //delete user categories
+            $user->qr_sessions()?->delete(); //delete user qr_sessions
+            $user->gift_cards()?->delete();  //delete user gift cards
+
+            $user->token()->revoke(); //disconnect
+            $user->roles()->detach(); //detach all roles of the user
+
+            //Finally delete the user
+            $user->delete();
+            DB::commit();
+        }
+        catch(\Throwable $e){
+            DB::rollBack();
+            throw $e;
+        }
+        return $this->sendSuccess('Account deleted successfully.');
+
     }
 }
