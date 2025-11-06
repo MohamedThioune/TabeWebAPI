@@ -18,8 +18,8 @@ return new class extends Migration
             $table->text('pin_hash');
             $table->char('pin_mask', 6);
             $table->boolean('is_active')->default(true);
-            $table->timestamp('expired_at');
             $table->integer('face_amount');
+            $table->timestamp('expired_at');
             $table->timestamps();
             $table->softDeletes();
         });

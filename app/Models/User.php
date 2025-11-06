@@ -278,7 +278,7 @@ class User extends Authenticatable
     {
         return $this->gift_cards()
             ->where('id', $giftCardId)
-            ->where('is_active', 1)
+            ->where('status', 'active')
             ->first();
     }
 }

@@ -10,14 +10,14 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class CardGenerated
+class CardOperated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(public Card $card, public ?QrSession $qrSession, public ?CardEvent $cardEvent, public ?array $errorMessage){
+    public function __construct(public ?Card $card, public ?QrSession $qrSession, public ?CardEvent $cardEvent, public ?array $errorMessage){
         $this->card = $card;
         $this->qrSession = $qrSession;
         $this->cardEvent = $cardEvent;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Domain\GiftCards\Services\UpdatedCard;
 use App\Http\Requests\API\CreateQRSessionAPIRequest;
 use App\Http\Requests\API\UpdateQRSessionAPIRequest;
 use App\Http\Resources\GiftCardResource;
@@ -12,7 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AppBaseController;
 use App\Http\Resources\QRSessionResource;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Domain\GiftCards\UseCases\CardFullyGenerated;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -357,6 +358,7 @@ class QRSessionAPIController extends AppBaseController
     {
         /** @var QrSession $qRSession */
         $uuid = $this->check($request->payload); //return uuid or null
+        $status = "used";
 
         $qrSession = $this->qRSessionRepository->find($uuid);
         if (empty($qrSession)) {
@@ -364,13 +366,16 @@ class QRSessionAPIController extends AppBaseController
         }
 
         //Logging the use
-        $qrSession->status = 'used';
+        $qrSession->status = $status;
         $qrSession->updated_at = now();
 
         //Get the gift card
         $gift_card = $qrSession->giftCard;
 
         Log::info(json_encode(['gift_card' => $gift_card]));
+
+        //Updated gift card (event)
+        UpdatedCard::execute($gift_card, $status);
 
         /*
          * Dispatch the transaction
