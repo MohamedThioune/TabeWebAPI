@@ -30,6 +30,7 @@ Route::group(['middleware' => ['auth:api']], function () {
       Route::get('/partners', [App\Http\Controllers\API\UserAPIController::class, 'indexPartner'])->name('users.index.partner');
       Route::patch('/users', [App\Http\Controllers\API\UserAPIController::class, 'updateAuth'])->name('users.update.me');
       Route::post('/file/upload', [App\Http\Controllers\API\FileAPIController::class, 'upload'])->name('files.upload');
+
       //Notifications (get notifications, read notification, read all notifications, delete notification)
       Route::get('/notifications/me', [App\Http\Controllers\API\NotificationAPIController::class, 'indexAuth'])->name('notifications.me');
       Route::patch('/notifications/me/{notification}', [App\Http\Controllers\API\NotificationAPIController::class, 'readAuth'])->name('notifications.read.me');
@@ -47,6 +48,10 @@ Route::group(['middleware' => ['auth:api']], function () {
               Route::post('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'store'])->name('qr-sessions.store');
               Route::patch('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
               Route::get('qr-sessions/{qrSession}', [App\Http\Controllers\API\QRSessionAPIController::class, 'show'])->name('qr-sessions.show');
+
+              //Users
+              Route::get('/customer/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsCustomer'])->name('users.customers.stats'); //stats of the customer
+
           });
       });
 

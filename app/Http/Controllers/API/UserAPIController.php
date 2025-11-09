@@ -10,14 +10,12 @@ use App\Http\Requests\API\UpdateCustomerAPIRequest;
 use App\Http\Requests\API\UpdateEnterpriseAPIRequest;
 use App\Http\Requests\API\UpdatePartnerAPIRequest;
 use App\Http\Requests\API\UserRequest;
-use App\Http\Resources\CustomerResource;
-use App\Http\Resources\EnterpriseResource;
-use App\Http\Resources\PartnerResource;
 use App\Http\Resources\UserResource;
 use App\Infrastructure\Persistence\CustomerRepository;
 use App\Infrastructure\Persistence\EnterpriseRepository;
 use App\Infrastructure\Persistence\PartnerRepository;
 use App\Infrastructure\Persistence\UserRepository;
+use App\Infrastructure\Persistence\GiftCardRepository;
 use App\Models\User;
 use App\Notifications\ProfileUpdateNotification;
 use Illuminate\Http\JsonResponse;
@@ -26,7 +24,7 @@ use Illuminate\Support\Facades\DB;
 
 class UserAPIController extends AppBaseController
 {
-    public function __construct(private UserRepository $userRepository, private EnterpriseRepository $enterpriseRepository, private PartnerRepository $partnerRepository, private CustomerRepository $customerRepository){}
+    public function __construct(private UserRepository $userRepository, private EnterpriseRepository $enterpriseRepository, private PartnerRepository $partnerRepository, private CustomerRepository $customerRepository, private GiftCardRepository $giftCardRepository ){}
 
     public function detached_index(array $search, Request $request, int $perPage = 8): array
     {
@@ -47,7 +45,7 @@ class UserAPIController extends AppBaseController
     /**
      * @OA\Get(
      *      path="/users",
-     *      summary="ListUsers",
+     *      summary="listUsers",
      *      tags={"User"},
      *      description="List the users | Only for admin !!",
      *      security={{"passport":{}}},
@@ -131,7 +129,7 @@ class UserAPIController extends AppBaseController
     /**
      * @OA\Get(
      *      path="/partners",
-     *      summary="ListPartners",
+     *      summary="listPartners",
      *      tags={"Partner"},
      *      description="List the partners",
      *      security={{"passport":{}}},
@@ -334,19 +332,11 @@ class UserAPIController extends AppBaseController
 
     /**
      * @OA\Delete(
-     *      path="/user/{id}",
+     *      path="/me",
      *      summary="deletePermanentlyAccount",
      *      tags={"User"},
      *      description="Delete permanently account user",
-     *      @OA\Parameter(
-     *          name="id",
-     *          description="id of User",
-     *           @OA\Schema(
-     *             type="string"
-     *          ),
-     *          required=true,
-     *          in="path"
-     *      ),
+     *      security={{"passport":{}}},
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
@@ -404,4 +394,48 @@ class UserAPIController extends AppBaseController
         return $this->sendSuccess('Account deleted successfully.');
 
     }
+
+    /**
+     * @OA\Get(
+     *      path="/customer/stats",
+     *      summary="statsCustomer",
+     *      tags={"Customer"},
+     *      description="Get the stats of the customers",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+     */
+    public function statsCustomer(Request $request): JsonResponse{
+        $user = $request->user();
+
+        $infos =
+            [
+                'used_month_gift_cards' => $this->giftCardRepository->usedMonthly($user),
+                'total_available_gift_cards' => $this->giftCardRepository->countQueryTotal('active', $user),
+                'total_used_gift_cards' => $this->giftCardRepository->countQueryTotal('used', $user),
+                'total_gift_cards' => $this->giftCardRepository->countQueryTotal(null, $user),
+                'total_available_gift_cards_amount' => $this->giftCardRepository->countQueryAmount('active', $user),
+                'total_gift_cards_amount' => $this->giftCardRepository->countQueryAmount(null, $user),
+            ];
+
+        return $this->sendResponse($infos, 'Users retrieved stats successfully !');
+    }
+
 }

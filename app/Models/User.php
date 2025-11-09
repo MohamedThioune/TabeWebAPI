@@ -260,7 +260,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserCategory::class);
     }
-
     public function qr_sessions()
     {
         return $this->hasManyThrough(
@@ -273,13 +272,8 @@ class User extends Authenticatable
         );
     }
     public function gift_cards(){
-        return $this->hasMany(GiftCard::class, 'owner_user_id');
+        return $this->hasMany(GiftCard::class, 'owner_user_id', 'id');
     }
-
-//    public function active_gift_cards(){
-//        return $this->hasMany(GiftCard::class)->withAttributes(['is_active' => 1]);
-//    }
-
     //Relationship filtering (active gift card, pending qr session)
     public function activeGiftCard(string $giftCardId): ?GiftCard
     {
@@ -288,4 +282,7 @@ class User extends Authenticatable
             ->where('status', 'active')
             ->first();
     }
+    //  public function active_gift_cards(){
+    //     return $this->hasMany(GiftCard::class)->withAttributes(['is_active' => 1]);
+    //  }
 }
