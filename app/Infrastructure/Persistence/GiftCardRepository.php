@@ -3,8 +3,10 @@
 namespace App\Infrastructure\Persistence;
 
 use App\Models\GiftCard;
+use App\Models\User;
 use App\Repositories\BaseRepository;
 use Illuminate\Database\Eloquent\Collection;
+
 
 class GiftCardRepository extends BaseRepository
 {
@@ -29,5 +31,39 @@ class GiftCardRepository extends BaseRepository
     public function model(): string
     {
         return GiftCard::class;
+    }
+
+    // total available cards, total used cards, total cards
+    public function countQueryTotal(?string $status, User $user): int //status:active or null
+    {
+        $query = $user->gift_cards();
+        $query->when($status, fn($query) => $query->where('status', $status));
+
+        return $query->count();
+    }
+
+    // total available cards amount, total cards amount
+    public function countQueryAmount(?string $status, User $user): int //status:active or null
+    {
+        $query = $user->gift_cards();
+        $query->when($status, fn($query) => $query->where('status', $status));
+
+        return $query->sum('face_amount');
+    }
+
+    //monthly stats(used card)
+    public function usedMonthly(User $user) : int
+    {
+        $query = $user->gift_cards();
+        $query->where('status', 'used')
+              ->whereHas('qrSessions', function($qr_query){
+                  $qr_query->where('status', 'used');
+                  $qr_query->whereMonth('updated_at', date('m'));
+              });
+
+
+//        dd($query->toSql());
+
+        return $query->count();
     }
 }

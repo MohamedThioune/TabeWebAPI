@@ -39,7 +39,7 @@ class NotificationAPIController extends AppBaseController
     /**
      * @OA\Get(
      *      path="/notifications/me",
-     *      summary="ListNotifications",
+     *      summary="listNotifications",
      *      tags={"Notification"},
      *      description="List the notifications",
      *      security={{"passport":{}}},
@@ -142,7 +142,7 @@ class NotificationAPIController extends AppBaseController
     /**
      * @OA\Patch(
      *      path="/notifications/me/{id}",
-     *      summary="ReadNotification",
+     *      summary="readNotification",
      *      tags={"Notification"},
      *      description="Read a notification",
      *      security={{"passport":{}}},
@@ -188,7 +188,7 @@ class NotificationAPIController extends AppBaseController
     /**
      * @OA\Patch(
      *      path="/notifications/read/all",
-     *      summary="ReadAllNotifications",
+     *      summary="readAllNotifications",
      *      tags={"Notification"},
      *      description="Read all notifications",
      *      security={{"passport":{}}},
@@ -232,7 +232,7 @@ class NotificationAPIController extends AppBaseController
      * @OA\Delete(
      *      path="/notifications/me/{id}",
      *      summary="deleteNotification",
-     *      tags={"QRSession"},
+     *      tags={"Notification"},
      *      description="Delete Notification",
      *      security={{"passport":{}}},
      *      @OA\Parameter(

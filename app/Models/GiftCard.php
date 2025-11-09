@@ -124,9 +124,8 @@ class GiftCard extends Model
         'with_summary' => 'boolean',
     ];
 
-
     public function user(){
-        return $this->belongsTo(User::class, 'owner_user_id');
+        return $this->belongsTo(User::class, 'owner_user_id', 'id');
     }
     public function qrSessions(){
         return $this->hasMany(QrSession::class);

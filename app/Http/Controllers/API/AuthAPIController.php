@@ -185,7 +185,7 @@ class AuthAPIController extends Controller
     /**
      * @OA\Post(
      *      path="/auth/otp/request/{phone}",
-     *      summary="OTPRequest",
+     *      summary="otpRequest",
      *      tags={"OTP"},
      *      description="OTP request",
      *      @OA\Parameter(
@@ -247,7 +247,7 @@ class AuthAPIController extends Controller
     /**
      * @OA\Put(
      *      path="/auth/otp/verify/{phone}",
-     *      summary="OTPVerify",
+     *      summary="otpVerify",
      *      tags={"OTP"},
      *      description="OTP verify",
      *      @OA\Parameter(
@@ -344,7 +344,7 @@ class AuthAPIController extends Controller
     /**
      * @OA\Get(
      *      path="/me",
-     *      summary="Me",
+     *      summary="me",
      *      tags={"User"},
      *      description="Auth user",
      *      security={{"passport":{}}},
