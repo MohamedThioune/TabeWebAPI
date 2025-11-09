@@ -37,6 +37,7 @@ class GiftCardRepository extends BaseRepository
     public function countQueryTotal(?string $status, User $user): int //status:active or null
     {
         $query = $user->gift_cards();
+        $query->when(!$status, fn($query) => $query->where('status','<>' ,'inactive'));
         $query->when($status, fn($query) => $query->where('status', $status));
 
         return $query->count();
@@ -46,6 +47,7 @@ class GiftCardRepository extends BaseRepository
     public function countQueryAmount(?string $status, User $user): int //status:active or null
     {
         $query = $user->gift_cards();
+        $query->when(!$status, fn($query) => $query->where('status','<>' ,'inactive'));
         $query->when($status, fn($query) => $query->where('status', $status));
 
         return $query->sum('face_amount');
@@ -61,8 +63,7 @@ class GiftCardRepository extends BaseRepository
                   $qr_query->whereMonth('updated_at', date('m'));
               });
 
-
-//        dd($query->toSql());
+        // dd($query->toSql());
 
         return $query->count();
     }
