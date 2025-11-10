@@ -3,10 +3,13 @@
 namespace App\Exceptions;
 
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Spatie\Permission\Exceptions\UnauthorizedException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -68,6 +71,27 @@ class Handler extends ExceptionHandler
                 'success' => false,
                 'message' => 'User does not have the right roles or permissions.',
             ], Response::HTTP_FORBIDDEN); // 403
+        }
+
+        if ($e instanceof ModelNotFoundException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The requested resource could not be found.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        if ($e instanceof NotFoundHttpException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to locate the requested resource.',
+            ], Response::HTTP_NOT_FOUND); // 404
+        }
+
+        if ($e instanceof ThrottleRequestsException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Too many request attempts. Please wait before retrying.',
+            ], Response::HTTP_TOO_MANY_REQUESTS); // 404
         }
 
         return parent::render($request, $e);
