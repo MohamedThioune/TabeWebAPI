@@ -10,18 +10,19 @@ use App\Http\Requests\API\CustomerAPIRequest;
 use App\Http\Requests\API\EnterpriseAPIRequest;
 use App\Http\Requests\API\OTPAPIRequest;
 use App\Http\Requests\API\PartnerAPIRequest;
+use App\Http\Requests\API\ResetPasswordAPIRequest;
 use App\Http\Requests\API\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Infrastructure\Persistence\OTPRequestRepository;
-use App\Models\OTPRequest;
 use App\Models\User;
 use App\Notifications\PushSMSNotification;
 use App\Notifications\PushWhatsAppNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Domain\Users\DTO\Node;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
-use phpseclib3\Math\PrimeField\Integer;
+use Illuminate\Support\Fluent;
 
 class AuthAPIController extends Controller
 {
@@ -166,19 +167,27 @@ class AuthAPIController extends Controller
             $user->notify(new PushWhatsAppNotification($node, $input['channel']));
         endif;
 
-        //Store OTP requests on DB
-        $dtoOTP = [
-            'user_id' => $user->id,
-            'channel' => $input['channel'],
-            'otp_code' => bcrypt($otp_code),
-            'purpose' => $input['purpose'],
-            'status' => 'pending',
-            'expires_at' => now()->addMinutes(15),
-            'created_at' => now(),
-        ];
-        $instanceOTP = $this->otpRequestRepository->save($dtoOTP);
+        //Cache store OTP
+        Cache::put('otp_code_' . $user->phone, bcrypt($otp_code), now()->addMinutes(15));
 
         return $otp_code;
+    }
+
+    public function otp_check(String $phone, int $check_otp_code): array
+    {
+        $bcrypt_otp_code = Cache::get('otp_code_' . $phone); //get cached otp
+
+        //No matches
+        if(!$bcrypt_otp_code){
+            return ["error" => "No OTP request matches this record it's expired !"];
+        }
+
+        //Check otp_code
+        if (!Hash::check($check_otp_code, $bcrypt_otp_code)) {
+            return ["error" => "Invalid OTP !"];
+        }
+
+        return ["success" => true];
 
     }
 
@@ -301,35 +310,17 @@ class AuthAPIController extends Controller
     {
         $input = $request->only('purpose', 'otp_code');
         $fields = array('updated_at' => now());
-        $otp_request = OTPRequest::where('user_id', $user->id)
-                        ->where('purpose', $input['purpose'])
-                        ->where('status', "pending")
-                        ->orderBy('created_at', 'desc')
-                        ->first();
-        //No matches
-        if(!$otp_request){
-            return $this->error("No OTP request matches this record !", 401);
-        }
-        $fields['attempt_count'] = $otp_request->attempt_count + 1;
-        $this->otpRequestRepository->update($otp_request, $fields);
-
-        //Check expired at
-        $today = now();
-        if($today->greaterThan($otp_request->expires_at)){
-            return $this->error("Expired OTP request !", 401);
-        }
-
-        //Check otp_code
-        if (!Hash::check($input['otp_code'], $otp_request->otp_code)) {
-            return $this->error("Invalid OTP !", 401);
-        }
-
-        $fields['status'] = "verified";
-        $this->otpRequestRepository->update($otp_request, $fields);
 
         //Phone verified at
         $user->phone_verified_at = now();
         $user->save();
+
+        //Checkin OTP
+        $check_otp = new Fluent($this->otp_check($user->phone, $input['otp_code']));
+        $error = $check_otp->error ?? null;
+        if($error){
+            return $this->error($error, 401);
+        }
 
         //Create token
         $token = $user->createToken('Personal Access Token')->accessToken;
@@ -408,6 +399,24 @@ class AuthAPIController extends Controller
         $request->user()->token()->revoke();
 
         return $this->success('Successfully logged out', 200);
+    }
+
+    public function reset_password(User $user, ResetPasswordAPIRequest $request): JsonResponse
+    {
+        $input = $request->only('otp_code', 'new_password', 'new_password_confirmation');
+
+        //Checkin OTP
+        $check_otp = new Fluent($this->otp_check($user->phone, $input['otp_code']));
+        $error = $check_otp->error ?? null;
+        if($error){
+            return $this->error($error, 401);
+        }
+
+        //Change the password
+        $user->password = bcrypt($input['new_password']);
+        $user->save();
+
+        return $this->success('Password successfully changed !', 200);
     }
 
 }

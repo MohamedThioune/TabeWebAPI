@@ -224,6 +224,11 @@ class User extends Authenticatable
         'address' => "string|max:255",
     ];
 
+    public static array $resetPassword = [
+        'otp_code' => 'required|string|min:6|max:6',
+        'new_password' => ["required", "string", "min:8", "confirmed"],
+    ];
+
     public function findForPassport(string $username): User
     {
         $user = $this->where('phone', $username)->first();
