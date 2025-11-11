@@ -187,6 +187,8 @@ class AuthAPIController extends Controller
             return ["error" => "Invalid OTP !"];
         }
 
+        Cache::delete('otp_code_' . $phone);
+
         return ["success" => true];
 
     }
