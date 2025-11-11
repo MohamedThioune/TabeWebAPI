@@ -3,12 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OTPRequest extends Model
 {
-    use HasUuids, HasFactory;
+    use HasUuids;
 
     public $table = 'otp_requests';
     protected $fillable = [
@@ -23,9 +22,7 @@ class OTPRequest extends Model
         'expires_at',
     ];
 
-    protected $casts = [
-//        'expires_at' => 'datetime',
-    ];
+    protected $casts = [];
 
     public static array $ruleRequest = [
         'purpose' => 'required|string|in:login,reset_password,activate_card,verify_card,others',
@@ -34,7 +31,7 @@ class OTPRequest extends Model
 
     public static array $ruleVerify = [
         'purpose' => 'required|string|in:login,reset_password,activate_card,verify_card,others',
-        'otp_code' => 'required|string|max:8',
+        'otp_code' => 'required|string|min:6|max:6',
     ];
 
     public function user(){

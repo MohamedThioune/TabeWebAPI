@@ -80,12 +80,7 @@ class Handler extends ExceptionHandler
             ], Response::HTTP_NOT_FOUND);
         }
 
-        if ($e instanceof NotFoundHttpException) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unable to locate the requested resource.',
-            ], Response::HTTP_NOT_FOUND); // 404
-        }
+
 
         if ($e instanceof ThrottleRequestsException) {
             return response()->json([
