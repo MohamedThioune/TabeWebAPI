@@ -20,10 +20,11 @@ class IsVerified
     {
         $user = $request->user();
         if(!$user instanceof User)
-            return $this->response('Something went wrong, trying to retrieve the user !', 404);
+            return $this->response([], 'Something went wrong, trying to retrieve the user !', 404);
+
 
         if(!$user->phone_verified_at || !$user->is_active)
-            return $this->response('User inactive or phone not verified !', 401);
+            return $this->response([], 'User inactive or phone not verified !', 401);
 
         return $next($request);
     }
