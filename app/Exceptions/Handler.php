@@ -81,7 +81,6 @@ class Handler extends ExceptionHandler
         }
 
 
-
         if ($e instanceof ThrottleRequestsException) {
             return response()->json([
                 'success' => false,
