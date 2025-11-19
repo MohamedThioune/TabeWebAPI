@@ -229,6 +229,11 @@ class User extends Authenticatable
         'new_password' => ["required", "string", "min:8", "confirmed"],
     ];
 
+    public static array $modifyPassword = [
+        'password' => 'required|string|min:8',
+        'new_password' => ["required", "string", "min:8", "confirmed"],
+    ];
+
     public function findForPassport(string $username): User
     {
         $user = $this->where('phone', $username)->first();

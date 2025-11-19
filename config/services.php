@@ -28,7 +28,7 @@ return [
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
-        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-2'),
     ],
 
     'twilio' => [
@@ -36,6 +36,16 @@ return [
         'token' => env('TWILIO_AUTH_TOKEN'),
         'phone' => env('TWILIO_PHONE_NUMBER', '+16504803258'),
         'whatsapp' => env('TWILIO_WHATSAPP_NUMBER'),
+    ],
+
+    'paydunya' => [
+        'url' => env('PAYDUNYA_BASE_URL') . "/" . env('PAYDUNYA_VERSION', "v1"),
+        'name' => env('PAYDUNYA_COMPANY_NAME'),
+        'masterKey' => env('PAYDUNYA_MASTERKEY'),
+        'publicKey' => env('PAYDUNYA_PUBLIC_KEY'),
+        'privateKey' => env('PAYDUNYA_PRIVATE_KEY'),
+        'token' => env('PAYDUNYA_TOKEN'),
+        'mode' => env('PAYDUNYA_PAYMENT_MODE', 'test')
     ]
 
 ];

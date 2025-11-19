@@ -21,6 +21,7 @@ class GenerateCardEvents
         catch (\Exception $e){
             DB::rollBack();
             $event->errorMessage['event'] = $e->getMessage();
+            Log::error($event->errorMessage['event']);
         }
     }
 }
