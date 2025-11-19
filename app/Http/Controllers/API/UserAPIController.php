@@ -6,6 +6,7 @@ use App\Domain\Users\DTO\Node;
 use App\Domain\Users\ValueObjects\Type;
 use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\GetUsersAPIRequest;
+use App\Http\Requests\API\ModifyPasswordAPIRequest;
 use App\Http\Requests\API\UpdateCustomerAPIRequest;
 use App\Http\Requests\API\UpdateEnterpriseAPIRequest;
 use App\Http\Requests\API\UpdatePartnerAPIRequest;
@@ -21,6 +22,7 @@ use App\Notifications\ProfileUpdateNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserAPIController extends AppBaseController
 {
@@ -393,6 +395,80 @@ class UserAPIController extends AppBaseController
         }
         return $this->sendSuccess('Account deleted successfully.');
 
+    }
+
+    /**
+     * @OA\Patch(
+     *      path="/update/password",
+     *      summary="UpdatePassword",
+     *      tags={"User"},
+     *      description="Update password",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *          name="phone",
+     *          description="phone number to receive the OTP",
+     *           @OA\Schema(
+     *             type="string"
+     *          ),
+     *          required=true,
+     *          in="path"
+     *      ),
+     *      @OA\RequestBody(
+     *         @OA\MediaType(
+     *           mediaType="multipart/form-data",
+     *           @OA\Schema(
+     *               @OA\Property(
+     *                    property="password",
+     *                    type="string",
+     *                    format="password"
+     *               ),
+     *              @OA\Property(
+     *                   property="new_password",
+     *                   type="string",
+     *                   format="password"
+     *              ),
+     *              @OA\Property(
+     *                   property="new_password_confirmation",
+     *                   type="string",
+     *                   format="password"
+     *              ),
+     *           ),
+     *         ),
+     *      ),
+     *     @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="status",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *         )
+     *     )
+     * )
+     */
+
+    public function update_password(ModifyPasswordAPIRequest $request): JsonResponse
+    {
+
+        $user = $request->user();
+        $input = $request->only('password', 'new_password', 'new_password_confirmation');
+
+        //Check password
+        if (!Hash::check($input['password'], $user->password)) {
+            return $this->sendError("Password does not match !", 401);
+        }
+
+        //Change the password
+        $user->password = bcrypt($input['new_password']);
+        $user->save();
+
+        return $this->sendSuccess('Password successfully changed !', 200);
     }
 
     /**

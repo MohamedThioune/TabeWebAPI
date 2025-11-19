@@ -17,9 +17,8 @@ class UpdatedCard
     /**
      * @throws \Throwable
      */
-    public static function execute(GiftCard $gift_card, String $status): void {
-
-
+    public static function execute(GiftCard $gift_card, String $status): void
+    {
         DB::beginTransaction();
         try {
             // Change the card status

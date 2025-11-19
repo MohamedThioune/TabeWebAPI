@@ -403,6 +403,55 @@ class AuthAPIController extends Controller
         return $this->success('Successfully logged out', 200);
     }
 
+    /**
+     * @OA\Patch(
+     *      path="/auth/reset/password/{phone}",
+     *      summary="resetPassword",
+     *      tags={"Auth"},
+     *      description="OTP request",
+     *      @OA\Parameter(
+     *          name="phone",
+     *          description="phone number to receive the OTP",
+     *           @OA\Schema(
+     *             type="string"
+     *          ),
+     *          required=true,
+     *          in="path"
+     *      ),
+     *      @OA\RequestBody(
+     *         @OA\MediaType(
+     *           mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *              @OA\Property(
+     *                   property="new_password",
+     *                   type="string",
+     *                   format="password"
+     *              ),
+     *              @OA\Property(
+     *                   property="new_password_confirmation",
+     *                   type="string",
+     *                   format="password"
+     *              ),
+     *           ),
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="status",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     */
     public function reset_password(User $user, ResetPasswordAPIRequest $request): JsonResponse
     {
         $input = $request->only('otp_code', 'new_password', 'new_password_confirmation');

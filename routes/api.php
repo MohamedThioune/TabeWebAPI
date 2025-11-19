@@ -26,6 +26,7 @@ Route::group(['middleware' => ['auth:api']], function () {
       Route::get('/me', [App\Http\Controllers\API\AuthAPIController::class, 'me'])->name('auth.me');
       Route::delete('/oauth/logout', [App\Http\Controllers\API\AuthAPIController::class, 'logout'])->name('auth.logout');
       Route::delete('/me', [App\Http\Controllers\API\UserAPIController::class, 'destroy'])->name('auth.delete'); // delete all data relatives to the connected user !!
+      Route::patch('/update/password', [App\Http\Controllers\API\UserAPIController::class, 'update_password'])->name('auth.modify_password');
 
       //User actions (list partner, update user, upload file, notifications)
       Route::get('/partners', [App\Http\Controllers\API\UserAPIController::class, 'indexPartner'])->name('users.index.partner');
@@ -51,7 +52,6 @@ Route::group(['middleware' => ['auth:api']], function () {
 
               //Users
               Route::get('/customer/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsCustomer'])->name('users.customers.stats'); //stats of the customer
-
           });
       });
 

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
- use Illuminate\Database\Eloquent\SoftDeletes; use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 /**
  * @OA\Schema(
  *      schema="CardEvent",
@@ -50,7 +52,7 @@ use Illuminate\Database\Eloquent\Model;
     ];
 
     public static array $rules = [
-        'type' => 'required|string|in:activated,issued,used,expired,blocked',
+        'type' => 'required|string|in:activated,paid,failed,issued,used,expired,blocked',
         'gift_card_id' => 'required|exists:gift_cards,id',
     ];
 
