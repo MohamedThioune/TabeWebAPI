@@ -39,7 +39,8 @@ return [
     ],
 
     'paydunya' => [
-        'url' => env('PAYDUNYA_BASE_URL') . "/" . env('PAYDUNYA_VERSION', "v1"),
+        'url' => env('PAYDUNYA_BASE_URL') . "/api/" . env('PAYDUNYA_VERSION', "v1"),
+        'urlSandBox' => env('PAYDUNYA_BASE_URL') . "/sandbox-api/" . env('PAYDUNYA_VERSION', "v1"),
         'name' => env('PAYDUNYA_COMPANY_NAME'),
         'masterKey' => env('PAYDUNYA_MASTERKEY'),
         'publicKey' => env('PAYDUNYA_PUBLIC_KEY'),
