@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Domain\GiftCards\Services\BuyCard;
 use App\Domain\GiftCards\UseCases\CardFullyGenerated;
 use App\Domain\Users\DTO\Node;
 use App\Http\Controllers\AppBaseController;
@@ -20,7 +21,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Number;
 
 /**
  * Class GiftCardController
@@ -31,7 +31,7 @@ class GiftCardAPIController extends AppBaseController
     /** @var  GiftCardRepository */
     private $giftCardRepository;
 
-    public function __construct(GiftCardRepository $giftCardRepo, private BeneficiaryRepository $beneficiaryRepository, private CardFullyGenerated $cardFullyGenerated)
+    public function __construct(GiftCardRepository $giftCardRepo, private BeneficiaryRepository $beneficiaryRepository, private CardFullyGenerated $cardFullyGenerated, private BuyCard $payment)
     {
         $this->giftCardRepository = $giftCardRepo;
         $this->cardFullyGenerated = $cardFullyGenerated;
@@ -308,7 +308,16 @@ class GiftCardAPIController extends AppBaseController
         if(isset($giftCard['error']))
             return $this->sendError($giftCard['error'], 401);
 
-        return $this->sendResponse(new GiftCardResource($giftCard), 'Gift Card saved successfully');
+        $checkout = $this->payment->execute($giftCard);
+        if(!$checkout)
+            return $this->sendError("Something went wrong with the provider, please try again later !", 401);
+
+        $infos = [
+            'gift_card' => new GiftCardResource($giftCard),
+            'checkout' => $checkout,
+        ];
+
+        return $this->sendResponse($infos, 'Gift Card saved successfully !');
     }
 
     /**
@@ -397,7 +406,16 @@ class GiftCardAPIController extends AppBaseController
         if(isset($giftCard['error']))
             return $this->sendError($giftCard['error'], 401);
 
-        return $this->sendResponse(new GiftCardResource($giftCard), 'Gift Card saved successfully');
+        $checkout = $this->payment->execute($giftCard);
+        if(!$checkout)
+            return $this->sendError("Something went wrong with the provider, please try again later !", 401);
+
+        $infos = [
+            'gift_card' => new GiftCardResource($giftCard),
+            'checkout' => $checkout,
+        ];
+
+        return $this->sendResponse($infos, 'Gift Card saved successfully');
     }
 
     /**

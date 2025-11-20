@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Channels\TwilioChannel;
+use App\Infrastructure\External\PaymentGateway;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Notification;
@@ -17,6 +18,11 @@ class AppServiceProvider extends ServiceProvider
     {
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
         $loader->alias('Debugbar', \Barryvdh\Debugbar\Facades\Debugbar::class);
+
+        $this->app->bind(
+            \App\Infrastructure\External\PaymentGateway::class,
+            \App\Infrastructure\External\PaydunyaGateway::class
+        );
     }
 
     /**
