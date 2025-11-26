@@ -91,7 +91,6 @@ class GiftCard extends Model
         'belonging_type', //me or others
         'type', //physical or digital
         'face_amount',
-        'is_active',
         'status', //active, inactive, used, expired
         'expired_at',
         'owner_user_id',
@@ -139,5 +138,13 @@ class GiftCard extends Model
     }
     public function cardevent(){
         return $this->hasMany(CardEvent::class);
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+    public function latest_invoice(string $endpoint)
+    {
+        return $this->hasMany(Invoice::class)->where('endpoint', $endpoint)->latest('created_at')->first();
     }
 }

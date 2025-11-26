@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Infrastructure\External\DTO;
+namespace App\Infrastructure\External\Payment\DTO;
 
 interface DataTransferObject
 {

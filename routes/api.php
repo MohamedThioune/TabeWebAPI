@@ -39,6 +39,10 @@ Route::group(['middleware' => ['auth:api']], function () {
       Route::patch('/notifications/read/all', [App\Http\Controllers\API\NotificationAPIController::class, 'readAll'])->name('notifications.read.all');
       Route::delete('/notifications/me/{notification}', [App\Http\Controllers\API\NotificationAPIController::class, 'destroy'])->name('notifications.destroy.me');
 
+      //PayDunya IPN Controller
+      Route::post('/paydunya/ipn', [\App\Http\Controllers\PaydunyaController::class, 'ipn_handle'])->name('paydunya.ipn');
+      Route::post('/paydunya/verify/{giftCard}', [\App\Http\Controllers\PaydunyaController::class, 'verify'])->name('paydunya.verify');
+
       //Customer scope
       Route::group(['middleware' => ['role:customer|admin']], function () {
           Route::group(['middleware' => ['is_verified_phone']], function () {
@@ -57,7 +61,6 @@ Route::group(['middleware' => ['auth:api']], function () {
 
       //Admin scope
       Route::group(['middleware' => ['role:admin']], function () {
-
           //Qr sessions resource
           Route::resource('qr-sessions', App\Http\Controllers\API\QRSessionAPIController::class)
               ->except(['store', 'update']); //list, show, destroy
@@ -81,5 +84,7 @@ Route::group(['middleware' => ['auth:api']], function () {
           //Notifications resource
           Route::get('/notifications/users/{user}', [App\Http\Controllers\API\NotificationAPIController::class, 'index'])->name('notifications.index');
       });
-
 });
+
+Route::resource('invoices', App\Http\Controllers\API\InvoiceAPIController::class)
+    ->except(['create', 'edit']);
