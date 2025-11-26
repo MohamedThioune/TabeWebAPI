@@ -295,4 +295,8 @@ class User extends Authenticatable
     //  public function active_gift_cards(){
     //     return $this->hasMany(GiftCard::class)->withAttributes(['is_active' => 1]);
     //  }
+
+    public function invoices(){
+        return $this->hasMany(Invoice::class);
+    }
 }

@@ -404,15 +404,6 @@ class UserAPIController extends AppBaseController
      *      tags={"User"},
      *      description="Update password",
      *      security={{"passport":{}}},
-     *      @OA\Parameter(
-     *          name="phone",
-     *          description="phone number to receive the OTP",
-     *           @OA\Schema(
-     *             type="string"
-     *          ),
-     *          required=true,
-     *          in="path"
-     *      ),
      *      @OA\RequestBody(
      *         @OA\MediaType(
      *           mediaType="multipart/form-data",

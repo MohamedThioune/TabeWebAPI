@@ -46,7 +46,9 @@ return [
         'publicKey' => env('PAYDUNYA_PUBLIC_KEY'),
         'privateKey' => env('PAYDUNYA_PRIVATE_KEY'),
         'token' => env('PAYDUNYA_TOKEN'),
-        'mode' => env('PAYDUNYA_PAYMENT_MODE', 'test')
+        'mode' => env('PAYDUNYA_PAYMENT_MODE', 'test'),
+        'returnUrl' => env('PAYDUNYA_RETURN_URL'),
+        'cancelUrl' => env('PAYDUNYA_CANCEL_URL'),
     ]
 
 ];
