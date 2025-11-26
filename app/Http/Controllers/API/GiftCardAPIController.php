@@ -36,17 +36,19 @@ class GiftCardAPIController extends AppBaseController
         $this->cardFullyGenerated = $cardFullyGenerated;
     }
 
-    public function detached_index(User $user, array $search, Request $request) : array
+    public function detached_index(User $user, array $search, Request $request, int $perPage = 6) : array
     {
-        $giftCards = $this->giftCardRepository->all(
+        $query_cards = $this->giftCardRepository->allQuery(
             $search,
             $request->get('skip'),
             $request->get('limit')
         );
 
+        $count_cards = $this->giftCardRepository->countQuery($query_cards);
+        $paginated_users = $this->giftCardRepository->paginate($query_cards, $perPage);
         $infos = [
-            'gift_cards' => GiftCardResource::collection($giftCards),
-            'count' => !empty($giftCards) ? count($giftCards) : 0
+            'gift_cards' => GiftCardResource::collection($paginated_users),
+            'count' => $count_cards
         ];
 
         if($request->get('with_summary')){
@@ -61,6 +63,7 @@ class GiftCardAPIController extends AppBaseController
      *      summary="getGiftCardList",
      *      tags={"GiftCard"},
      *      description="Get all GiftCards | Only for admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *           name="status",
      *           in="query",
@@ -145,8 +148,9 @@ class GiftCardAPIController extends AppBaseController
     {
         $search = $request->except(['skip', 'limit']);
         $search['owner_user_id'] = $user->id;
+        $perPage = $request->get('per_page', 6);
 
-        $infos = $this->detached_index($user, $search, $request);
+        $infos = $this->detached_index($user, $search, $request, $perPage);
 
         return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
     }
@@ -156,6 +160,7 @@ class GiftCardAPIController extends AppBaseController
      *      summary="getGiftCardListPerUser",
      *      tags={"GiftCard"},
      *      description="Get all GiftCards per user",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *            name="status",
      *            in="query",
@@ -242,8 +247,9 @@ class GiftCardAPIController extends AppBaseController
         //Test user instance of model user
         $search = $request->except(['skip', 'limit']);
         $search['owner_user_id'] = $user->id;
+        $perPage = $request->get('per_page', 6);
 
-        $infos = $this->detached_index($user, $search, $request);
+        $infos = $this->detached_index($user, $search, $request, $perPage);
 
         return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
     }
@@ -325,6 +331,7 @@ class GiftCardAPIController extends AppBaseController
      *      summary="createGiftCard",
      *      tags={"GiftCard"},
      *      description="Create GiftCard",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *            name="Idempotency-Key",
      *            description="Idempotency Key",
@@ -423,6 +430,7 @@ class GiftCardAPIController extends AppBaseController
      *      summary="getGiftCardItem",
      *      tags={"GiftCard"},
      *      description="Get GiftCard",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of GiftCard",
@@ -471,6 +479,7 @@ class GiftCardAPIController extends AppBaseController
      *      summary="updateGiftCard",
      *      tags={"GiftCard"},
      *      description="Update GiftCard | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of GiftCard",
@@ -527,6 +536,7 @@ class GiftCardAPIController extends AppBaseController
      *      summary="deleteGiftCard",
      *      tags={"GiftCard"},
      *      description="Delete GiftCard | Only for a admin !!",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of GiftCard",

@@ -67,6 +67,7 @@ class PaydunyaController extends AppBaseController
      *      summary="VerifyPayment",
      *      tags={"Payment"},
      *      description="Verify status of payment",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *           name="giftCard",
      *           description="Gift card ID",
@@ -111,10 +112,16 @@ class PaydunyaController extends AppBaseController
      * )
      */
     public function verify(Request $request, GiftCard $giftCard){
+        $user = $request->user();
         $type_endpoint = $request->get('endpoint', 'checkout');
         $data = $this->checkStatus->execute($giftCard, $type_endpoint);
         $status = $data->status ?? null;
         $message = "Status : {$status}";
+
+        // Check ownership of the actual card
+        $hasCard = $user->gift_cards()->where('id', $giftCard->id)->exists();
+        if(!$hasCard)
+            return $this->sendError('Invalid authorization !', 401);
 
         try{
             DB::beginTransaction();
