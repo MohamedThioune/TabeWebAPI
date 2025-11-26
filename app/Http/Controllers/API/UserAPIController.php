@@ -497,9 +497,13 @@ class UserAPIController extends AppBaseController
                 'used_month_gift_cards' => $this->giftCardRepository->usedMonthly($user),
                 'total_available_gift_cards' => $this->giftCardRepository->countQueryTotal('active', $user),
                 'total_used_gift_cards' => $this->giftCardRepository->countQueryTotal('used', $user),
+                'total_expired_gift_cards' => $this->giftCardRepository->countQueryTotal('expired', $user),
+                'total_inactive_gift_cards' => $this->giftCardRepository->countQueryTotal('inactive', $user),
+                'total_pending_gift_cards' => $this->giftCardRepository->countQueryTotal('pending', $user),
                 'total_gift_cards' => $this->giftCardRepository->countQueryTotal(null, $user),
                 'total_available_gift_cards_amount' => $this->giftCardRepository->countQueryAmount('active', $user),
                 'total_gift_cards_amount' => $this->giftCardRepository->countQueryAmount(null, $user),
+
             ];
 
         return $this->sendResponse($infos, 'Users retrieved stats successfully !');
