@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+// PayDunya IPN
+Route::post('/paydunya/ipn', [\App\Http\Controllers\PaydunyaController::class, 'ipn_handle'])->name('paydunya.ipn');
 
 Route::group(['prefix' => 'auth'], function () {
     Route::post('/register', [App\Http\Controllers\API\AuthAPIController::class, 'register'])->name('auth.register');
@@ -22,28 +24,27 @@ Route::group(['prefix' => 'auth'], function () {
 });
 
 Route::group(['middleware' => ['auth:api']], function () {
-      //Oauth user
+      // Oauth user
       Route::get('/me', [App\Http\Controllers\API\AuthAPIController::class, 'me'])->name('auth.me');
       Route::delete('/oauth/logout', [App\Http\Controllers\API\AuthAPIController::class, 'logout'])->name('auth.logout');
       Route::delete('/me', [App\Http\Controllers\API\UserAPIController::class, 'destroy'])->name('auth.delete'); // delete all data relatives to the connected user !!
       Route::patch('/update/password', [App\Http\Controllers\API\UserAPIController::class, 'update_password'])->name('auth.modify_password');
 
-      //User actions (list partner, update user, upload file, notifications)
+      // User actions (list partner, update user, upload file, notifications)
       Route::get('/partners', [App\Http\Controllers\API\UserAPIController::class, 'indexPartner'])->name('users.index.partner');
       Route::patch('/users', [App\Http\Controllers\API\UserAPIController::class, 'updateAuth'])->name('users.update.me');
       Route::post('/file/upload', [App\Http\Controllers\API\FileAPIController::class, 'upload'])->name('files.upload');
 
-      //Notifications (get notifications, read notification, read all notifications, delete notification)
+      // Notifications (get notifications, read notification, read all notifications, delete notification)
       Route::get('/notifications/me', [App\Http\Controllers\API\NotificationAPIController::class, 'indexAuth'])->name('notifications.me');
       Route::patch('/notifications/me/{notification}', [App\Http\Controllers\API\NotificationAPIController::class, 'readAuth'])->name('notifications.read.me');
       Route::patch('/notifications/read/all', [App\Http\Controllers\API\NotificationAPIController::class, 'readAll'])->name('notifications.read.all');
       Route::delete('/notifications/me/{notification}', [App\Http\Controllers\API\NotificationAPIController::class, 'destroy'])->name('notifications.destroy.me');
 
-      //PayDunya IPN Controller
-      Route::post('/paydunya/ipn', [\App\Http\Controllers\PaydunyaController::class, 'ipn_handle'])->name('paydunya.ipn');
+      // PayDunya Verify
       Route::post('/paydunya/verify/{giftCard}', [\App\Http\Controllers\PaydunyaController::class, 'verify'])->name('paydunya.verify');
 
-      //Customer scope
+      // Customer scope
       Route::group(['middleware' => ['role:customer|admin']], function () {
           Route::group(['middleware' => ['is_verified_phone']], function () {
               //Gift cards
@@ -59,7 +60,7 @@ Route::group(['middleware' => ['auth:api']], function () {
           });
       });
 
-      //Admin scope
+      // Admin scope
       Route::group(['middleware' => ['role:admin']], function () {
           //Qr sessions resource
           Route::resource('qr-sessions', App\Http\Controllers\API\QRSessionAPIController::class)
