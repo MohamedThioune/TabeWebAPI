@@ -47,7 +47,7 @@ class GiftCardRepository extends BaseRepository
     public function countQueryAmount(?string $status, User $user): int //status:active or null
     {
         $query = $user->gift_cards();
-        $query->when(!$status, fn($query) => $query->where('status','<>' ,'inactive'));
+        $query->when(!$status, fn($query) => $query->whereIn('status', ['used','expired','active']));
         $query->when($status, fn($query) => $query->where('status', $status));
 
         return $query->sum('face_amount');
