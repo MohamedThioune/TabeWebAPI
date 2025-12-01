@@ -105,13 +105,18 @@ class InvoiceAPIController extends AppBaseController
             $request->get('limit')
         );
 
-        $count_invoices = $this->invoiceRepository->countQuery($query_invoices);
-        $invoices = $this->invoiceRepository->paginate($query_invoices, $count_invoices);
+        $invoices = $this->invoiceRepository->paginate($query_invoices, $perPage);
         $infos = [
             'invoices' => InvoiceResource::collection($invoices),
-            'count' => $count_invoices
+            'pagination' => [
+                'previous_page' => $invoices->currentPage() - 1 > 0 ? $invoices->currentPage() - 1 : null,
+                'current_page' => $invoices->currentPage(),
+                'next_page' => $invoices->hasMorePages() ? $invoices->currentPage() + 1 : null,
+                'total_pages' => $invoices->lastPage(),
+                'per_page' => $invoices->perPage(),
+                'total_items' => $invoices->total(),
+            ]
         ];
-
 
         return $this->sendResponse($infos, 'Invoices retrieved successfully');
     }

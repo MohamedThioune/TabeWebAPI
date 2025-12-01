@@ -44,11 +44,18 @@ class GiftCardAPIController extends AppBaseController
             $request->get('limit')
         );
 
-        $count_cards = $this->giftCardRepository->countQuery($query_cards);
-        $paginated_users = $this->giftCardRepository->paginate($query_cards, $perPage);
+        $gift_cards = $this->giftCardRepository->paginate($query_cards, $perPage);
         $infos = [
-            'gift_cards' => GiftCardResource::collection($paginated_users),
-            'count' => $count_cards
+            'gift_cards' => GiftCardResource::collection($gift_cards),
+            'count' => $gift_cards->total(),
+            'pagination' => [
+                'previous_page' => $gift_cards->currentPage() - 1 > 0 ? $gift_cards->currentPage() - 1 : null,
+                'current_page' => $gift_cards->currentPage(),
+                'next_page' => $gift_cards->hasMorePages() ? $gift_cards->currentPage() + 1 : null,
+                'total_pages' => $gift_cards->lastPage(),
+                'per_page' => $gift_cards->perPage(),
+                'total_items' => $gift_cards->total(),
+            ]
         ];
 
         if($request->get('with_summary')){

@@ -25,6 +25,7 @@ class GiftCardRepository extends BaseRepository
     ];
 
     public array $statuses = [
+        'pending',
         'active',
         'used',
         'expired'    

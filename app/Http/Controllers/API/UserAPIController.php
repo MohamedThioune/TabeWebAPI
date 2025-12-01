@@ -37,11 +37,19 @@ class UserAPIController extends AppBaseController
         );
 
         $count_users = $this->userRepository->countQuery($query_users);
-        $paginated_users = $this->userRepository->paginate($query_users, $perPage);
+        $users = $this->userRepository->paginate($query_users, $perPage);
 
         return [
-            'users' => UserResource::collection($paginated_users),
-            'count' => $count_users,
+            'users' => UserResource::collection($users),
+            'count' => $users->total(),
+            'pagination' => [
+                'previous_page' => $users->currentPage() - 1 > 0 ? $users->currentPage() - 1 : null,
+                'current_page' => $users->currentPage(),
+                'next_page' => $users->hasMorePages() ? $users->currentPage() + 1 : null,
+                'total_pages' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total_items' => $users->total(),
+            ]
         ];
     }
     /**
