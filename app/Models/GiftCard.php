@@ -6,11 +6,19 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Services\CodeGenerator;
 
 /**
  * @OA\Schema(
  *      schema="GiftCard",
  *      required={"belonging_type","type","face_amount","is_active","design_id"},
+ *      @OA\Property(
+ *          property="code",
+ *          description="Unique code of the gift card",
+ *          readOnly=true,
+ *          nullable=true,
+ *          type="string",
+ *      ),
  *      @OA\Property(
  *          property="belonging_type",
  *          description="myself or others",
@@ -88,6 +96,7 @@ class GiftCard extends Model
 
     public $fillable = [
         'id',
+        'code',
         'belonging_type', //me or others
         'type', //physical or digital
         'face_amount',
@@ -115,6 +124,7 @@ class GiftCard extends Model
     ];
 
     public static array $rules_listed = [
+        'code' => 'string',
         'status' => 'string|in:active,inactive,used,expired',
         'belonging_type' => 'string|in:myself,others',
         'type' => 'string|in:physical,digital',
@@ -122,6 +132,19 @@ class GiftCard extends Model
         'limit' => 'integer|gt:0',
         'with_summary' => 'boolean',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($card) {
+            do {
+                $code = \App\Helpers\CodeGenerator::generate();
+            } while (self::where('code', $code)->exists());
+
+            $card->code = $code;
+        });
+    }
 
     public function user(){
         return $this->belongsTo(User::class, 'owner_user_id', 'id');
@@ -145,6 +168,6 @@ class GiftCard extends Model
     }
     public function latest_invoice(string $endpoint)
     {
-        return $this->hasMany(Invoice::class)->where('endpoint', $endpoint)->latest('created_at')->first();
+        return $this->hasMany(Invoice::class)->where('endpoint', $endpoint)->where('type', 'Achat de carte')->latest('created_at')->first();
     }
 }

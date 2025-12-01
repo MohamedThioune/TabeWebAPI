@@ -24,6 +24,7 @@ class GiftCardResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'code' => $this->code,
             'belonging_type' => $this->belonging_type,
             'type' => $this->type,
             'face_amount' => $this->face_amount,

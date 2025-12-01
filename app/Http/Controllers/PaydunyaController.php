@@ -76,7 +76,7 @@ class PaydunyaController extends AppBaseController
      *           ),
      *           required=true,
      *           in="path"
-     *       ),
+     *      ),
      *      @OA\RequestBody(
      *         @OA\MediaType(
      *           mediaType="multipart/form-data",
@@ -84,12 +84,10 @@ class PaydunyaController extends AppBaseController
      *              @OA\Property(
      *                    property="endpoint",
      *                    type="string",
-     *                    nullable=true
-     *                    required=false
      *              ),
      *            ),
      *         ),
-     *       ),
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
@@ -128,7 +126,7 @@ class PaydunyaController extends AppBaseController
             if(!hash_equals($data->hash, hash('sha512', config("services.paydunya.masterKey")) )){
                 return $this->sendError('Invalid signature provider');
             }
-            if(!$status || $status !== PayDunyaStatus::Completed->value){
+            if(!$status || $status !== PayDunyaStatus::Pending->value){
                 Log::error($data->fail_reason ?? null);
                 return $this->sendError($data->fail_reason ?? $message);
             }

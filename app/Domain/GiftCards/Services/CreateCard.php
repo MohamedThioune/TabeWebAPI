@@ -2,11 +2,9 @@
 
 namespace App\Domain\GiftCards\Services;
 
-use App\Domain\Users\DTO\Node;
 use App\Models\GiftCard as ModelCard;
 use App\Domain\GiftCards\Events\CardOperated;
 use App\Infrastructure\Persistence\GiftCardRepository;
-use App\Notifications\PushCardNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Number;

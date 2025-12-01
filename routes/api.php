@@ -58,6 +58,8 @@ Route::group(['middleware' => ['auth:api']], function () {
               //Users
               Route::get('/customer/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsCustomer'])->name('users.customers.stats'); //stats of the customer
           });
+          Route::get('/invoices', [App\Http\Controllers\API\InvoiceAPIController::class, 'index'])->name('invoices.index');
+          Route::put('/gift-cards/share/{giftCard}', [App\Http\Controllers\API\GiftCardAPIController::class, 'share'])->name('gift-cards.share');
       });
 
       // Admin scope
@@ -86,6 +88,3 @@ Route::group(['middleware' => ['auth:api']], function () {
           Route::get('/notifications/users/{user}', [App\Http\Controllers\API\NotificationAPIController::class, 'index'])->name('notifications.index');
       });
 });
-
-Route::resource('invoices', App\Http\Controllers\API\InvoiceAPIController::class)
-    ->except(['create', 'edit']);
