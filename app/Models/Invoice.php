@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @OA\Schema(
  *      schema="Invoice",
- *      required={"reference_number", "amount", "status", "gift_card_id"},
+ *      required={"type", "reference_number", "amount", "status", "gift_card_id"},
+ *      @OA\Property(
+ *          property="type",
+ *          description="",
+ *          readOnly=false,
+ *          nullable=false,
+ *          type="string",
+ *          enum={"Achat de carte", "Paiement en boutique"}
+ *      ),
  *      @OA\Property(
  *          property="reference_number",
  *          description="",
@@ -83,6 +91,7 @@ class Invoice extends Model
 
     public $fillable = [
         'id',
+        'type',
         'reference_number',
         'status',
         'amount',
@@ -101,7 +110,8 @@ class Invoice extends Model
     ];
 
     public static array $rules = [
-        'status' => 'required|in:pending,completed,failed',
+        'type' => 'required|string|in:Achat de carte,Paiement en boutique',
+        'status' => 'required|string|in:pending,completed,failed',
         'amount' => 'required|integer|min:10000',
         'receipt_url' => 'nullable|url',
         'user_id' => 'nullable|exists:users,id',

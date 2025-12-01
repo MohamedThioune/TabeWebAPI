@@ -13,7 +13,7 @@ class PaymentResponseDTO implements DataTransferObject
         public ?string $response_text,
         public ?string $description,
         public ?string $token,
-        public array $custom_data,
+        public ?array  $custom_data,
         public ?string $receipt_url,
         public ?string $fail_reason,
     ) {}

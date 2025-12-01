@@ -31,6 +31,44 @@ class InvoiceAPIController extends AppBaseController
      *      summary="getInvoiceList",
      *      tags={"Invoice"},
      *      description="Get all Invoices",
+     *      @OA\Parameter(
+     *            name="type",
+     *            in="query",
+     *            description="Type of invoice",
+     *            required=false,
+     *            @OA\Schema(
+     *                enum={"Achat de carte", "Paiement en boutique"},
+     *                type="string"
+     *            )
+     *        ),
+     *       @OA\Parameter(
+     *             name="status",
+     *             in="query",
+     *             description="Status of invoice",
+     *             required=false,
+     *             @OA\Schema(
+     *               enum={"pending", "completed", "failed"},
+     *               type="string"
+     *             )
+     *      ),
+     *      @OA\Parameter(
+     *            name="skip",
+     *            in="query",
+     *            description="Skip",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *        ),
+     *       @OA\Parameter(
+     *             name="limit",
+     *             in="query",
+     *             description="Limit",
+     *             required=false,
+     *             @OA\Schema(
+     *                 type="integer"
+     *             )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
@@ -53,15 +91,29 @@ class InvoiceAPIController extends AppBaseController
      *      )
      * )
      */
+
     public function index(Request $request): JsonResponse
     {
-        $invoices = $this->invoiceRepository->all(
-            $request->except(['skip', 'limit']),
+        $user = $request->user();
+        $search = $request->except(['skip', 'limit']);
+        $search['user_id'] = $user->id;
+        $perPage = $request->get('per_page', 6);
+
+        $query_invoices = $this->invoiceRepository->allQuery(
+            $search,
             $request->get('skip'),
             $request->get('limit')
         );
 
-        return $this->sendResponse(InvoiceResource::collection($invoices), 'Invoices retrieved successfully');
+        $count_invoices = $this->invoiceRepository->countQuery($query_invoices);
+        $invoices = $this->invoiceRepository->paginate($query_invoices, $count_invoices);
+        $infos = [
+            'invoices' => InvoiceResource::collection($invoices),
+            'count' => $count_invoices
+        ];
+
+
+        return $this->sendResponse($infos, 'Invoices retrieved successfully');
     }
 
     /**

@@ -580,4 +580,82 @@ class GiftCardAPIController extends AppBaseController
 
         return $this->sendSuccess('Gift Card deleted successfully');
     }
+
+    /**
+     * @OA\Put(
+     *      path="/gift-cards/share/{giftCard}",
+     *      summary="ShareGiftCard",
+     *      tags={"GiftCard"},
+     *      description="Share GiftCard",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *          name="giftCard",
+     *          description="id of GiftCard",
+     *           @OA\Schema(
+     *             type="integer"
+     *          ),
+     *          required=true,
+     *          in="path"
+     *      ),
+     *      @OA\RequestBody(
+     *        required=true,
+     *        @OA\JsonContent(ref="#/components/schemas/GiftCard")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     */
+    public function share(GiftCard $giftCard): JsonResponse
+    {
+        //Check card status 
+        if($giftCard->status != 'active'){
+            return $this->sendError('Gift Card is not active and cannot be shared', 401);
+        }
+
+        // Get beneficiary
+        $beneficiary = $giftCard->beneficiary;
+        if(!$beneficiary){
+            return $this->sendError('Gift Card has no beneficiary to share with', 401);
+        }
+
+        // Get the owner and amount 
+        $user = $giftCard->user;
+        $customer_owner = $user?->customer()->first();
+        $owner_full_name = $customer_owner->first_name . ' ' . $customer_owner->last_name;
+        $amount = $giftCard->face_amount;
+        
+        $content_variables = json_encode(["1" => $beneficiary->full_name, "2" => $owner_full_name, "3" => (string)$amount]);
+
+        $content = "";
+        $node = new Node(
+            content : $content,
+            contentVariables: $content_variables,
+            level: null,
+            model: null,
+            title: null,
+            body: null
+        );
+
+        //Notify the user
+        $user->notify(new PushCardNotification(
+            node: $node,
+            beneficiary_phone: $beneficiary->phone,
+            channel: 'whatsapp'
+        ));
+
+        return $this->sendSuccess('Gift Card shared successfully !');
+    }
 }

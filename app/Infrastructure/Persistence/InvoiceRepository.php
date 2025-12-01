@@ -8,6 +8,7 @@ use App\Repositories\BaseRepository;
 class InvoiceRepository extends BaseRepository
 {
     protected $fieldSearchable = [
+        'type',
         'reference_number',
         'status',
         'endpoint',

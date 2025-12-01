@@ -6,6 +6,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class InvoiceResource extends JsonResource
 {
+    
     /**
      * Transform the resource into an array.
      *
@@ -14,13 +15,18 @@ class InvoiceResource extends JsonResource
      */
     public function toArray($request)
     {
+        //Load the relations
+        $this->load('gift_card');
+
         return [
             'id' => $this->id,
+            'type' => $this->type,
+            'amount' => $this->amount,
             'reference_number' => $this->reference_number,
-            'token' => $this->token,
             'status' => $this->status,
+            'receipt_url' => $this->receipt_url,
             'endpoint' => $this->endpoint,
-            'user_id' => $this->user_id,
+            'gift_card' => new GiftCardResource($this->whenLoaded('gift_card')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

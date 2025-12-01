@@ -12,7 +12,7 @@ class BuyCard
 
     public function __construct(private PaymentGateway $gateway){}
 
-    public function execute(GiftCard $gift_card) : ?string
+    public function execute(GiftCard $gift_card) : ?object
     {
         $amount = (int)$gift_card->face_amount;
         $user = $gift_card->user ?? null;
@@ -26,17 +26,27 @@ class BuyCard
             });
         // $response = $this->gateway->quick_pay($amount, $user->email);
 
-        // register the invoice
-        $user->invoices()->create([
-            'id' => Str::uuid()->toString(),
-            'amount' => $amount,
-            'reference_number' => $response->reference_number ?: $response->token,
-            'status' => $response->status ?: 'pending',
-            'endpoint' => 'checkout',
-            'gift_card_id' => $gift_card->id
-        ]);
+        //$reponse->url !null
+        if(!$response || !$response->response_text)
+            return null;
 
-        return $response->response_text ?? null;
-        // return $response->url ?? null;
+        $reference = $response->reference_number ?: $response->token;
+        try {
+            // Register the invoice
+            $user->invoices()->create([
+                'id' => Str::uuid()->toString(),
+                'type' => 'Achat de carte',
+                'amount' => $amount,
+                'reference_number' => $reference,
+                'status' => $response->status ?: 'pending',
+                'endpoint' => 'checkout',
+                'gift_card_id' => $gift_card->id
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error logging payment response: ' . $e->getMessage());
+        }
+       
+        return (Object)['reference' => $reference, 'url' => $response->response_text];
     }
 }
