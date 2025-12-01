@@ -627,12 +627,17 @@ class GiftCardAPIController extends AppBaseController
      */
     public function share(GiftCard $giftCard): JsonResponse
     {
-        //Check card status 
+        //Gift card expired at (Policy check)
+        if($giftCard->expired_at < now()){
+            return $this->sendError('Gift Card is expired and cannot be shared', 401);
+        } 
+
+        //Check card status (Policy check)
         if($giftCard->status != 'active'){
             return $this->sendError('Gift Card is not active and cannot be shared', 401);
         }
 
-        // Get beneficiary
+        // Get beneficiary (Policy check)
         $beneficiary = $giftCard->beneficiary;
         if(!$beneficiary){
             return $this->sendError('Gift Card has no beneficiary to share with', 401);
