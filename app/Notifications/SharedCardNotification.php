@@ -8,17 +8,16 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PushCardNotification extends Notification
+class ProfileUpdateNotification extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(private Node $node, public string $beneficiary_phone, public string $channel)
+    public function __construct(private Node $node, public string $channel)
     {
         $this->channel = $channel;
-        $this->$beneficiary_phone = $beneficiary_phone;
     }
 
     /**
@@ -28,18 +27,7 @@ class PushCardNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        $notifiable->phone = $this->beneficiary_phone;
-        $notifiable->whatsApp = 'whatsapp:' . $this->beneficiary_phone;
-        return ['twilio', 'database'];
-    }
-
-    public function toTwilio(object $notifiable): array{
-        return [
-            "from" => config("services.twilio.whatsapp"),
-            "contentSid" => "HX54e1abe2a9b140947d4e6d50fa43c773",
-            "contentVariables" => $this->node->contentVariables,
-            "body" => $this->node->body
-        ];
+        return ['database'];
     }
 
     /**

@@ -23,6 +23,5 @@ class TwilioChannel
             );
 
         Log::info($message);
-        Log::info($notifiable->phone);
     }
 }

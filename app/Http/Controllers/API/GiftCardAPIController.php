@@ -19,6 +19,7 @@ use App\Models\Beneficiary;
 use App\Notifications\PushCardNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -648,9 +649,15 @@ class GiftCardAPIController extends AppBaseController
         $customer_owner = $user?->customer()->first();
         $owner_full_name = $customer_owner->first_name . ' ' . $customer_owner->last_name;
         $amount = $giftCard->face_amount;
-        
-        $content_variables = json_encode(["1" => $beneficiary->full_name, "2" => $owner_full_name, "3" => (string)$amount]);
 
+        // Generate token and store in cache
+        $token = CardFullyGenerated::encoding_payload($giftCard->id);
+        $is_stored = Cache::put('token', $token, now()->addHours(24));
+        if(!$is_stored) return $this->sendError('Unable to generate shareable link, please try again later', 403);
+        $url = config('app.frontend_url') . '/download/?token=' . $token;
+
+        // Prepare content variables
+        $content_variables = json_encode(["1" => $beneficiary->full_name, "2" => (string)$amount, "3" => $owner_full_name, "4" => $giftCard->code, "5" => $url], JSON_UNESCAPED_SLASHES);
         $content = "";
         $node = new Node(
             content : $content,
@@ -660,6 +667,7 @@ class GiftCardAPIController extends AppBaseController
             title: null,
             body: null
         );
+        var_dump($token);
 
         //Notify the user
         $user->notify(new PushCardNotification(
@@ -668,6 +676,68 @@ class GiftCardAPIController extends AppBaseController
             channel: 'whatsapp'
         ));
 
-        return $this->sendSuccess('Gift Card shared successfully !');
+        return $this->sendSuccess('Gift Card shared successfully !', 200);
+    }
+
+     /**
+     * @OA\Put(
+     *      path="/gift-cards/verify/{payload}",
+     *      summary="VerifyGiftCard",
+     *      tags={"GiftCard"},
+     *      description="Verify GiftCard",
+     *      @OA\Parameter(
+     *          name="payload",
+     *          description="payload of GiftCard",
+     *           @OA\Schema(
+     *             type="string"
+     *          ),
+     *          required=true,
+     *          in="path"
+     *      ),
+     *      @OA\RequestBody(
+     *        required=true,
+     *        @OA\JsonContent(ref="#/components/schemas/GiftCard")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/GiftCard")
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+     */
+    public function verify(string $payload): JsonResponse
+    {
+        $gift_card_id = CardFullyGenerated::check($payload); //return gift_card_id or null
+        if (!$gift_card_id) {
+            return $this->sendError('Invalid or expired token', 401);
+        }
+        $giftCard = $this->giftCardRepository->find($gift_card_id);
+
+        if (empty($giftCard)) {
+            return $this->sendError('Gift card not found or invalid', 401);
+        }
+
+        // Get beneficiary (Policy check)
+        $beneficiary = $giftCard->beneficiary;
+        if(!$beneficiary){
+            return $this->sendError('Gift Card has no beneficiary to share with', 401);
+        }
+
+        return $this->sendResponse(new GiftCardResource($giftCard), 'Gift Card is valid !');
     }
 }

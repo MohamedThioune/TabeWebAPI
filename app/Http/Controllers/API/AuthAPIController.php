@@ -252,7 +252,7 @@ class AuthAPIController extends Controller
         $input = $request->only('purpose', 'channel', );
         //Call OTP send
         $otp_code = $this->otp_send($user, $input);
-        return $this->response($otp_code, 'OTP send successfully !', 200);
+        return $this->success('OTP send successfully !', 200);
     }
 
     /**

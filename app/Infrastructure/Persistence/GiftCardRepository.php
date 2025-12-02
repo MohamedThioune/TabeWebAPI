@@ -31,6 +31,12 @@ class GiftCardRepository extends BaseRepository
         'expired'    
     ];
 
+    public array $right_statuses = [
+        'active',
+        'used',
+        'expired'    
+    ];
+
     public function getFieldsSearchable(): array
     {
         return $this->fieldSearchable;
@@ -64,7 +70,7 @@ class GiftCardRepository extends BaseRepository
     public function countQueryAmount(?string $status, User $user): int //status:active or null
     {
         $query = $user->gift_cards();
-        $query->when(!$status, fn($query) => $query->whereIn('status', $this->statuses));
+        $query->when(!$status, fn($query) => $query->whereIn('status', $this->right_statuses));
         $query->when($status, fn($query) => $query->where('status', $status));
 
         return $query->sum('face_amount');
@@ -83,5 +89,15 @@ class GiftCardRepository extends BaseRepository
         // dd($query->toSql());
 
         return $query->count();
+    }
+
+    public function find(string $id, array $columns = ['*'])
+    {
+        $query = $this->model->newQuery();
+        $query->where('expired_at', '>', now());
+        $query->where('status', 'active');
+        $query->where('id', $id);
+
+        return $query->first($columns);
     }
 }

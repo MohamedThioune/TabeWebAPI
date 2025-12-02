@@ -302,17 +302,6 @@ class QRSessionAPIController extends AppBaseController
         return $this->sendSuccess('QR Session deleted successfully');
     }
 
-    public function check($payload): ?string
-    {
-        $decoded = base64_decode($payload);
-        list($uuid, $signature) = explode('.', $decoded, 2);
-        if (!hash_equals(hash_hmac('sha256', $uuid, config('app.key')), $signature)) {
-            return null;
-        }
-
-        return (string)$uuid;
-    }
-
     /**
      * @OA\Patch(
      *      path="/qr-sessions",
@@ -357,7 +346,7 @@ class QRSessionAPIController extends AppBaseController
     public function verify(UpdateQRSessionAPIRequest $request): JsonResponse
     {
         /** @var QrSession $qRSession */
-        $uuid = $this->check($request->payload); //return uuid or null
+        $uuid = CardFullyGenerated::check($request->payload); //return uuid or null
         $status = "used";
 
         $qrSession = $this->qRSessionRepository->find($uuid);
