@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 // PayDunya IPN
 Route::post('/paydunya/ipn', [\App\Http\Controllers\PaydunyaController::class, 'ipn_handle'])->name('paydunya.ipn');
+Route::get('/gift-cards/verify/{payload}', [\App\Http\Controllers\API\GiftCardAPIController::class, 'verify'])->name('giftcards.verify.token');
 
 Route::group(['prefix' => 'auth'], function () {
     Route::post('/register', [App\Http\Controllers\API\AuthAPIController::class, 'register'])->name('auth.register');

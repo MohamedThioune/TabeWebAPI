@@ -69,9 +69,7 @@ class CardFullyGenerated
 
     public static function qr_url(string $uuid_qr) : array
     {
-        $signature = hash_hmac('sha256', $uuid_qr, config('app.key'));
-        $combined = $uuid_qr . '.' . $signature;
-        $payload = base64url_encode($combined);
+        $payload = self::encoding_payload($uuid_qr);
 
         // Signed URL to be encoded in the QR code
         // $url = config('app.frontend_url') . "/scan/{$uuid_qr}/{$payload}";
@@ -82,4 +80,26 @@ class CardFullyGenerated
             "url" => $url,
         ];
     }
+
+    public static function encoding_payload(string $data) : ?string
+    {
+        $signature = hash_hmac('sha256', $data, config('app.key'));
+        $combined = $data . '.' . $signature;
+        $payload = base64url_encode($combined);
+
+        return $payload;
+    }
+
+    public static function check($payload): ?string
+    {
+        $decoded = base64_decode($payload);
+        list($uuid, $signature) = explode('.', $decoded, 2);
+        if (!hash_equals(hash_hmac('sha256', $uuid, config('app.key')), $signature)) {
+            return null;
+        }
+
+        return (string)$uuid;
+    }
+
+    
 }
