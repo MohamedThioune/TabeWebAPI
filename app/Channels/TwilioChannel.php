@@ -9,19 +9,23 @@ use Twilio\Rest\Client;
 class TwilioChannel
 {
     public function send($notifiable, Notification $notification){
-        // Config
-        $sid = config('services.twilio.sid');
-        $token = config('services.twilio.token');
-        $twilio = new Client($sid, $token);
+        try{
+            // Config
+            $sid = config('services.twilio.sid');
+            $token = config('services.twilio.token');
+            $twilio = new Client($sid, $token);
 
-        $to = ($notification->channel == "sms") ? $notifiable->phone : $notifiable->whatsApp;
-        $payload = $notification->toTwilio($notifiable);
+            $to = ($notification->channel == "sms") ? $notifiable->phone : $notifiable->whatsApp;
+            $payload = $notification->toTwilio($notifiable);
 
-        $message = $twilio->messages
-            ->create($to,
-                $payload
-            );
+            $message = $twilio->messages
+                ->create($to,
+                    $payload
+                );
+            Log::info("Sending notification via TwilioChannel to " . $notifiable->phone, (array)$message);
 
-        Log::info($message);
+        } catch (\Exception $e){
+            Log::error("Error logging notification: " . $e->getMessage());
+        }
     }
 }

@@ -21,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * Class GiftCardController
@@ -651,13 +652,16 @@ class GiftCardAPIController extends AppBaseController
         $amount = $giftCard->face_amount;
 
         // Generate token and store in cache
-        $token = CardFullyGenerated::encoding_payload($giftCard->id);
-        $is_stored = Cache::put('token', $token, now()->addHours(24));
+        $nonce = Str::random(4);
+        $token = CardFullyGenerated::encoding_payload($giftCard->id, $nonce);
+        $is_stored = Cache::put("token:{$nonce}", $token, now()->addHours(24));
         if(!$is_stored) return $this->sendError('Unable to generate shareable link, please try again later', 403);
-        $url = config('app.frontend_url') . '/download/?token=' . $token;
+        $url = config('app.frontend_url') . '/download/?token=' . $token . '&nonce=' . $nonce;
 
         // Prepare content variables
         $content_variables = json_encode(["1" => $beneficiary->full_name, "2" => (string)$amount, "3" => $owner_full_name, "4" => $giftCard->code, "5" => $url], JSON_UNESCAPED_SLASHES);
+        // $content_variables = json_encode(["1" => $token, "2" => $beneficiary->full_name, "3" => (string)$amount, "4" => $owner_full_name, "5" => $giftCard->code], JSON_UNESCAPED_SLASHES);
+
         $content = "";
         $node = new Node(
             content : $content,
@@ -668,6 +672,7 @@ class GiftCardAPIController extends AppBaseController
             body: null
         );
         var_dump($token);
+        var_dump($nonce);
 
         //Notify the user
         $user->notify(new PushCardNotification(
@@ -681,13 +686,13 @@ class GiftCardAPIController extends AppBaseController
 
      /**
      * @OA\Put(
-     *      path="/gift-cards/verify/{payload}",
+     *      path="/gift-cards/verify/{nonce}",
      *      summary="VerifyGiftCard",
      *      tags={"GiftCard"},
      *      description="Verify GiftCard",
      *      @OA\Parameter(
-     *          name="payload",
-     *          description="payload of GiftCard",
+     *          name="nonce",
+     *          description="nonce of the shared token",
      *           @OA\Schema(
      *             type="string"
      *          ),
@@ -695,8 +700,17 @@ class GiftCardAPIController extends AppBaseController
      *          in="path"
      *      ),
      *      @OA\RequestBody(
-     *        required=true,
-     *        @OA\JsonContent(ref="#/components/schemas/GiftCard")
+     *          @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *               @OA\Property(
+     *                   property="payload",
+     *                   type="string",
+     *                   description="content of the url",
+     *                   format="binary"
+     *               ),
+     *            ),
+     *          ),
      *      ),
      *      @OA\Response(
      *          response=200,
@@ -720,8 +734,14 @@ class GiftCardAPIController extends AppBaseController
      *      )
      * )
      */
-    public function verify(string $payload): JsonResponse
+    public function verify(string $nonce, Request $request): JsonResponse
     {
+        $payload = $request->get('payload');
+        $cache_token = Cache::get("token:{$nonce}");
+
+        if(!$cache_token || $cache_token !== $payload){
+            return $this->sendError('Invalid payload', 401);
+        }
         $gift_card_id = CardFullyGenerated::check($payload); //return gift_card_id or null
         if (!$gift_card_id) {
             return $this->sendError('Invalid or expired token', 401);
@@ -738,6 +758,7 @@ class GiftCardAPIController extends AppBaseController
             return $this->sendError('Gift Card has no beneficiary to share with', 401);
         }
 
+        Cache::forget("token:{$nonce}");
         return $this->sendResponse(new GiftCardResource($giftCard), 'Gift Card is valid !');
     }
 }

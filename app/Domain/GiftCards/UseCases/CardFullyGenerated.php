@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Domain\GiftCards\Events\CardOperated;
+use App\Helpers\TokenHelper;
+use Tuupola\Base62;
 
 class CardFullyGenerated
 {
@@ -69,7 +71,8 @@ class CardFullyGenerated
 
     public static function qr_url(string $uuid_qr) : array
     {
-        $payload = self::encoding_payload($uuid_qr);
+        $nonce = Str::random(4);
+        $payload = self::encoding_payload($uuid_qr, $nonce);
 
         // Signed URL to be encoded in the QR code
         // $url = config('app.frontend_url') . "/scan/{$uuid_qr}/{$payload}";
@@ -81,20 +84,26 @@ class CardFullyGenerated
         ];
     }
 
-    public static function encoding_payload(string $data) : ?string
+    public static function encoding_payload(string $data, $nonce = null) : ?string
     {
-        $signature = hash_hmac('sha256', $data, config('app.key'));
-        $combined = $data . '.' . $signature;
-        $payload = base64url_encode($combined);
+        $nonce = $nonce ?: random_bytes(4); // 4 bytes nonce
+
+        $signature = hash_hmac('sha256', $data, config('app.key'), true);
+        $combined = $data . '.' . $nonce . '.' . $signature;
+        // $payload = base64url_encode($combined);
+        $base62 = new Base62();
+        $payload = $base62->encode($combined);
 
         return $payload;
     }
 
     public static function check($payload): ?string
     {
-        $decoded = base64_decode($payload);
-        list($uuid, $signature) = explode('.', $decoded, 2);
-        if (!hash_equals(hash_hmac('sha256', $uuid, config('app.key')), $signature)) {
+        // $decoded = base64_decode($payload);
+        $base62 = new Base62();
+        $decoded = $base62->decode($payload);
+        list($uuid, $nonce, $signature) = explode('.', $decoded, 3);
+        if (!hash_equals(hash_hmac('sha256', $uuid, config('app.key'), true), $signature)) {
             return null;
         }
 
