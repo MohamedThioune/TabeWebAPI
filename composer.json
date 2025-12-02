@@ -21,6 +21,7 @@
         "paydunya/paydunya": "^1.0",
         "predis/predis": "^2.3",
         "spatie/laravel-permission": "^6.16",
+        "tuupola/base62": "^2.1",
         "twilio/sdk": "^8.8"
     },
     "require-dev": {
