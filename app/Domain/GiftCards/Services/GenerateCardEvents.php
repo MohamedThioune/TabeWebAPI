@@ -15,6 +15,9 @@ class GenerateCardEvents
      */
     public function handle(CardOperated $event)
     {
+        if(!$event->cardEvent){
+            return;
+        }
         try {
             $this->cardEventRepository->create($event->cardEvent->toArray());
         }

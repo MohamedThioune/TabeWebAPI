@@ -15,6 +15,10 @@ class GenerateQr
      */
     public function handle(CardOperated $event)
     {
+        if(!$event->qrSession){
+            return;
+        }
+
         try {
             $this->qrSessionRepository->create($event->qrSession->toArray());
             DB::commit();

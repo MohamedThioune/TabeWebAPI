@@ -71,7 +71,7 @@ class CardFullyGenerated
 
     public static function qr_url(string $uuid_qr) : array
     {
-        $nonce = Str::random(4);
+        $nonce = Str::random(1);
         $payload = self::encoding_payload($uuid_qr, $nonce);
 
         // Signed URL to be encoded in the QR code

@@ -348,7 +348,6 @@ class QRSessionAPIController extends AppBaseController
         /** @var QrSession $qRSession */
         $uuid = CardFullyGenerated::check($request->payload); //return uuid or null
         $status = "used";
-
         $qrSession = $this->qRSessionRepository->find($uuid);
         if (empty($qrSession)) {
             return $this->sendError('QR Session or Payload not found/invalid, Refresh the QR !');

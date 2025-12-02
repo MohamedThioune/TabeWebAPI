@@ -30,7 +30,7 @@ class QRSessionRepository extends BaseRepository
     {
         $query = $this->model->newQuery();
         $query->where('status', 'pending')
-              ->where('expired_at', '>', Carbon::now());
+              ->where('expired_at', '>', now());
 
         return $query->find($id, $columns);
     }

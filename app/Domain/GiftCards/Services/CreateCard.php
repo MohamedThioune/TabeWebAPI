@@ -19,6 +19,9 @@ class CreateCard
      */
     public function handle(CardOperated $event)
     {
+        if(!$event->card){
+            return;
+        }
         DB::beginTransaction();
         try {
             //card creation
