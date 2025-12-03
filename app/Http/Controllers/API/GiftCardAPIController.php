@@ -757,7 +757,6 @@ class GiftCardAPIController extends AppBaseController
             return $this->sendError('Gift Card has no beneficiary to share with', 401);
         }
 
-        Cache::forget("token:{$nonce}");
         return $this->sendResponse(new GiftCardResource($giftCard), 'Gift Card is valid !');
     }
 }

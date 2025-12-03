@@ -30,7 +30,7 @@ class PushCardNotification extends Notification
     {
         $notifiable->phone = $this->beneficiary_phone;
         $notifiable->whatsApp = 'whatsapp:' . $this->beneficiary_phone;
-        return ['twilio', 'database'];
+        return ['twilio'];
     }
 
     public function toTwilio(object $notifiable): array{

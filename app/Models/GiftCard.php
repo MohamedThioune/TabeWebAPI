@@ -125,7 +125,7 @@ class GiftCard extends Model
 
     public static array $rules_listed = [
         'code' => 'string',
-        'status' => 'string|in:active,inactive,used,expired',
+        'status' => 'string|in:active,inactive,used,expired,pending',
         'belonging_type' => 'string|in:myself,others',
         'type' => 'string|in:physical,digital',
         'skip' => 'integer|gt:0',
