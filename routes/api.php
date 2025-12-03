@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 // PayDunya IPN
 Route::post('/paydunya/ipn', [\App\Http\Controllers\PaydunyaController::class, 'ipn_handle'])->name('paydunya.ipn');
 Route::post('/gift-cards/verify/{code}', [\App\Http\Controllers\API\GiftCardAPIController::class, 'verify'])->name('giftcards.verify.token');
+Route::get('/partners', [App\Http\Controllers\API\UserAPIController::class, 'indexPartner'])->name('users.index.partner');
 
 Route::group(['prefix' => 'auth'], function () {
     Route::post('/register', [App\Http\Controllers\API\AuthAPIController::class, 'register'])->name('auth.register');
@@ -32,7 +33,6 @@ Route::group(['middleware' => ['auth:api']], function () {
       Route::patch('/update/password', [App\Http\Controllers\API\UserAPIController::class, 'update_password'])->name('auth.modify_password');
 
       // User actions (list partner, update user, upload file, notifications)
-      Route::get('/partners', [App\Http\Controllers\API\UserAPIController::class, 'indexPartner'])->name('users.index.partner');
       Route::patch('/users', [App\Http\Controllers\API\UserAPIController::class, 'updateAuth'])->name('users.update.me');
       Route::post('/file/upload', [App\Http\Controllers\API\FileAPIController::class, 'upload'])->name('files.upload');
 

@@ -142,7 +142,6 @@ class UserAPIController extends AppBaseController
      *      summary="listPartners",
      *      tags={"Partner"},
      *      description="List the partners",
-     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="per_page",
      *          in="query",
