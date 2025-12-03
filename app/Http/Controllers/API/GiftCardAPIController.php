@@ -660,7 +660,6 @@ class GiftCardAPIController extends AppBaseController
 
         // Prepare content variables
         $content_variables = json_encode(["1" => $beneficiary->full_name, "2" => (string)$amount, "3" => $owner_full_name, "4" => $giftCard->code, "5" => $url], JSON_UNESCAPED_SLASHES);
-        // $content_variables = json_encode(["1" => $token, "2" => $beneficiary->full_name, "3" => (string)$amount, "4" => $owner_full_name, "5" => $giftCard->code], JSON_UNESCAPED_SLASHES);
 
         $content = "";
         $node = new Node(

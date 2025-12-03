@@ -18,7 +18,7 @@ class PaydunyaController extends AppBaseController
     public function success_pay(mixed $data, string $type_endpoint): void
     {
         // Change the status card to active
-        $gift_card = tap($this->giftCardRepository->find($data->custom_data['gift_card_id']), function($gift_card) {
+        $gift_card = tap(GiftCard::find($data->custom_data['gift_card_id']), function($gift_card) {
             $gift_card->status = "active";
             $gift_card->save();
         });
@@ -109,9 +109,11 @@ class PaydunyaController extends AppBaseController
      *      )
      * )
      */
-    public function verify(Request $request, GiftCard $giftCard){
+    public function verify(GiftCard $giftCard, Request $request){
         $user = $request->user();
         $type_endpoint = $request->get('endpoint', 'checkout');
+        if($giftCard->status != 'pending')
+            return $this->sendError("This gift card is not pending !", 401);
         $data = $this->checkStatus->execute($giftCard, $type_endpoint);
         $status = $data->status ?? null;
         $message = "Status : {$status}";

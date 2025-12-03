@@ -31,6 +31,7 @@ class InvoiceAPIController extends AppBaseController
      *      summary="getInvoiceList",
      *      tags={"Invoice"},
      *      description="Get all Invoices",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *            name="type",
      *            in="query",
@@ -40,8 +41,8 @@ class InvoiceAPIController extends AppBaseController
      *                enum={"Achat de carte", "Paiement en boutique"},
      *                type="string"
      *            )
-     *        ),
-     *       @OA\Parameter(
+     *      ),
+     *      @OA\Parameter(
      *             name="status",
      *             in="query",
      *             description="Status of invoice",
@@ -51,6 +52,14 @@ class InvoiceAPIController extends AppBaseController
      *               type="string"
      *             )
      *      ),
+     *      @OA\Parameter(
+     *             name="q",
+     *             in="query",
+     *             description="Search query(amount)",
+     *             required=false,
+     *             @OA\Schema(
+     *               type="string"
+     *             )
      *      @OA\Parameter(
      *            name="skip",
      *            in="query",
@@ -127,6 +136,7 @@ class InvoiceAPIController extends AppBaseController
      *      summary="createInvoice",
      *      tags={"Invoice"},
      *      description="Create Invoice",
+     *      security={{"passport":{}}},
      *      @OA\RequestBody(
      *        required=true,
      *        @OA\JsonContent(ref="#/components/schemas/Invoice")
@@ -167,6 +177,7 @@ class InvoiceAPIController extends AppBaseController
      *      summary="getInvoiceItem",
      *      tags={"Invoice"},
      *      description="Get Invoice",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Invoice",
@@ -215,6 +226,7 @@ class InvoiceAPIController extends AppBaseController
      *      summary="updateInvoice",
      *      tags={"Invoice"},
      *      description="Update Invoice",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Invoice",
@@ -271,6 +283,7 @@ class InvoiceAPIController extends AppBaseController
      *      summary="deleteInvoice",
      *      tags={"Invoice"},
      *      description="Delete Invoice",
+     *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Invoice",
