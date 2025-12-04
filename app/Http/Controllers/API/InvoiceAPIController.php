@@ -126,7 +126,7 @@ class InvoiceAPIController extends AppBaseController
                 'total_items' => $invoices->total(),
             ]
         ];
-
+ 
         return $this->sendResponse($infos, 'Invoices retrieved successfully');
     }
 
