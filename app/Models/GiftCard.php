@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Services\CodeGenerator;
+use App\Helpers\CodeGenerator;
 
 /**
  * @OA\Schema(
@@ -133,13 +133,29 @@ class GiftCard extends Model
         'with_summary' => 'boolean',
     ];
 
+    public static function verifyRules(): array
+    {
+        return [
+            'code' => [
+                'required',
+                'string',
+                'exists:gift_cards,code',
+                function ($attribute, $value, $fail) {
+                    if(!CodeGenerator::isValid($value)){ 
+                        $fail('The gift card is not valid or falsified.');
+                    }
+                }
+            ],
+        ];
+    }
+
     public static function boot()
     {
         parent::boot();
 
         static::creating(function ($card) {
             do {
-                $code = \App\Helpers\CodeGenerator::generate();
+                $code = CodeGenerator::generate();
             } while (self::where('code', $code)->exists());
 
             $card->code = $code;
