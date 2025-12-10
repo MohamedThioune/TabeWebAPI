@@ -36,7 +36,6 @@ class InvoiceAPIController extends AppBaseController
      *            name="type",
      *            in="query",
      *            description="Type of invoice",
-     *            required=false,
      *            @OA\Schema(
      *                enum={"Achat de carte", "Paiement en boutique"},
      *                type="string"
@@ -46,25 +45,23 @@ class InvoiceAPIController extends AppBaseController
      *             name="status",
      *             in="query",
      *             description="Status of invoice",
-     *             required=false,
      *             @OA\Schema(
      *               enum={"pending", "completed", "failed"},
      *               type="string"
-     *             )
+     *             ),
      *      ),
      *      @OA\Parameter(
      *             name="q",
      *             in="query",
      *             description="Search query(amount)",
-     *             required=false,
      *             @OA\Schema(
      *               type="string"
-     *             )
+     *             ),
+     *     ),
      *      @OA\Parameter(
      *            name="skip",
      *            in="query",
      *            description="Skip",
-     *            required=false,
      *            @OA\Schema(
      *                type="integer"
      *            )
@@ -73,7 +70,6 @@ class InvoiceAPIController extends AppBaseController
      *             name="limit",
      *             in="query",
      *             description="Limit",
-     *             required=false,
      *             @OA\Schema(
      *                 type="integer"
      *             )
