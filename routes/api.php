@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 // PayDunya IPN
 Route::post('/paydunya/ipn', [\App\Http\Controllers\PaydunyaController::class, 'ipn_handle'])->name('paydunya.ipn');
-Route::post('/gift-cards/verify/{code}', [\App\Http\Controllers\API\GiftCardAPIController::class, 'verify'])->name('giftcards.verify.token');
+Route::post('/gift-cards/verify/{nonce}', [\App\Http\Controllers\API\GiftCardAPIController::class, 'verifyToken'])->name('giftcards.verify.token');
 Route::get('/partners', [App\Http\Controllers\API\UserAPIController::class, 'indexPartner'])->name('users.index.partner');
 
 Route::group(['prefix' => 'auth'], function () {
@@ -54,13 +54,23 @@ Route::group(['middleware' => ['auth:api']], function () {
 
               //Qr sessions
               Route::post('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'store'])->name('qr-sessions.store');
-              Route::patch('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
 
               //Users
               Route::get('/customer/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsCustomer'])->name('users.customers.stats'); //stats of the customer
           });
           Route::get('/invoices', [App\Http\Controllers\API\InvoiceAPIController::class, 'index'])->name('invoices.index');
           Route::put('/gift-cards/share/{giftCard}', [App\Http\Controllers\API\GiftCardAPIController::class, 'share'])->name('gift-cards.share');
+      });
+
+
+      //Partner scope
+      Route::group(['middleware' => ['role:customer|admin']], function () {
+            //Qr sessions
+            Route::patch('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
+
+            //Gift cards
+            Route::post('/users/verify/card', [App\Http\Controllers\API\GiftCardAPIController::class, 'verifyCode'])->name('giftcards.verify.code'); //verify a gift card code
+            // Route::get('/partner/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsPartner'])->name('users.partners.stats'); //stats of the partner
       });
 
       // Admin scope

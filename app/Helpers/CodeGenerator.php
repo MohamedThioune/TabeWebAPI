@@ -54,4 +54,29 @@ class CodeGenerator
         $index = $hash % 26;         // 0-25
         return chr(65 + $index);     // converts to A-Z
     }
+
+    /**
+    * Verify that a code has not been tampered with by validating the checksum.
+    */
+    public static function isValid(string $fullCode): bool
+    {
+        // Expected format: AAAA-1234-K
+        if (!preg_match('#^([A-Z]{4})-([0-9]{4})-([A-Z])$#', $fullCode, $matches)) {
+            return false; // invalid format
+        }
+
+        $letters = $matches[1];
+        $numbers = $matches[2];
+        $checksumProvided = $matches[3];
+
+        // Recreate the raw part
+        $raw = $letters . $numbers;
+
+        // Recalculate checksum
+        $expectedChecksum = self::checksumLetter($raw);
+
+        // Secure comparison (avoids timing attacks)
+        return hash_equals($expectedChecksum, $checksumProvided);
+    }
+
 }

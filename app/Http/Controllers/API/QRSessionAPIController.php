@@ -360,15 +360,14 @@ class QRSessionAPIController extends AppBaseController
         //Get the gift card
         $gift_card = $qrSession->giftCard;
 
+        //Put in a function (afterVerify)
         Log::info(json_encode(['gift_card' => $gift_card]));
-
         //Updated gift card (log event)
         UpdatedCard::execute($gift_card, $status);
-
         /*
          * Dispatch the transaction
         */
-        // Instructions code here !
+        //End function here !
 
         $qrSession->save();
         $qrSession->delete();

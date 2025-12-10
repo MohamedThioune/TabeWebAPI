@@ -10,6 +10,7 @@ use App\Http\Requests\API\CreateBeneficiaryAPIRequest;
 use App\Http\Requests\API\CreateGiftCardAPIRequest;
 use App\Http\Requests\API\UpdateGiftCardAPIRequest;
 use App\Http\Requests\API\GetGiftCardsAPIRequest;
+use App\Http\Requests\API\VerifyCodeAPIRequest;
 use App\Http\Resources\GiftCardResource;
 use App\Infrastructure\Persistence\BeneficiaryRepository;
 use App\Infrastructure\Persistence\GiftCardRepository;
@@ -606,10 +607,6 @@ class GiftCardAPIController extends AppBaseController
      *          required=true,
      *          in="path"
      *      ),
-     *      @OA\RequestBody(
-     *        required=true,
-     *        @OA\JsonContent(ref="#/components/schemas/GiftCard")
-     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
@@ -683,7 +680,7 @@ class GiftCardAPIController extends AppBaseController
         return $this->sendSuccess('Gift Card shared successfully !', 200);
     }
 
-     /**
+    /**
      * @OA\Put(
      *      path="/gift-cards/verify/{nonce}",
      *      summary="VerifyGiftCard",
@@ -732,8 +729,8 @@ class GiftCardAPIController extends AppBaseController
      *          )
      *      )
      * )
-     */
-    public function verify(string $nonce, Request $request): JsonResponse
+    */
+    public function verifyToken(string $nonce, Request $request): JsonResponse
     {
         $payload = $request->get('payload');
         $cache_token = Cache::get("token:{$nonce}");
@@ -759,4 +756,67 @@ class GiftCardAPIController extends AppBaseController
 
         return $this->sendResponse(new GiftCardResource($giftCard), 'Gift Card is valid !');
     }
+
+    /**
+     * @OA\Post(
+     *      path="/gift-cards/verify/code",
+     *      summary="VerifyGiftCardCode",
+     *      tags={"GiftCard"},
+     *      description="Partner verify gift card code",
+     *      security={{"passport":{}}},
+     *      @OA\RequestBody(
+     *         @OA\MediaType(
+     *           mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *              @OA\Property(
+     *                  property="code",
+     *                  type="string",
+     *                  description="code of the gift card to verify"
+     *              ),
+     *            ),
+     *         ),
+     *       ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/GiftCard")
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+    */
+    public function verifyCode(VerifyCodeAPIRequest $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $gift_card = $this->giftCardRepository->findByCode($request->get('code'));
+
+        if (empty($gift_card)) {
+            return $this->sendError('Gift card not found, invalid code !');
+        }
+
+
+        // if ($user->gift_cards->contains($gift_card->id)) {
+        //     return $this->sendError('You cannot verify your own gift card !');
+        // }
+
+        //Put in a function (afterVerify)
+        //End function here !
+
+        return $this->sendResponse(new GiftCardResource($gift_card), 'Gift card verified successfully !');
+    }
+
 }

@@ -130,7 +130,7 @@ class AuthAPIController extends Controller
         ];
         $otp_code = $this->otp_send($model, $input);
 
-       return $this->response(["code" => $otp_code, 'user' => $user], 'User registered successfully !', 201);
+       return $this->response(['user' => $user], 'User registered successfully !', 201);
     }
 
     public function otp_send(User $user, array $input): int

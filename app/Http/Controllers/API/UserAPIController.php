@@ -449,8 +449,7 @@ class UserAPIController extends AppBaseController
      *         )
      *     )
      * )
-     */
-
+    */
     public function update_password(ModifyPasswordAPIRequest $request): JsonResponse
     {
 
@@ -495,7 +494,7 @@ class UserAPIController extends AppBaseController
      *          )
      *      )
      * )
-     */
+    */
     public function statsCustomer(Request $request): JsonResponse{
         $user = $request->user();
 

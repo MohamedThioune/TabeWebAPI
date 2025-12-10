@@ -22,10 +22,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             //Seeds the roles, partners, customers, designs, categories, user_categories
             RoleSeeder::class,
-            PartnerSeeder::class,
-            CustomerSeeder::class,
-            DesignsTableSeeder::class,
-            CategoriesTableSeeder::class,
+            // PartnerSeeder::class,
+            // CustomerSeeder::class,
+            // DesignsTableSeeder::class,
+            // CategoriesTableSeeder::class,
             UserCategoriesTableSeeder::class,
         ]);
     }

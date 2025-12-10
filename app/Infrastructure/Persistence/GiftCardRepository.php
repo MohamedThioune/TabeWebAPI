@@ -100,4 +100,14 @@ class GiftCardRepository extends BaseRepository
 
         return $query->first($columns);
     }
+
+    public function findByCode(string $code, array $columns = ['*'])
+    {
+        $query = $this->model->newQuery();
+        $query->where('expired_at', '>', now());
+        $query->where('status', 'active');
+        $query->where('code', $code);
+
+        return $query->first($columns);
+    }
 }
