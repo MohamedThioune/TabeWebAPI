@@ -64,7 +64,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 
 
       //Partner scope
-      Route::group(['middleware' => ['role:customer|admin']], function () {
+      Route::group(['middleware' => ['role:partner|admin']], function () {
             //Qr sessions
             Route::patch('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
 
