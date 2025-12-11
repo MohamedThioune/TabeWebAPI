@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use App\Domain\GiftCards\UseCases\CardFullyGenerated;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Models\Giftcard;
 
 /**
  * Class QRSessionController
