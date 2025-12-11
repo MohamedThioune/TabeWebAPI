@@ -53,7 +53,7 @@ Route::group(['middleware' => ['auth:api']], function () {
               Route::get('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'indexAuth'])->name('gift-cards.index.me');
 
               //Qr sessions
-              Route::post('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'store'])->name('qr-sessions.store');
+              Route::post('/qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'store'])->name('qr-sessions.store');
 
               //Users
               Route::get('/customer/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsCustomer'])->name('users.customers.stats'); //stats of the customer
