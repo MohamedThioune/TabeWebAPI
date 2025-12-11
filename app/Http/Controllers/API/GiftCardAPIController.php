@@ -653,7 +653,7 @@ class GiftCardAPIController extends AppBaseController
         $token = CardFullyGenerated::encoding_payload($giftCard->id, $nonce);
         $is_stored = Cache::put("token:{$nonce}", $token, now()->addHours(24));
         if(!$is_stored) return $this->sendError('Unable to generate shareable link, please try again later', 403);
-        $url = config('app.frontend_url') . '/download/?token=' . $token . '&nonce=' . $nonce;
+        $url = config('app.client_url') . '/download/?token=' . $token . '&nonce=' . $nonce;
 
         // Prepare content variables
         $content_variables = json_encode(["1" => $beneficiary->full_name, "2" => (string)$amount, "3" => $owner_full_name, "4" => $giftCard->code, "5" => $url], JSON_UNESCAPED_SLASHES);

@@ -23,7 +23,8 @@ return [
         // for dev, you get it here :
         'http://localhost:3000',
         // for pre-prod, you get it here :
-        'https://tabe.thenexcom.com'
+        'https://tabe.thenexcom.com',
+        'https://partners.tabe.thenexcom.com',
     ],
 
     'allowed_origins_patterns' => [],
