@@ -66,7 +66,7 @@ Route::group(['middleware' => ['auth:api']], function () {
       //Partner scope
       Route::group(['middleware' => ['role:partner|admin']], function () {
             //Qr sessions
-            Route::patch('qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
+            Route::patch('/qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'verify'])->name('qr-sessions.verify');
 
             //Gift cards
             Route::post('/users/verify/card', [App\Http\Controllers\API\GiftCardAPIController::class, 'verifyCode'])->name('giftcards.verify.code'); //verify a gift card code
