@@ -75,7 +75,7 @@ class CardFullyGenerated
         $payload = self::encoding_payload($uuid_qr, $nonce);
 
         // Signed URL to be encoded in the QR code
-        $url = config('app.partner_url') . "/scan/{$payload}";
+        $url = config('app.partner_url') . "/verify?from=scan&payload={$payload}";
 
         return [
             'payload' => $payload,
