@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Infrastructure\Persistence\FileRepository;
+use Illuminate\Support\Facades\DB;
 
 class FileAPIController extends AppBaseController
 {

@@ -35,7 +35,10 @@ class UploadFileToS3 implements ShouldQueue
             $contents = Storage::disk('local')->get($this->temp);
 
             // Put the temp local file in S3
-            Storage::disk('s3')->put($this->path . $this->filename, $contents);
+            $success = Storage::disk('s3')->put($this->path . $this->filename, $contents);
+            if ($success == false){
+                throw new \Exception('Failed to upload file to S3');
+            }
 
             // Delete the local file after uploading to S3
             Storage::disk('local')->delete($this->temp);
