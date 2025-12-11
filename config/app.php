@@ -58,7 +58,8 @@ return [
 
     'asset_url' => env('ASSET_URL', '/'),
 
-    'frontend_url' => env('FRONTEND_URL', 'http://localhost'),
+    'client_url' => env('FRONTEND_CLIENT_URL', 'http://localhost'),
+    'partner_url' => env('FRONTEND_PARTNER_URL', 'http://localhost'),
 
     'prefix_aws' => env('AWS_PATH_PREFIX', 'dev/'),
 
