@@ -72,6 +72,26 @@ class QRSessionAPIController extends AppBaseController
         return $this->sendResponse(QRSessionResource::collection($qRSessions), 'QR Sessions retrieved successfully');
     }
 
+    public function refresh(Giftcard $gift_card): QrSession
+    {
+        $uuid_qr = Str::uuid()->toString();
+        $qr_hashed_url = CardFullyGenerated::qr_url($uuid_qr);
+        $payload = $qr_hashed_url['payload'] ?? null;
+        $url = $qr_hashed_url['url'] ?? null;
+        $dto = [
+            'id' => $uuid_qr,
+            'status' => "pending",
+            'token' => $payload,
+            'url' => $url,
+            'expired_at' => $gift_card->expired_at,
+            'gift_card_id' => $gift_card->id
+        ];
+        $qRSession = $this->qRSessionRepository->create($dto);
+
+        return $qRSession;
+    }
+
+
     /**
      * @OA\Post(
      *      path="/qr-sessions",
@@ -123,24 +143,12 @@ class QRSessionAPIController extends AppBaseController
             return $this->sendError('Unable to process this request, gift card active not found.');
         }
 
-        //process the creation of the qr code
-        $uuid_qr = Str::uuid()->toString();
-        $qr_hashed_url = CardFullyGenerated::qr_url($uuid_qr);
-        $payload = $qr_hashed_url['payload'] ?? null;
-        $url = $qr_hashed_url['url'] ?? null;
-        $dto = [
-            'id' => $uuid_qr,
-            'status' => "pending",
-            'token' => $payload,
-            'url' => $url,
-            'expired_at' => now()->addDays(2),
-            'gift_card_id' => $input['gift_card_id']
-        ];
-        $qRSession = $this->qRSessionRepository->create($dto);
-
         //delete the former qr
         $former_qr = QRSession::where('gift_card_id', $input['gift_card_id'])->first();
         if ($former_qr) $former_qr->delete(); //safe delete on the last state of this QR
+
+        //process the creation of the qr code
+        $qRSession = $this->refresh($active_gift_card);
 
         return $this->sendResponse(new QRSessionResource($qRSession), 'QR Session saved successfully');
     }
@@ -360,10 +368,10 @@ class QRSessionAPIController extends AppBaseController
         //Get the gift card
         $gift_card = $qrSession->giftCard;
 
+        //Update the Qr code session
+        $this->refresh($gift_card);
+
         //Put in a function (afterVerify)
-        Log::info(json_encode(['gift_card' => $gift_card]));
-        //Updated gift card (log event)
-        UpdatedCard::execute($gift_card, $status);
         /*
          * Dispatch the transaction
         */
