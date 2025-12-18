@@ -24,7 +24,7 @@ class Card
      * @param string $owner_user_id
      * @param string|null $beneficiary_id
      * @param string $design_id
-     */
+    */
     public function __construct(string $id, string $belonging_type, string $type, int $face_amount, string $expired_at, string $owner_user_id, ?string $beneficiary_id, string $design_id)
     {
         $this->id = $id;

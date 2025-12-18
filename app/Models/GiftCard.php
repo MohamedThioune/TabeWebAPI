@@ -102,6 +102,7 @@ class GiftCard extends Model
         'face_amount',
         'status', //active, inactive, used, expired
         'expired_at',
+        'issued_via',
         'owner_user_id',
         'beneficiary_id',
         'design_id'
@@ -185,5 +186,9 @@ class GiftCard extends Model
     public function latest_invoice(string $endpoint)
     {
         return $this->hasMany(Invoice::class)->where('endpoint', $endpoint)->where('type', 'Achat de carte')->latest('created_at')->first();
+    }
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

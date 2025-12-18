@@ -808,13 +808,9 @@ class GiftCardAPIController extends AppBaseController
             return $this->sendError('Gift card not found, invalid code !');
         }
 
-
         // if ($user->gift_cards->contains($gift_card->id)) {
         //     return $this->sendError('You cannot verify your own gift card !');
         // }
-
-        //Put in a function (afterVerify)
-        //End function here !
 
         return $this->sendResponse(new GiftCardResource($gift_card), 'Gift card verified successfully !');
     }

@@ -8,7 +8,8 @@ use App\Repositories\BaseRepository;
 class CardEventRepository extends BaseRepository
 {
     protected $fieldSearchable = [
-        'type'
+        'type',
+        'gift_card_id',
     ];
 
     public function getFieldsSearchable(): array

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Domain\GiftCards\Services\UpdatedCard;
 use App\Http\Requests\API\CreateQRSessionAPIRequest;
 use App\Http\Requests\API\UpdateQRSessionAPIRequest;
 use App\Http\Resources\GiftCardResource;
@@ -371,12 +370,6 @@ class QRSessionAPIController extends AppBaseController
 
         //Update the Qr code session
         $this->refresh($gift_card);
-
-        //Put in a function (afterVerify)
-        /*
-         * Dispatch the transaction
-        */
-        //End function here !
 
         $qrSession->save();
         $qrSession->delete();

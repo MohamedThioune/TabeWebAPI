@@ -109,7 +109,7 @@ abstract class BaseRepository
     /**
      * find first record with given filter criteria
      */
-    public function findFirst(array $search = [], array $columns = ['*']): ?Model
+    public function findByFields(array $search = [], array $columns = ['*']): ?Model
     {
         $query = $this->allQuery($search,null, null);
 
