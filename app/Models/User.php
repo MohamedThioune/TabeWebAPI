@@ -18,7 +18,7 @@ use App\Domain\Users\ValueObjects\Type;
  * @method static find(string $user_id)
  * @method static create(array $user)
  * @method static pluck(string $string)
- */
+*/
 
 /**
  * @OA\Schema(
@@ -292,11 +292,11 @@ class User extends Authenticatable
             ->where('status', 'active')
             ->first();
     }
-    //  public function active_gift_cards(){
-    //     return $this->hasMany(GiftCard::class)->withAttributes(['is_active' => 1]);
-    //  }
-
     public function invoices(){
         return $this->hasMany(Invoice::class);
+    }
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

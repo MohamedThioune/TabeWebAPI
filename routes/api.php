@@ -71,6 +71,10 @@ Route::group(['middleware' => ['auth:api']], function () {
             //Gift cards
             Route::post('/users/verify/card', [App\Http\Controllers\API\GiftCardAPIController::class, 'verifyCode'])->name('giftcards.verify.code'); //verify a gift card code
             // Route::get('/partner/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsPartner'])->name('users.partners.stats'); //stats of the partner
+
+            //Transactions
+            Route::post('/transactions', [App\Http\Controllers\API\TransactionAPIController::class, 'store'])->name('transactions.store');
+            Route::post('/transactions/confirm/{transaction}', [App\Http\Controllers\API\TransactionAPIController::class, 'confirm'])->name('transactions.confirm');
       });
 
       // Admin scope

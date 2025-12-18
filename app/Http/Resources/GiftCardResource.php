@@ -30,6 +30,7 @@ class GiftCardResource extends JsonResource
             'face_amount' => $this->face_amount,
             'status' => $this->status,
             'expired_at' => $this->expired_at,
+            'issued_via' => $this->issued_via,
             'qr' =>  isset($qrResource[0]) ? $qrResource[0] : null,
             'owner' => new UserResource($this->whenLoaded('user')),
             'beneficiary' => new BeneficiaryResource($this->whenLoaded('beneficiary')),
