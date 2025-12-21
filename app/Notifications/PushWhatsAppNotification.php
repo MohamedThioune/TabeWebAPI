@@ -32,10 +32,10 @@ class PushWhatsAppNotification extends Notification
 
     public function toTwilio(object $notifiable): array{
         return [
-             "from" => config("services.twilio.whatsapp"),
-             "contentSid" => "HX229f5a04fd0510ce1b071852155d3e75",
-             "contentVariables" => $this->node->contentVariables,
-             "body" => $this->node->body
+            "from" => config("services.twilio.whatsapp"),
+            "contentSid" => "HX229f5a04fd0510ce1b071852155d3e75",
+            "contentVariables" => $this->node->contentVariables,
+            "body" => $this->node->body
         ];
     }
 
