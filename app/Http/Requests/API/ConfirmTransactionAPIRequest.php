@@ -5,7 +5,7 @@ namespace App\Http\Requests\API;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Transaction;
 
-class ConfirmTransactioAPIRequest extends FormRequest
+class ConfirmTransactionAPIRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

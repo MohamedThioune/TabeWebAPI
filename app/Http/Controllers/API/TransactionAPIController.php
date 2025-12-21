@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Requests\API\CreateTransactionAPIRequest;
 use App\Http\Requests\API\UpdateTransactionAPIRequest;
+use App\Http\Requests\API\ConfirmTransactionAPIRequest;
 use App\Models\Transaction;
 use App\Infrastructure\Persistence\TransactionRepository;
 use App\Infrastructure\Persistence\GiftCardRepository;
@@ -179,8 +180,7 @@ class TransactionAPIController extends AppBaseController
             DB::rollBack();
             Log::error('Error creating transaction : ' . $e->getMessage());
             return $this->sendError('Something went wrong while creating the transaction !');
-        }
-        
+        }  
         
         //Send otp code to customer for verification (cache for 30 minutes)
         $otp_code = rand(100000, 999999);
@@ -255,7 +255,7 @@ class TransactionAPIController extends AppBaseController
      *      )
      * )
     */
-    public function confirm(Transaction $transaction, Request $request): JsonResponse 
+    public function confirm(Transaction $transaction, ConfirmTransactionAPIRequest $request): JsonResponse 
     {
         //Input data
         $otp_code = $request->get('otp_code') ?: null;
@@ -295,6 +295,17 @@ class TransactionAPIController extends AppBaseController
             Log::error('Error confirming transaction : ' . $e->getMessage());
             return $this->sendError('Something went wrong while confirming the transaction !');
         }
+
+        /* Notify parties (owner, beneficiary, shop) */
+        $content_variables = json_encode(["1" => '']);
+        $content = "";
+        $node = new Node(content: $content, contentVariables: $content_variables, level: null, model: null, title: null, body: null);
+        //Notify owner via WhatsApp
+     
+        //Notify beneficiary via WhatsApp
+ 
+        //Notify shop via WhatsApp      
+
         $transaction->load('gift_card');
         return $this->sendResponse(new TransactionResource($transaction), 'Transaction confirmed successfully !');
     }

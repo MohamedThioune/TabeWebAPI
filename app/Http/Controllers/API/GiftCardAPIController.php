@@ -17,7 +17,7 @@ use App\Infrastructure\Persistence\GiftCardRepository;
 use App\Models\GiftCard;
 use App\Models\User;
 use App\Models\Beneficiary;
-use App\Notifications\PushCardNotification;
+use App\Notifications\SharedCardNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -671,7 +671,7 @@ class GiftCardAPIController extends AppBaseController
         var_dump($nonce);
 
         //Notify the user
-        $user->notify(new PushCardNotification(
+        $user->notify(new SharedCardNotification(
             node: $node,
             beneficiary_phone: $beneficiary->phone,
             channel: 'whatsapp'
@@ -808,9 +808,9 @@ class GiftCardAPIController extends AppBaseController
             return $this->sendError('Gift card not found, invalid code !');
         }
 
-        // if ($user->gift_cards->contains($gift_card->id)) {
-        //     return $this->sendError('You cannot verify your own gift card !');
-        // }
+        if ($user->gift_cards->contains($gift_card->id)) {
+            return $this->sendError('You cannot verify your own gift card !');
+        }
 
         return $this->sendResponse(new GiftCardResource($gift_card), 'Gift card verified successfully !');
     }
