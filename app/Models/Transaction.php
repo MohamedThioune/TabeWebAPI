@@ -95,6 +95,11 @@ class Transaction extends Model
         'action' => 'required|string|in:cancel,confirm'
     ];
 
+    public static array $rules_listed = [
+        'status' => 'string|in:authorized,captured,cancelled,refunded,failed',
+        'filter_by_date' => 'string|in:today,this_week,this_month,this_year',
+    ];
+
     public function gift_card()
     {
         return $this->belongsTo(GiftCard::class);

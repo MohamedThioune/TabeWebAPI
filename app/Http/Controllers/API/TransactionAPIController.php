@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Requests\API\CreateTransactionAPIRequest;
 use App\Http\Requests\API\UpdateTransactionAPIRequest;
 use App\Http\Requests\API\ConfirmTransactionAPIRequest;
+use App\Http\Requests\API\GetTransactionAPIRequest;
 use App\Models\Transaction;
 use App\Infrastructure\Persistence\TransactionRepository;
 use App\Infrastructure\Persistence\GiftCardRepository;
@@ -130,13 +131,13 @@ class TransactionAPIController extends AppBaseController
      *      )
      * )
     */
-    public function index(Request $request): JsonResponse
+    public function index(GetTransactionAPIRequest $request): JsonResponse
     {
         $user = $request->user();
         //Test user instance of model user
         $search = $request->except(['skip', 'limit', 'page', 'per_page']);
         $search['owner_user_id'] = $user->id;
-        $perPage = $request->get('per_page', 9);
+        $perPage = $request->get('per_page') ?: 9;
 
         $infoTransactions = $this->collect($user, $search, $request, $perPage);
 
