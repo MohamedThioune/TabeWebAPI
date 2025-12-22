@@ -86,7 +86,7 @@ use App\Helpers\CodeGenerator;
  *          format="date-time"
  *      )
  * )
- */
+*/
 
 class GiftCard extends Model
 {
