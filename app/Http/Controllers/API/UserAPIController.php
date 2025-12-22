@@ -512,7 +512,22 @@ class UserAPIController extends AppBaseController
 
             ];
 
-        return $this->sendResponse($infos, 'Users retrieved stats successfully !');
+        return $this->sendResponse($infos, 'Customer retrieved stats successfully !');
+    }
+
+    public function statsPartner(Request $request): JsonResponse{
+        $user = $request->user();
+
+        $infos =
+            [
+                'total_month_granted_transaction' => 0,
+                'total_month_granted_transaction_amount' => 0,
+                'total_granted_transaction' => 0,
+                'total_remaining_payouts' => 0, //remboursement en attente
+                'total_remaining_transaction' => 0,
+            ];
+
+        return $this->sendResponse($infos, 'Partner retrieved stats successfully !');
     }
 
 }

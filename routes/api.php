@@ -72,7 +72,7 @@ Route::group(['middleware' => ['auth:api']], function () {
             Route::post('/users/verify/card', [App\Http\Controllers\API\GiftCardAPIController::class, 'verifyCode'])->name('giftcards.verify.code'); //verify a gift card code
 
             //Users
-            // Route::get('/partner/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsPartner'])->name('users.partners.stats'); //stats of the partner
+            Route::get('/partner/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsPartner'])->name('users.partners.stats'); //stats of the partner
 
             //Transactions
             Route::get('/transactions', [App\Http\Controllers\API\TransactionAPIController::class, 'index'])->name('transactions.index');

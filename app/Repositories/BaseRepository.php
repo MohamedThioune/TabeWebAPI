@@ -70,6 +70,7 @@ abstract class BaseRepository
         $filter_by_date = $search['filter_by_date'] ?? null;
         $query->when($filter_by_date, function ($query, $filter_by_date) {
             $ranges = [
+                'today' => [Carbon::now()->startOfDay(),   Carbon::now()->endOfDay()],
                 'week'  => [Carbon::now()->startOfWeek(),  Carbon::now()->endOfWeek()],
                 'month' => [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()],
                 'year'  => [Carbon::now()->startOfYear(),  Carbon::now()->endOfYear()],
