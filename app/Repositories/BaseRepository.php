@@ -7,6 +7,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 abstract class BaseRepository
 {
@@ -56,25 +57,35 @@ abstract class BaseRepository
      */
     public function allQuery(array $search = [], int $skip = null, int $limit = null): Builder
     {
+        $searchable = $this->getFieldsSearchable();
         $query = $this->model->newQuery();
 
-        if (count($search)) {
-            foreach($search as $key => $value) {
-                if (in_array($key, $this->getFieldsSearchable())) {
-                    $query->where($key, $value);
-                }
+        $query->when($search, function ($query, $search) {
+            collect($search)
+                ->only($this->getFieldsSearchable())
+                ->filter(fn ($value) => filled($value))
+                ->each(fn ($value, $key) => $query->where($key, $value));
+        });
+
+        $filter_by_date = $search['filter_by_date'] ?? null;
+        $query->when($filter_by_date, function ($query, $filter_by_date) {
+            $ranges = [
+                'week'  => [Carbon::now()->startOfWeek(),  Carbon::now()->endOfWeek()],
+                'month' => [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()],
+                'year'  => [Carbon::now()->startOfYear(),  Carbon::now()->endOfYear()],
+            ];
+
+            if (isset($ranges[$filter_by_date])) {
+                $query->whereBetween('created_at', $ranges[$filter_by_date]);
             }
-        }
+        });
 
-        if (!is_null($skip)) {
-            $query->skip($skip);
-        }
+        $query->when(!is_null($skip), fn ($query) => $query->skip($skip));
 
-        if (!is_null($limit)) {
-            $query->limit($limit);
-        }
+        $query->when(!is_null($limit), fn ($query) => $query->limit($limit));
 
         $query->orderBy('created_at', 'desc');
+
         return $query;
     }
 

@@ -20,6 +20,7 @@ use App\Domain\Users\DTO\Node;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\User;
 
 /**
  * Class TransactionController
@@ -39,12 +40,74 @@ class TransactionAPIController extends AppBaseController
         $this->cardEventRepository = $cardEventRepo;
     }
 
+    public function collect(User $user, array $search = [], Request $request, int $perPage = 9): array
+    {
+        $query_transaction = $this->transactionRepository->allQuery(
+            $search,
+            $request->get('skip'),
+            $request->get('limit')
+        );
+
+        $transactions = $query_transaction->paginate($perPage);
+
+        return [
+            'transactions' => TransactionResource::collection($transactions->load(['gift_card'])),
+            'count' => $transactions->total(),
+            'pagination' => [
+                'previous_page' => $transactions->currentPage() - 1 > 0 ? $transactions->currentPage() - 1 : null,
+                'current_page' => $transactions->currentPage(),
+                'next_page' => $transactions->hasMorePages() ? $transactions->currentPage() + 1 : null,
+                'total_pages' => $transactions->lastPage(),
+                'per_page' => $transactions->perPage(),
+                'total_items' => $transactions->total(),
+            ]
+        ];
+       
+    }
+
     /**
      * @OA\Get(
      *      path="/transactions",
-     *      summary="getTransactionList",
+     *      summary="getTransactionListPerUser",
      *      tags={"Transaction"},
-     *      description="Get all Transactions",
+     *      description="Get all Transactions per user",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *            name="page",
+     *            in="query",
+     *            description="Page",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
+     *            name="per_page",
+     *            in="query",
+     *            description="Per Page",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
+     *            name="skip",
+     *            in="query",
+     *            description="Skip",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
+     *             name="limit",
+     *             in="query",
+     *             description="Limit",
+     *             required=false,
+     *             @OA\Schema(
+     *                 type="integer"
+     *             )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
@@ -69,13 +132,15 @@ class TransactionAPIController extends AppBaseController
     */
     public function index(Request $request): JsonResponse
     {
-        $transactions = $this->transactionRepository->all(
-            $request->except(['skip', 'limit']),
-            $request->get('skip'),
-            $request->get('limit')
-        );
+        $user = $request->user();
+        //Test user instance of model user
+        $search = $request->except(['skip', 'limit', 'page', 'per_page']);
+        $search['owner_user_id'] = $user->id;
+        $perPage = $request->get('per_page', 9);
 
-        return $this->sendResponse(TransactionResource::collection($transactions), 'Transactions retrieved successfully');
+        $infoTransactions = $this->collect($user, $search, $request, $perPage);
+
+        return $this->sendResponse($infoTransactions, 'Transactions retrieved successfully !');
     }
 
     /**

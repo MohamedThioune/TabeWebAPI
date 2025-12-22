@@ -212,6 +212,24 @@ class GiftCardAPIController extends AppBaseController
      *             )
      *       ),
      *       @OA\Parameter(
+     *            name="page",
+     *            in="query",
+     *            description="Page",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
+     *            name="per_page",
+     *            in="query",
+     *            description="Per Page",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
      *            name="skip",
      *            in="query",
      *            description="Skip",
@@ -219,7 +237,7 @@ class GiftCardAPIController extends AppBaseController
      *            @OA\Schema(
      *                type="integer"
      *            )
-     *        ),
+     *       ),
      *       @OA\Parameter(
      *             name="limit",
      *             in="query",
@@ -255,7 +273,7 @@ class GiftCardAPIController extends AppBaseController
     {
         $user = $request->user();
         //Test user instance of model user
-        $search = $request->except(['skip', 'limit']);
+        $search = $request->except(['skip', 'limit', 'page', 'per_page']);
         $search['owner_user_id'] = $user->id;
         $perPage = $request->get('per_page', 6);
 
