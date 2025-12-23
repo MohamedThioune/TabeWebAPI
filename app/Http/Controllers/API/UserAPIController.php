@@ -515,6 +515,33 @@ class UserAPIController extends AppBaseController
         return $this->sendResponse($infos, 'Customer retrieved stats successfully !');
     }
 
+     /**
+     * @OA\Get(
+     *      path="/partner/stats",
+     *      summary="statsPartner",
+     *      tags={"Partner"},
+     *      description="Get the stats of the partners",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+    */
     public function statsPartner(Request $request): JsonResponse{
         $user = $request->user();
 
