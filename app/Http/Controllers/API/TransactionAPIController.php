@@ -269,10 +269,13 @@ class TransactionAPIController extends AppBaseController
 
         //Cache store OTP
         Cache::put('otp_code:' . $transaction->id, bcrypt($otp_code), now()->addMinutes(30));
-        var_dump('OTP Code for testing purposes: ' . $otp_code);
-
+        
+        //Prepare response
         $transaction->load(['gift_card']);
-        return $this->sendResponse(new TransactionResource($transaction), 'Transaction saved successfully');
+        $infos['otp_code'] = $otp_code;
+        $infos['transaction'] = new TransactionResource($transaction);
+
+        return $this->sendResponse($infos, 'Transaction saved successfully');
     }
 
     /**
