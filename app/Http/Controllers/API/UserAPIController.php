@@ -495,7 +495,8 @@ class UserAPIController extends AppBaseController
      *      )
      * )
     */
-    public function statsCustomer(Request $request): JsonResponse{
+    public function statsCustomer(Request $request): JsonResponse
+    {
         $user = $request->user();
 
         $infos =
@@ -515,7 +516,7 @@ class UserAPIController extends AppBaseController
         return $this->sendResponse($infos, 'Customer retrieved stats successfully !');
     }
 
-     /**
+    /**
      * @OA\Get(
      *      path="/partner/stats",
      *      summary="statsPartner",
