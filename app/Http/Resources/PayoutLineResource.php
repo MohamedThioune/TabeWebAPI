@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TransactionResource extends JsonResource
+class PayoutLineResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,14 +14,11 @@ class TransactionResource extends JsonResource
      */
     public function toArray($request)
     {
-        $this->loadMissing('gift_card');
         return [
             'id' => $this->id,
-            'status' => $this->status,
             'amount' => $this->amount,
-            'auth_code' => $this->auth_code,
-            'currency' => $this->currency,
-            'gift_card' => new GiftCardResource($this->whenLoaded('gift_card')),
+            'transaction_id' => $this->transaction_id,
+            'payout_id' => $this->payout_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

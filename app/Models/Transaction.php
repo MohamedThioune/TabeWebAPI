@@ -97,7 +97,7 @@ class Transaction extends Model
 
     public static array $rules_listed = [
         'status' => 'string|in:authorized,captured,cancelled,refunded,failed',
-        'filter_by_date' => 'string|in:today,this_week,this_month,this_year',
+        'filter_by_date' => 'string|in:today,week,month,year',
     ];
 
     public function gift_card()

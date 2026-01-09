@@ -28,7 +28,7 @@ class TransactionRepository extends BaseRepository
 
     public function last_transaction_for_gift_card($gift_card_id)
     {
-        return Transaction::where('gift_card_id', $gift_card_id)
+        return $this->model::where('gift_card_id', $gift_card_id)
             ->orderBy('created_at', 'desc')
             ->first();
     }
@@ -47,10 +47,28 @@ class TransactionRepository extends BaseRepository
                 $query_card->whereHas('beneficiary', function (Builder $query_beneficiary) use ($q) {
                     $query_beneficiary->orWhere('full_name', 'like', '%' . $q . '%');
                 });
-
+                
             });
         });  
 
         return $query;
+    }
+
+    public function getCapturedTransactionsByUser(string $user_id): Builder
+    {
+        return $this->model::where('user_id', $user_id)
+            ->where('status', 'captured');
+    }
+
+    public function getAuthorizedTransactionsByUser(string $user_id): Builder
+    {
+        return $this->model::where('user_id', $user_id)
+            ->where('status', 'authorized');
+    }
+
+    public function getRefundedTransactionsByUser(string $user_id): Builder
+    {
+        return $this->model::where('user_id', $user_id)
+            ->where('status', 'refunded');
     }
 }

@@ -197,6 +197,70 @@ class PaydunyaGateway implements PaymentGateway
         return PaymentResponseDTO::fromArray($response->json());
     }
 
+    public function initiate_refund(string $phone_number, int $amount, string $withdraw_mode)
+    {
+        $this->url = config('services.paydunya.urlV2');
+        $endpoint = $this->url . '/disburse/get-invoice';
+
+        $payload = [
+            'account_alias' => $phone_number,
+            'amount' => $amount,
+            'withdraw_mode' => $withdraw_mode,
+            'callback_url' => $this->actions['callback_url'],
+            // 'callback_url' => "https://nadora.dev-illimitis.com/api/paydunya/ipn"
+        ];
+
+        try
+        {
+            $response = $this->post_callout($endpoint, $this->headers, $payload);
+        }
+        catch (RequestException $e)
+        {
+            //Log the api request failed
+            Log::error('Paydunya request failed', [
+                'url' => $endpoint,
+                'status' => $e->response?->status(),
+            ]);
+
+            return null;
+        }
+
+        Log::info('PayDunya response', (array)$response->json());
+
+        return PaymentResponseDTO::fromArray($response->json());
+    }
+
+    public function submit_refund(string $disburse_token, string $disburse_id = null)
+    {
+        $this->url = config('services.paydunya.urlV2');
+        $endpoint = $this->url . '/disburse/submit-invoice';
+
+        $payload = [
+            'disburse_invoice' => $disburse_token,            
+        ];
+
+        if($disburse_id)
+            $payload['disburse_id'] = $disburse_id;
+
+        try
+        {
+            $response = $this->post_callout($endpoint, $this->headers, $payload);
+        }
+        catch (RequestException $e)
+        {
+            //Log the api request failed
+            Log::error('Paydunya request failed', [
+                'url' => $endpoint,
+                'status' => $e->response?->status(),
+            ]);
+
+            return null;
+        }
+
+        Log::info('PayDunya response', (array)$response->json());
+
+        return PaymentResponseDTO::fromArray($response->json());
+    }
 
 
 }

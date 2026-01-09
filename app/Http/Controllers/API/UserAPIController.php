@@ -17,16 +17,19 @@ use App\Infrastructure\Persistence\EnterpriseRepository;
 use App\Infrastructure\Persistence\PartnerRepository;
 use App\Infrastructure\Persistence\UserRepository;
 use App\Infrastructure\Persistence\GiftCardRepository;
+use App\Infrastructure\Persistence\TransactionRepository;
+use App\Infrastructure\Persistence\PayoutRepository;
 use App\Models\User;
 use App\Notifications\ProfileUpdateNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class UserAPIController extends AppBaseController
 {
-    public function __construct(private UserRepository $userRepository, private EnterpriseRepository $enterpriseRepository, private PartnerRepository $partnerRepository, private CustomerRepository $customerRepository, private GiftCardRepository $giftCardRepository ){}
+    public function __construct(private UserRepository $userRepository, private EnterpriseRepository $enterpriseRepository, private PartnerRepository $partnerRepository, private CustomerRepository $customerRepository, private GiftCardRepository $giftCardRepository, private TransactionRepository $transactionRepository, private PayoutRepository $payoutRepository){}
 
     public function detached_index(array $search, Request $request, int $perPage = 8): array
     {
@@ -545,14 +548,30 @@ class UserAPIController extends AppBaseController
     */
     public function statsPartner(Request $request): JsonResponse{
         $user = $request->user();
+        $count_authorized_transactions = $user->transactions()->where('status', 'authorized')->count();
+        $month_range = [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()];
 
+        //Payout stats
+        $count_authorized_payouts = $this->payoutRepository->getPayoutInProgressByUser($user->id)->count();
+        $count_completed_payouts = $this->payoutRepository->getPayoutCompletedByUser($user->id)->count();
+        $sum_month_completed_payouts_amount = (int)$this->payoutRepository->getPayoutCompletedByUser($user->id)->whereBetween('created_at', $month_range)->sum('net_amount');
+        //Transaction stats
+        $count_month_captured_transaction = $this->transactionRepository->getCapturedTransactionsByUser($user->id)->whereBetween('created_at', $month_range)->count();
+        $sum_month_captured_transaction_amount = $this->transactionRepository->getCapturedTransactionsByUser($user->id)->whereBetween('created_at', $month_range)->sum('amount');
+        $count_captured_transactions = $this->transactionRepository->getCapturedTransactionsByUser($user->id)->count();
+        $count_refunded_transactions = $this->transactionRepository->getRefundedTransactionsByUser($user->id)->count();
+        $count_remaining_transactions = $this->transactionRepository->getAuthorizedTransactionsByUser($user->id)->count();
+        
         $infos =
             [
-                'total_month_granted_transaction' => 0,
-                'total_month_granted_transaction_amount' => 0,
-                'total_granted_transaction' => 0,
-                'total_remaining_payouts' => 0, //remboursement en attente
-                'total_remaining_transaction' => 0,
+                'total_month_granted_transaction' => $count_month_captured_transaction,
+                'total_month_granted_transaction_amount' => $sum_month_captured_transaction_amount,
+                'total_granted_transaction' => $count_captured_transactions,
+                'total_refunded_transaction' => $count_refunded_transactions,
+                'total_remaining_transaction' => $count_remaining_transactions,
+                'total_remaining_payouts' => $count_authorized_payouts,
+                'total_completed_payouts' => $count_completed_payouts,
+                'total_month_completed_payouts_amount' => $sum_month_completed_payouts_amount
             ];
 
         return $this->sendResponse($infos, 'Partner retrieved stats successfully !');
