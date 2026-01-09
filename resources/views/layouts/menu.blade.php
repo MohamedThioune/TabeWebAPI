@@ -9,6 +9,7 @@
 <li class="nav-item">
     <a href="{{ route('qRSessions.index') }}" class="nav-link {{ Request::is('qRSessions*') ? 'active' : '' }}">
         <i class="nav-icon fas fa-home"></i>
-        <p>Q R Sessions</p>
+        <p>QR Sessions</p>
     </a>
 </li>
+

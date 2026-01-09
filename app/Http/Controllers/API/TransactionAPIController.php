@@ -41,7 +41,7 @@ class TransactionAPIController extends AppBaseController
         $this->cardEventRepository = $cardEventRepo;
     }
 
-    public function collect(User $user, array $search = [], Request $request, int $perPage = 9): array
+    public function collect(array $search = [], Request $request, int $perPage = 9): array
     {
         $query_transaction = $this->transactionRepository->allQuery(
             $search,
@@ -109,6 +109,26 @@ class TransactionAPIController extends AppBaseController
      *                 type="integer"
      *             )
      *      ),
+     *      @OA\Parameter(
+     *              name="status",
+     *              in="query",
+     *              description="Filter by status",
+     *              required=false,
+     *              @OA\Schema(
+     *                  type="string",
+     *                  enum={"authorized", "captured", "cancelled", "refunded", "failed"}
+     *              )
+     *      ),
+     *      @OA\Parameter(
+     *              name="filter_by_date",
+     *              in="query",
+     *              description="Filter by date",
+     *              required=false,
+     *              @OA\Schema(
+     *                  type="string",
+     *                  enum={"today", "week", "month", "year"}
+     *              )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
@@ -134,12 +154,11 @@ class TransactionAPIController extends AppBaseController
     public function index(GetTransactionAPIRequest $request): JsonResponse
     {
         $user = $request->user();
-        //Test user instance of model user
         $search = $request->except(['skip', 'limit', 'page', 'per_page']);
-        $search['owner_user_id'] = $user->id;
+        $search['user_id'] = $user->id;
         $perPage = $request->get('per_page') ?: 9;
 
-        $infoTransactions = $this->collect($user, $search, $request, $perPage);
+        $infoTransactions = $this->collect($search, $request, $perPage);
 
         return $this->sendResponse($infoTransactions, 'Transactions retrieved successfully !');
     }
@@ -217,8 +236,8 @@ class TransactionAPIController extends AppBaseController
         //Get former transactions of this gift card to check limits
         $formerTransaction = $this->transactionRepository->last_transaction_for_gift_card($gift_card->id);
         if ($formerTransaction) {
-            if($formerTransaction->status == 'authorized' || $formerTransaction->status == 'captured'){
-                return $this->sendError('A transaction is already in progress for this gift card');
+            if ($formerTransaction->status == 'captured' || $formerTransaction->status == 'refunded') {
+                return $this->sendError('A transaction is already captured/refunded for this card, contact support !');
             }
         }
 
@@ -269,7 +288,7 @@ class TransactionAPIController extends AppBaseController
 
         //Cache store OTP
         Cache::put('otp_code:' . $transaction->id, bcrypt($otp_code), now()->addMinutes(30));
-        
+
         //Prepare response
         $transaction->load(['gift_card']);
         $infos['otp_code'] = $otp_code;
@@ -280,11 +299,93 @@ class TransactionAPIController extends AppBaseController
 
     /**
      * @OA\Post(
+     *      path="/transactions/retry/{transaction}",
+     *      summary="retryTransaction",
+     *      tags={"Transaction"},
+     *      description="Retry start Transaction",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *            name="transaction",
+     *            in="path",
+     *            description="id of Transaction",
+     *            required=true,
+     *            @OA\Schema(
+     *                type="string"
+     *            )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  ref="#/components/schemas/Transaction"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+    */
+    public function retry(Transaction $transaction): JsonResponse
+    {
+        if ($transaction->status != 'authorized') {
+            return $this->sendError('You can only retry an authorized transaction !');
+        }
+
+        //Resend otp code to customer for verification (cache for 30 minutes)
+        $otp_code = rand(100000, 999999);
+        $content_variables = json_encode(["1" => $otp_code]);
+        $content = "";
+        $node = new Node(content: $content, contentVariables: $content_variables, level: null, model: null, title: null, body: null);
+        $beneficiary = $transaction->gift_card->beneficiary;
+        $user = $transaction->gift_card->owner;
+        //Notify customer via WhatsApp
+        if ($beneficiary) {
+            $user->notify(new PushBeneficiaryWhatsAppNotification(
+                node: $node,
+                beneficiary_phone: $beneficiary->phone,
+                channel: 'whatsapp'
+            ));        
+        }
+        $user->notify(new PushWhatsAppNotification(
+            node: $node,
+            channel: 'whatsapp'
+        ));
+
+        //Cache store OTP
+        Cache::put('otp_code:' . $transaction->id, bcrypt($otp_code), now()->addMinutes(30));
+
+        //Prepare response
+        $infos['otp_code'] = $otp_code;
+        $infos['transaction'] = new TransactionResource($transaction);
+
+        return $this->sendResponse($infos, 'Transaction OTP resent successfully');
+    }
+
+    /**
+     * @OA\Post(
      *      path="/transactions/confirm/{transaction}",
      *      summary="confirmTransaction",
      *      tags={"Transaction"},
      *      description="Confirm Transaction",
      *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *            name="transaction",
+     *            in="path",
+     *            description="id of Transaction",
+     *            required=true,
+     *            @OA\Schema(
+     *                type="string"
+     *            )
+     *      ),
      *      @OA\RequestBody(
      *         @OA\MediaType(
      *           mediaType="multipart/form-data",
@@ -338,8 +439,8 @@ class TransactionAPIController extends AppBaseController
         //Get former transactions of this gift card to check limits
         $formerTransaction = $this->transactionRepository->last_transaction_for_gift_card($transaction->gift_card_id);
         if ($formerTransaction) {
-            if($formerTransaction->status == 'captured'){
-                return $this->sendError('This transaction is already captured, contact support !');
+            if($formerTransaction->status == 'captured' || $formerTransaction->status == 'refunded') {
+                return $this->sendError('A transaction is already captured/refunded for this card, contact support !');
             }
         }
         

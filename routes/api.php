@@ -78,6 +78,12 @@ Route::group(['middleware' => ['auth:api']], function () {
             Route::get('/transactions', [App\Http\Controllers\API\TransactionAPIController::class, 'index'])->name('transactions.index');
             Route::post('/transactions', [App\Http\Controllers\API\TransactionAPIController::class, 'store'])->name('transactions.store');
             Route::post('/transactions/confirm/{transaction}', [App\Http\Controllers\API\TransactionAPIController::class, 'confirm'])->name('transactions.confirm');
+
+            //Payouts
+            Route::get('/payouts', [App\Http\Controllers\API\PayoutAPIController::class, 'index'])->name('payouts.index');
+            Route::post('/payouts/request', [App\Http\Controllers\API\PayoutAPIController::class, 'request'])->middleware('idempotency')->name('payouts.request');
+            // Route::post('/payouts/submit', [App\Http\Controllers\API\PayoutAPIController::class, 'submit'])->middleware('idempotency')->name('payouts.submit');
+
       });
 
       // Admin scope
