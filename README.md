@@ -1,66 +1,180 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Carte Tabé – Backend API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
 
-## About Laravel
+**Carte Tabé API** is the backend service powering the Carte Tabé ecosystem — a multi-merchant gift card platform.
+This API handles the full lifecycle of gift cards, including issuance, activation, authentication, payments, transactions, payouts, notifications, and fraud-prevention workflows.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+It serves multiple clients:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+* 📱 Mobile applications (wallet for beneficiaries)
+* 🏪 Partner / merchant portals
+* 🧑‍💼 Admin back-office
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The API is designed to be secure, scalable, and ready for financial-grade workflows.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Architecture & Design
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+This project follows a **lightweight Domain-Driven Design (DDD)** approach.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+The goal is to keep the codebase:
 
-## Laravel Sponsors
+* **Domain-focused**
+* **Readable and maintainable**
+* **Pragmatic**, without over-engineering
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### Key principles applied:
 
-### Premium Partners
+* Clear separation between **Domain**, **Application**, and **Infrastructure**
+* Business logic isolated from frameworks when possible
+* Explicit domain concepts (GiftCard, Transaction, Partner, Payout, etc.)
+* Use of Laravel features where they bring real value (Queues, Events, Jobs, Policies)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+This is **DDD-inspired**, not a strict or academic implementation.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Tech Stack
 
-## Code of Conduct
+* **Framework**: Laravel
+* **Database**: MySQL
+* **Cache / Queues**: Redis
+* **Authentication**: OTP (SMS / WhatsApp), API tokens(Passport)
+* **Documentation**: Swagger / OpenAPI
+* **Payments**: Mobile Money providers (Wave, Orange Money, Free Money, etc.)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🚀 Getting Started
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 1️⃣ Clone the repository
 
-## License
+```bash
+git clone https://github.com/your-organization/carte-tabe-api.git
+cd TabeWebAPI
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+### 2️⃣ Install dependencies
+
+```bash
+composer install
+```
+
+---
+
+### 3️⃣ Environment configuration
+
+Copy the environment file:
+
+```bash
+cp .env.example .env
+```
+
+Generate the application key:
+
+```bash
+php artisan key:generate
+```
+
+Update your `.env` file with the correct values:
+
+* Database credentials
+* Redis configuration
+* Twilio credentials
+* Payment provider keys
+* Storage (S3 or local)
+
+---
+
+### 4️⃣ Database migrations
+
+Run migrations to set up the database schema:
+
+```bash
+php artisan migrate
+```
+
+(Optional) Seed demo data:
+
+```bash
+php artisan db:seed
+```
+
+---
+
+### 5️⃣ Start the application
+
+Run the local development server:
+
+```bash
+php artisan serve
+```
+
+The API will be available at:
+
+```
+http://localhost:8000
+```
+
+---
+
+## 🧪 Testing
+
+Run the test suite using PHPUnit or Pest:
+
+```bash
+php artisan test
+```
+
+Make sure your testing database is properly configured in `.env.testing`.
+
+---
+
+## 📖 API Documentation (Swagger)
+
+The API documentation is available via **Swagger / OpenAPI**.
+
+After starting the application, access it at:
+
+```
+http://localhost:8000/api/documentation
+```
+
+The documentation provides:
+
+* Available endpoints
+* Request/response formats
+* Authentication requirements
+* Error codes and examples
+
+---
+
+## 🔐 Security Notes
+
+* Sensitive data is encrypted at rest
+* OTP verification is rate-limited
+* Transactions are protected against replay attacks
+* Role-based access control (Admin, Partner, Enterprise, Customer)
+
+This API is designed with **financial and fraud risks in mind**.
+
+---
+
+## 👤 Author
+
+**Mohamed Thioune**
+Senior Backend Engineer – Laravel
+Software Developer Consultant
+
+---
+
+## 📄 License
+
+This project is licensed under the **MAXBIRD 'Codeur a la casquette'**.
+See the `LICENSE` file for more information.
+
+"Software developer because super hero is not a job title".
