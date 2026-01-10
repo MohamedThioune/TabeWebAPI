@@ -122,7 +122,7 @@ http://localhost:8000
 
 ---
 
-## 🧪 Testing
+## Testing
 
 Run the test suite using PHPUnit or Pest:
 
@@ -153,7 +153,7 @@ The documentation provides:
 
 ---
 
-## 🔐 Security Notes
+## Security Notes
 
 * Sensitive data is encrypted at rest
 * OTP verification is rate-limited
@@ -164,7 +164,7 @@ This API is designed with **financial and fraud risks in mind**.
 
 ---
 
-## 👤 Author
+## Author
 
 **Mohamed Thioune**
 Senior Backend Engineer – Laravel
@@ -172,7 +172,7 @@ Software Developer Consultant
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the `MaxBird, Codeur a la casquette`.
 
