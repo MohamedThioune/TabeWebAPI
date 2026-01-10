@@ -174,7 +174,6 @@ Software Developer Consultant
 
 ## 📄 License
 
-This project is licensed under the **MAXBIRD 'Codeur a la casquette'**.
-See the `LICENSE` file for more information.
+This project is licensed under the `MaxBird, Codeur a la casquette`.
 
 "Software developer because super hero is not a job title".
