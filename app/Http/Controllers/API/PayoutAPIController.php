@@ -253,7 +253,7 @@ class PayoutAPIController extends AppBaseController
             $payout->load('transactions');
         endif;
 
-        return $this->sendResponse(new PayoutResource($payout)->additional(['transactions' => $transactions]), 'Payout saved successfully');
+        return $this->sendResponse(new PayoutResource($payout), 'Payout saved successfully');
     }
 
     public function submit(Request $request, Payout $payout): JsonResponse
