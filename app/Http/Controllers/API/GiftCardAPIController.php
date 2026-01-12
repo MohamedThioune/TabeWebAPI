@@ -431,7 +431,8 @@ class GiftCardAPIController extends AppBaseController
         $beneficiary = null;
         if($type == 'others'):
             $dto_beneficiary = app(CreateBeneficiaryAPIRequest::class)->validated();
-            $beneficiary = ( Beneficiary::where('phone', $dto_beneficiary['phone'])->first()) ?: $this->beneficiaryRepository->create($dto_beneficiary);
+            $beneficiary = $this->beneficiaryRepository->create($dto_beneficiary);
+            // $beneficiary = ( Beneficiary::where('phone', $dto_beneficiary['phone'])->first()) ?: $this->beneficiaryRepository->create($dto_beneficiary);
         endif;
 
         $giftCard = $this->detached_store($type, $user, $request, $beneficiary);

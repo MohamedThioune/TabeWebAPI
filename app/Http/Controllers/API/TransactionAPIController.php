@@ -17,6 +17,8 @@ use App\Http\Controllers\AppBaseController;
 use App\Http\Resources\TransactionResource;
 use App\Notifications\PushBeneficiaryWhatsAppNotification;
 use App\Notifications\PushWhatsAppNotification;
+use App\Notifications\PushBeneficiarySMSNotification;
+use App\Notifications\PushSMSNotification;
 use App\Domain\Users\DTO\Node;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -257,6 +259,10 @@ class TransactionAPIController extends AppBaseController
             //Authorize transaction
             $input['status'] = 'authorized';
 
+            //Update gift card status to used
+            // $gift_card->status = 'used';
+            // $gift_card->save();
+
             /** @var Transaction $transaction */
             $transaction = $this->transactionRepository->create($input);
 
@@ -270,21 +276,25 @@ class TransactionAPIController extends AppBaseController
         //Send otp code to customer for verification (cache for 30 minutes)
         $otp_code = rand(100000, 999999);
         $content_variables = json_encode(["1" => $otp_code]);
-        $content = "";
-        $node = new Node(content: $content, contentVariables: $content_variables, level: null, model: null, title: null, body: null);
+        $content = "Votre code OTP pour confirmer la transaction avec le magasin partenaire est : {$otp_code}.";
+        // $node = new Node(content: $content, contentVariables: $content_variables, level: null, model: null, title: null, body: null);
+        $node_customer = new Node(content: $content, contentVariables: $content_variables, level: null, model: null, title: null, body: null);
         $beneficiary = $gift_card->beneficiary;
+        $owner = $gift_card->user;
         //Notify customer via WhatsApp
         if ($beneficiary) {
-            $user->notify(new PushBeneficiaryWhatsAppNotification(
-                node: $node,
+            $owner->notify(new PushBeneficiarySMSNotification(
+                node: $node_customer,
                 beneficiary_phone: $beneficiary->phone,
-                channel: 'whatsapp'
+                channel: 'sms'
             ));        
         }
-        $user->notify(new PushWhatsAppNotification(
-            node: $node,
-            channel: 'whatsapp'
-        ));
+        else {
+            $owner->notify(new PushSMSNotification(
+                node: $node_customer,
+                channel: 'sms'
+            ));
+        }
 
         //Cache store OTP
         Cache::put('otp_code:' . $transaction->id, bcrypt($otp_code), now()->addMinutes(30));

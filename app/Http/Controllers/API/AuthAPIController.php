@@ -154,9 +154,9 @@ class AuthAPIController extends Controller
             //Notify via whatsApp
             $content_variables = json_encode(["1" => (String)$otp_code]);
 
-            $body = "{{1}} est votre code de vérification. Pour votre sécurité, ne communiquez ce code à personne.";
+            $content = "{{1}} est votre code de vérification. Pour votre sécurité, ne communiquez ce code à personne.";
             $node = new Node(
-                content : $body,
+                content : $content,
                 contentVariables: $content_variables,
                 level: null,
                 model: null,
