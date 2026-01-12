@@ -260,8 +260,8 @@ class TransactionAPIController extends AppBaseController
             $input['status'] = 'authorized';
 
             //Update gift card status to used
-            // $gift_card->status = 'used';
-            // $gift_card->save();
+            $gift_card->status = 'used';
+            $gift_card->save();
 
             /** @var Transaction $transaction */
             $transaction = $this->transactionRepository->create($input);
