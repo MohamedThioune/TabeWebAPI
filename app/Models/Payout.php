@@ -106,6 +106,7 @@ class Payout extends Model
     public $fillable = [
         'gross_amount',
         'net_amount',
+        'commentary',
         'fees',
         'currency',
         'status',
@@ -125,6 +126,7 @@ class Payout extends Model
 
     public static array $rules = [
         'withdraw_mode' => 'required|string|in:paydunya,orange-money-senegal,wave-senegal,expresso-senegal,free-money-senegal',
+        'commentary' => 'string',
     ];
 
     public static array $rules_listed = [

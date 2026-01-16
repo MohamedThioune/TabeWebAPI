@@ -160,6 +160,60 @@ class PayoutAPIController extends AppBaseController
 
     /**
      * @OA\Post(
+     *      path="/payouts/before/request",
+     *      summary="beforeRequestPayout",
+     *      tags={"Payout"},
+     *      description="Before requesting a Payout",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  ref="#/components/schemas/Transaction"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+    */
+    public function beforeRequest(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        //Check if another payout is already in progress
+        $existing_payout = $this->payoutRepo->getPayoutInProgressByUser($user->id);
+        if ($existing_payout->exists()) {
+            return $this->sendError('Another payout is already in progress...');
+        }
+
+        //List all transactions in progress for the user
+        $query_transactions = $this->transactionRepo->getAuthorizedTransactionsByUser($user->id);
+        if (!$query_transactions->exists()) 
+            return $this->sendError('No transactions remaining for a payout !');
+
+        $transactions_authorized = $query_transactions->get();
+        $transactions_count = count($transactions_authorized);
+
+        $data = [
+            'total' => $transactions_count,
+            'transactions' => TransactionResource::collection($transactions_authorized)
+        ];
+
+        return $this->sendResponse($data, 'Remaining transactions retrieved successfully !');
+    }
+
+    /**
+     * @OA\Post(
      *      path="/payouts",
      *      summary="requestPayout",
      *      tags={"Payout"},
@@ -194,6 +248,11 @@ class PayoutAPIController extends AppBaseController
      *                  description="Withdraw mode for the payout",
      *                  enum={"paydunya","orange-money-senegal","wave-senegal","expresso-senegal","free-money-senegal"},
      *              ),
+     *               @OA\Property(
+     *                  property="commentary",
+     *                  type="string",
+     *                  description="Commentary made about the payout",
+     *              ),
      *            ),
      *         ),
      *      ),
@@ -223,7 +282,7 @@ class PayoutAPIController extends AppBaseController
         $user = $request->user();
         
         //Check if another payout is already in progress
-        $existing_payout = $this->payoutRepo->getPayoutInProgressByUser($user->id);
+        $existing_payout = $this->payoutRepo->getPayoutInProgressByUser($user->id); 
         if ($existing_payout->exists()) {
             return $this->sendError('Another payout is already in progress...');
         }
@@ -231,7 +290,7 @@ class PayoutAPIController extends AppBaseController
         //Get captured transactions (not yet refunded) for the user
         $query_transactions = $this->transactionRepo->getAuthorizedTransactionsByUser($user->id);
         if (!$query_transactions->exists()) 
-            return $this->sendError('No captured transactions remaining for a payout !');
+            return $this->sendError('No transactions remaining for a payout !');
         
         $gross_amount = $query_transactions->sum('amount');
         $transactions = $query_transactions->get();

@@ -294,6 +294,23 @@ class TransactionAPIController extends AppBaseController
                 node: $node_customer,
                 channel: 'sms'
             ));
+
+            // if($input['channel'] == "whatsapp"):
+            // //Notify via whatsApp
+            // $content_variables = json_encode(["1" => (String)$otp_code]);
+
+            // $content = "{{1}} est votre code de vérification. Pour votre sécurité, ne communiquez ce code à personne.";
+            // $node = new Node(
+            //     content : $content,
+            //     contentVariables: $content_variables,
+            //     level: null,
+            //     model: null,
+            //     title: null,
+            //     body: null
+            // );
+
+            // $user->notify(new PushWhatsAppNotification($node, $input['channel']));
+            // endif;
         }
 
         //Cache store OTP
@@ -305,79 +322,6 @@ class TransactionAPIController extends AppBaseController
         $infos['transaction'] = new TransactionResource($transaction);
 
         return $this->sendResponse($infos, 'Transaction saved successfully');
-    }
-
-    /**
-     * @OA\Post(
-     *      path="/transactions/retry/{transaction}",
-     *      summary="retryTransaction",
-     *      tags={"Transaction"},
-     *      description="Retry start Transaction",
-     *      security={{"passport":{}}},
-     *      @OA\Parameter(
-     *            name="transaction",
-     *            in="path",
-     *            description="id of Transaction",
-     *            required=true,
-     *            @OA\Schema(
-     *                type="string"
-     *            )
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="successful operation",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(
-     *                  property="success",
-     *                  type="boolean"
-     *              ),
-     *              @OA\Property(
-     *                  property="data",
-     *                  ref="#/components/schemas/Transaction"
-     *              ),
-     *              @OA\Property(
-     *                  property="message",
-     *                  type="string"
-     *              )
-     *          )
-     *      )
-     * )
-    */
-    public function retry(Transaction $transaction): JsonResponse
-    {
-        if ($transaction->status != 'authorized') {
-            return $this->sendError('You can only retry an authorized transaction !');
-        }
-
-        //Resend otp code to customer for verification (cache for 30 minutes)
-        $otp_code = rand(100000, 999999);
-        $content_variables = json_encode(["1" => $otp_code]);
-        $content = "";
-        $node = new Node(content: $content, contentVariables: $content_variables, level: null, model: null, title: null, body: null);
-        $beneficiary = $transaction->gift_card->beneficiary;
-        $user = $transaction->gift_card->owner;
-        //Notify customer via WhatsApp
-        if ($beneficiary) {
-            $user->notify(new PushBeneficiaryWhatsAppNotification(
-                node: $node,
-                beneficiary_phone: $beneficiary->phone,
-                channel: 'whatsapp'
-            ));        
-        }
-        $user->notify(new PushWhatsAppNotification(
-            node: $node,
-            channel: 'whatsapp'
-        ));
-
-        //Cache store OTP
-        Cache::put('otp_code:' . $transaction->id, bcrypt($otp_code), now()->addMinutes(30));
-
-        //Prepare response
-        $infos['otp_code'] = $otp_code;
-        $infos['transaction'] = new TransactionResource($transaction);
-
-        return $this->sendResponse($infos, 'Transaction OTP resent successfully');
     }
 
     /**
