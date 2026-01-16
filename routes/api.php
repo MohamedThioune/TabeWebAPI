@@ -81,6 +81,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 
             //Payouts
             Route::get('/payouts', [App\Http\Controllers\API\PayoutAPIController::class, 'index'])->name('payouts.index');
+            Route::post('/payouts/before/request', [App\Http\Controllers\API\PayoutAPIController::class, 'beforeRequest'])->name('payouts.before_request');
             Route::post('/payouts/request', [App\Http\Controllers\API\PayoutAPIController::class, 'request'])->middleware('idempotency')->name('payouts.request');
             // Route::post('/payouts/submit', [App\Http\Controllers\API\PayoutAPIController::class, 'submit'])->middleware('idempotency')->name('payouts.submit');
 

@@ -16,6 +16,8 @@ class PayoutResource extends JsonResource
     public function toArray($request)
     {
         $show_transactions = (bool)$request->get('show_transactions');
+        $transactions = TransactionResource::collection($this->whenLoaded('transactions'));
+        $total_transactions = ($show_transactions) ? count($transactions) : 0;
         return [
             'id' => $this->id,
             'gross_amount' => $this->gross_amount,
@@ -24,6 +26,7 @@ class PayoutResource extends JsonResource
             'currency' => $this->currency,
             'status' => $this->status,
             'transactions' => $this->when($show_transactions, TransactionResource::collection($this->whenLoaded('transactions'))),
+            'total_transactions' => $total_transactions,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
