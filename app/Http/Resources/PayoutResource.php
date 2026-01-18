@@ -17,11 +17,12 @@ class PayoutResource extends JsonResource
     {
         $show_transactions = (bool)$request->get('show_transactions');
         $transactions = TransactionResource::collection($this->whenLoaded('transactions'));
-        $total_transactions = ($show_transactions) ? count($transactions) : 0;
+        $total_transactions = ($this->resource->transactions()) ? $this->resource->transactions()->count() : 0;
         return [
             'id' => $this->id,
             'gross_amount' => $this->gross_amount,
             'net_amount' => $this->net_amount,
+            'commentary' => $this->commentary,
             'fees' => $this->fees,
             'currency' => $this->currency,
             'status' => $this->status,
