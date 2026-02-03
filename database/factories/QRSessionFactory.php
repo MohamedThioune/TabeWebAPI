@@ -9,7 +9,7 @@ use App\Domain\GiftCards\UseCases\CardFullyGenerated;
 
 
 
-class QRSessionFactory extends Factory
+class QrSessionFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
