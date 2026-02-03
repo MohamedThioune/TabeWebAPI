@@ -33,7 +33,7 @@ class TwilioChannel
 
             // Print details about the last response
             // echo($twilio->lastResponse->statusCode);
-            Log::info("Sending notification via TwilioChannel to" . $notifiable->phone, (array)$message);
+            // Log::info("Sending notification via TwilioChannel to" . $notifiable->phone, (array)$message);
 
         } catch (\Twilio\Exceptions\TwilioException $e){
             Log::error("Error logging notification: " . $e->getMessage());

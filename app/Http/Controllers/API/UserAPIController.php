@@ -19,6 +19,7 @@ use App\Infrastructure\Persistence\UserRepository;
 use App\Infrastructure\Persistence\GiftCardRepository;
 use App\Infrastructure\Persistence\TransactionRepository;
 use App\Infrastructure\Persistence\PayoutRepository;
+use App\Infrastructure\Persistence\CardEventRepository;
 use App\Models\User;
 use App\Notifications\ProfileUpdateNotification;
 use Illuminate\Http\JsonResponse;
@@ -26,6 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Illuminate\Support\Fluent;
 
 class UserAPIController extends AppBaseController
 {
@@ -513,7 +515,6 @@ class UserAPIController extends AppBaseController
                 'total_gift_cards' => $this->giftCardRepository->countQueryTotal(null, $user),
                 'total_available_gift_cards_amount' => $this->giftCardRepository->countQueryAmount('active', $user),
                 'total_gift_cards_amount' => $this->giftCardRepository->countQueryAmount(null, $user),
-
             ];
 
         return $this->sendResponse($infos, 'Customer retrieved stats successfully !');
@@ -575,6 +576,31 @@ class UserAPIController extends AppBaseController
             ];
 
         return $this->sendResponse($infos, 'Partner retrieved stats successfully !');
+    }
+
+    public function statsAdmin(Request $request): JsonResponse{
+        
+        $actived_search = ['status' => 'active'];
+        $captured_search = ['status' => 'captured'];
+        $month_range = [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()];
+        $today_range = [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()];
+        $infos =
+            [
+                'total_actived_cards' => new Fluent([
+                    'current' => $this->giftCardRepository->allQuery($actived_search)->count() , 
+                    'previous' => 0 ]),
+                'total_month_activated_cards' => new Fluent([ 
+                    'current' => $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $month_range)->count(),
+                    'previous' => 0 ]),
+                'total_today_transactions' => new Fluent([
+                    'current' => $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->count(), 
+                    'previous' => 0 ]),
+                'total_amount_month_transactions' => new Fluent([ 
+                    'current' => $this->transactionRepository->allQuery($captured_search)->whereBetween('created_at', $month_range)->sum('amount'),
+                    'previous' => 0 ]),
+            ];
+
+        return $this->sendResponse($infos, 'Admin retrieved stats successfully !');
     }
 
 }

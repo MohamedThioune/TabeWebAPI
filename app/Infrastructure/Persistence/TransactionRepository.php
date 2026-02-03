@@ -4,7 +4,7 @@ namespace App\Infrastructure\Persistence;
 
 use App\Models\Transaction;
 use App\Repositories\BaseRepository;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder; 
 
 class TransactionRepository extends BaseRepository
 {

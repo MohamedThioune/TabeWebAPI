@@ -77,7 +77,9 @@ class Transaction extends Model
         'amount',
         'currency',
         'user_id',
-        'gift_card_id'
+        'gift_card_id',
+        'parent_transaction_id',
+        'next_transaction_id'
     ];
 
     protected $casts = [
@@ -87,7 +89,7 @@ class Transaction extends Model
     public static array $rules = [
         'status' => 'string|in:authorized,captured,cancelled,refunded,failed',
         'amount' => 'required|integer|min:10000|max:150000',
-        'gift_card_id' => 'required|string|exists:gift_cards,id',
+        'gift_card_id' => 'required|string|exists:gift_cards,id',        
     ];
 
     public static array $rules_confirm = [

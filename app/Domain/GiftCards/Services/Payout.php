@@ -55,12 +55,10 @@ class Payout
                     'id' => Str::uuid()->toString(),
                     'transaction_id' => $transaction->id,
                     'payout_id'      => $payout->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ])->toArray();
                 PayoutLine::insert($payoutLines);
-                // Bulk update transactions(captured)
-                Transaction::whereIn('id', $transactions->pluck('id'))->update([
-                    'status' => 'captured'
-                ]); 
             });
 
         } catch (\Exception $e) {
@@ -74,7 +72,7 @@ class Payout
     public function processPayout(PayoutModel $payout, string $disburse_id = null): ?object
     {  
         try{
-            //Submit payout refund
+            // Submit payout refund
             $submitResponse = $this->gateway->submit_refund(
                 disburse_token: $payout->reference_number,
                 disburse_id: null
@@ -87,14 +85,45 @@ class Payout
             endif;
 
             // Update Transaction & Payout status
-            DB::transaction(function () use ($payout, $submitResponse) {
-                // Update Payout status
-                $payout->status = 'completed';
+            DB::transaction(function () use ($payout, $transactions) {
+                // Create payout with completed status
+                $new_payout = $payout->replicate([
+                    'gross_amount',
+                    'net_amount',
+                    'commenntary',
+                    'fees',
+                    'currency',
+                    'withdraw_mode',
+                    'reference_number',
+                    'transaction_id',
+                    'user_id',
+                ]);
+                $new_payout->status = 'completed';
+                $new_payout->parent_payout_id = $payout->id;
+                $new_payout->save();
+                // Update original payout
+                $payout->next_payout_id = $new_payout->id;
                 $payout->save();
-                // Bulk update transactions(refunded)
-                Transaction::whereIn('id', $transactions->pluck('id'))->update([
-                    'status' => 'refunded'
-                ]); 
+                // var_dump($transactions);
+                // Bulk create refunded transactions
+                $refundedTransactions = $transactions->map(fn ($transaction) => [
+                    'id' => Str::uuid()->toString(),
+                    'user_id' => $transaction->user_id,
+                    'gift_card_id' => $transaction->gift_card_id,
+                    'amount' => $transaction->amount,
+                    'status' => 'refunded',
+                    'parent_transaction_id' => $transaction->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                Transaction::insert($refundedTransactions->toArray());
+                // Bulk update original transactions
+                $refundMap = $refundedTransactions->keyBy('parent_transaction_id');
+                foreach ($transactions as $transaction) {
+                    $transaction->update([
+                        'next_transaction_id' => $refundMap[$transaction->id]['id'],
+                    ]);
+                }
             });    
         } catch (\Exception $e) {
             Log::error('Payout submit failed in service', (array)$e->getMessage());

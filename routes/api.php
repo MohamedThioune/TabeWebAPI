@@ -50,7 +50,7 @@ Route::group(['middleware' => ['auth:api']], function () {
           Route::group(['middleware' => ['is_verified_phone']], function () {
               //Gift cards
               Route::post('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'storeAuth'])->middleware('idempotency')->name('gift-cards.store.me');
-              Route::get('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'indexAuth'])->name('gift-cards.index.me');
+              Route::get('/gift-cards', [App\Http\Controllers\API\GiftCardAPIController::class, 'index'])->name('gift-cards.me.index');
 
               //Qr sessions
               Route::post('/qr-sessions', [App\Http\Controllers\API\QRSessionAPIController::class, 'store'])->name('qr-sessions.store');
@@ -94,7 +94,7 @@ Route::group(['middleware' => ['auth:api']], function () {
               ->except(['store', 'update']); //list, show, destroy
 
           //Gift cards resource
-          Route::get('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'index'])->name('gift-cards.index'); //List any gift cards via user id
+          Route::get('/gift-cards/all', [App\Http\Controllers\API\GiftCardAPIController::class, 'indexAdmin'])->name('gift-cards.admin.index'); //List any gift cards via user id
           Route::post('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store'); //Store any gift cards via user id
           Route::resource('gift-cards', App\Http\Controllers\API\GiftCardAPIController::class)
               ->except(['store', 'index']); //show, update, destroy

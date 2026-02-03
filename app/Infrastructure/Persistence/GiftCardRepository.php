@@ -76,15 +76,12 @@ class GiftCardRepository extends BaseRepository
         return $query->sum('face_amount');
     }
 
-    //monthly stats(used card)
+    // monthly stats(used card)
     public function usedMonthly(User $user) : int
     {
         $query = $user->gift_cards();
         $query->where('status', 'used')
-              ->whereHas('qrSessions', function($qr_query){
-                  $qr_query->where('status', 'used');
-                  $qr_query->whereMonth('updated_at', date('m'));
-              });
+            ->whereMonth('updated_at', date('m'));
 
         // dd($query->toSql());
 
