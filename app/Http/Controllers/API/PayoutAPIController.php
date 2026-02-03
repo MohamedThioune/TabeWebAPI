@@ -119,7 +119,7 @@ class PayoutAPIController extends AppBaseController
      *             description="Show transactions in response",
      *             required=false,
      *             @OA\Schema(
-     *                 type="integer"
+     *                 type="integer",
      *                 enum={1, 0}
      *             )
      *      ),
