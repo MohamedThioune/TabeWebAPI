@@ -478,7 +478,7 @@ class UserAPIController extends AppBaseController
      *      path="/customer/stats",
      *      summary="statsCustomer",
      *      tags={"Customer"},
-     *      description="Get the stats of the customers",
+     *      description="Get the stats of the authenticated customer",
      *      security={{"passport":{}}},
      *      @OA\Response(
      *          response=200,
@@ -525,7 +525,7 @@ class UserAPIController extends AppBaseController
      *      path="/partner/stats",
      *      summary="statsPartner",
      *      tags={"Partner"},
-     *      description="Get the stats of the partners",
+     *      description="Get the stats of the authenticated partner",
      *      security={{"passport":{}}},
      *      @OA\Response(
      *          response=200,
@@ -578,6 +578,33 @@ class UserAPIController extends AppBaseController
         return $this->sendResponse($infos, 'Partner retrieved stats successfully !');
     }
 
+     /**
+     * @OA\Get(
+     *      path="/admin/stats",
+     *      summary="statsAdmin",
+     *      tags={"Partner"},
+     *      description="Get the stats of all partners and customers",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+    */
     public function statsAdmin(Request $request): JsonResponse{
         
         $actived_search = ['status' => 'active'];

@@ -109,7 +109,8 @@ Route::group(['middleware' => ['auth:api']], function () {
           //Designs resource
           Route::resource('designs', App\Http\Controllers\API\DesignAPIController::class); //list, store, show, update, destroy
 
-          //Notifications resource
-          Route::get('/notifications/users/{user}', [App\Http\Controllers\API\NotificationAPIController::class, 'index'])->name('notifications.index');
+          //Stats
+          Route::get('/admin/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsAdmin'])->name('users.admin.stats'); //stats of the customer
+
       });
 });
