@@ -113,7 +113,9 @@ class Payout extends Model
         'withdraw_mode',
         'reference_number',
         'transaction_id',
-        'user_id'
+        'user_id',
+        'parent_payout_id',
+        'next_payout_id'
     ];
 
     protected $casts = [
@@ -125,7 +127,7 @@ class Payout extends Model
     ];
 
     public static array $rules = [
-        'withdraw_mode' => 'required|string|in:paydunya,orange-money-senegal,wave-senegal,expresso-senegal,free-money-senegal',
+        'withdraw_mode' => 'required|string|in:paydunya,orange-money-senegal,wave-senegal,expresso-senegal,free-money-senegal,cash,bank-transfer,paycheck',
         'commentary' => 'string',
     ];
 

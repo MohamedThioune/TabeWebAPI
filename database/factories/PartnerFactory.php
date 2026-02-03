@@ -21,11 +21,12 @@ class PartnerFactory extends Factory
      */
     public function definition(): array
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $user->assignRole('partner');
         return [
             'name' => fake()->company(),
             'legal_name' => fake()->company(),
+            'kyc_status' => fake()->randomElement(['pending', 'verified', 'rejected', 'not_submitted']),
             'user_id' => $user->id,
         ];
     }

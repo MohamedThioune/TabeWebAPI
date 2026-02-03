@@ -259,11 +259,14 @@ class TransactionAPIController extends AppBaseController
             //Authorize transaction
             $input['status'] = 'authorized';
 
-            //Update gift card status to used
-            $gift_card->status = 'used';
-            $gift_card->save();
+            //Update gift card status to inactive
+            $used_status = "used";
+            $this->giftCardRepository->update(['status' => $used_status, 'updated_at' => now()], $gift_card->id);
+            //Log updated gift card
+            $this->cardEventRepository->create(['type' => $used_status, 'gift_card_id' => $gift_card->id]);
 
-            /** @var Transaction $transaction */
+            //Delete former authorized transaction / Create a new one
+            $deleteAuthorizedTransaction = $this->transactionRepository->getAuthorizedTransactionsByUser()->delete();
             $transaction = $this->transactionRepository->create($input);
 
             DB::commit();
@@ -295,22 +298,8 @@ class TransactionAPIController extends AppBaseController
                 channel: 'sms'
             ));
 
-            // if($input['channel'] == "whatsapp"):
-            // //Notify via whatsApp
-            // $content_variables = json_encode(["1" => (String)$otp_code]);
-
-            // $content = "{{1}} est votre code de vérification. Pour votre sécurité, ne communiquez ce code à personne.";
-            // $node = new Node(
-            //     content : $content,
-            //     contentVariables: $content_variables,
-            //     level: null,
-            //     model: null,
-            //     title: null,
-            //     body: null
-            // );
-
-            // $user->notify(new PushWhatsAppNotification($node, $input['channel']));
-            // endif;
+        // Notify partner 
+        /** Instructions code here ! */ 
         }
 
         //Cache store OTP
@@ -406,13 +395,17 @@ class TransactionAPIController extends AppBaseController
         
         DB::beginTransaction();
         try{
-            //Update transaction status to captured
-            $transaction->status = 'captured';
-            $transaction->save();
-            //Update gift card status
-            $this->giftCardRepository->update(['status' => 'used'], $transaction->gift_card_id);
-            //Log updated gift card
-            $this->cardEventRepository->create(['type' => 'used', 'gift_card_id' => $transaction->gift_card_id]);
+            //Create a transaction with a status 'captured'
+            $new_transaction = $transaction->replicate([
+                'status',
+                'amount',
+                'currency',
+                'user_id',
+                'gift_card_id',
+            ]);
+            $new_transaction->status = 'captured';
+            $new_transaction->parent_transaction_id = $transaction->id;
+            $new_transaction->save();
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();

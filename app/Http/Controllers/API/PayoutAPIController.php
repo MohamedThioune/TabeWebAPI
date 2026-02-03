@@ -197,7 +197,7 @@ class PayoutAPIController extends AppBaseController
         }
 
         //List all transactions in progress for the user
-        $query_transactions = $this->transactionRepo->getAuthorizedTransactionsByUser($user->id);
+        $query_transactions = $this->transactionRepo->getCapturedTransactionsByUser($user->id);
         if (!$query_transactions->exists()) 
             return $this->sendError('No transactions remaining for a payout !');
 
@@ -288,7 +288,7 @@ class PayoutAPIController extends AppBaseController
         }
 
         //Get captured transactions (not yet refunded) for the user
-        $query_transactions = $this->transactionRepo->getAuthorizedTransactionsByUser($user->id);
+        $query_transactions = $this->transactionRepo->getCapturedTransactionsByUser($user->id);
         if (!$query_transactions->exists()) 
             return $this->sendError('No transactions remaining for a payout !');
         

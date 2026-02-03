@@ -24,7 +24,6 @@ class BuyCard
             function ($response) {
                 Log::info('Response DTO', (array)$response);
             });
-        // $response = $this->gateway->quick_pay($amount, $user->email);
 
         //$reponse->url !null
         if(!$response || !$response->response_text)

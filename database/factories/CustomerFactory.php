@@ -20,9 +20,9 @@ class CustomerFactory extends Factory
      */
     public function definition(): array
     {
-        $gender = $this->faker->randomElement(['male', 'female']);
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $user->assignRole('customer');
+        $gender = fake()->randomElement(['male', 'female']);
         return [
             'first_name' => fake()->firstName($gender),
             'last_name' => fake()->lastName(),

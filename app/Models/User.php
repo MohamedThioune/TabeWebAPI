@@ -13,7 +13,6 @@ use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Domain\Users\ValueObjects\Type;
 
-
 /**
  * @method static find(string $user_id)
  * @method static create(array $user)
@@ -142,6 +141,7 @@ class User extends Authenticatable
 {
     use HasUuids, HasApiTokens, HasRoles, HasFactory, Notifiable, SoftDeletes;
 
+    protected $table = 'users';
     protected $guard_name = 'api'; // ou 'api' selon ton auth
 
     /**
