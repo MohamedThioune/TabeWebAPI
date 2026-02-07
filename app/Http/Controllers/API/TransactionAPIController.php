@@ -166,6 +166,106 @@ class TransactionAPIController extends AppBaseController
     }
 
     /**
+     * @OA\Get(
+     *      path="/transactions/all",
+     *      summary="getAllTransactionList",
+     *      tags={"Transaction"},
+     *      description="Get all Transactions | Only for admin !!",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *            name="page",
+     *            in="query",
+     *            description="Page",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
+     *            name="per_page",
+     *            in="query",
+     *            description="Per Page",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
+     *            name="skip",
+     *            in="query",
+     *            description="Skip",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
+     *             name="limit",
+     *             in="query",
+     *             description="Limit",
+     *             required=false,
+     *             @OA\Schema(
+     *                 type="integer"
+     *             )
+     *      ),
+     *      @OA\Parameter(
+     *              name="status",
+     *              in="query",
+     *              description="Filter by status",
+     *              required=false,
+     *              @OA\Schema(
+     *                  type="string",
+     *                  enum={"authorized", "captured", "cancelled", "refunded", "failed"}
+     *              )
+     *      ),
+     *      @OA\Parameter(
+     *              name="filter_by_date",
+     *              in="query",
+     *              description="Filter by date",
+     *              required=false,
+     *              @OA\Schema(
+     *                  type="string",
+     *                  enum={"today", "week", "month", "year"}
+     *              )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/Transaction")
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+    */
+    public function indexAll(GetTransactionAPIRequest $request): JsonResponse
+    {
+        $search = $request->except(['skip', 'limit', 'page', 'per_page']);
+        $perPage = $request->get('per_page') ?: 9;
+
+        $infoTransactions = $this->collect($search, $request, $perPage);
+        $infoTransactions['stats'] = [
+            'authorized' => $this->transactionRepository->getAuthorizedTransactionsByUser()->count(),
+            'captured' => $this->transactionRepository->getCapturedTransactionsByUser()->count(),
+            'refunded' => $this->transactionRepository->getRefundedTransactionsByUser()->count(),
+            'failed' => $this->transactionRepository->getFailedTransactionsByUser()->count()
+        ];
+        return $this->sendResponse($infoTransactions, 'Transactions retrieved successfully !');
+    }
+
+    /**
      * @OA\Post(
      *      path="/transactions",
      *      summary="startTransaction",

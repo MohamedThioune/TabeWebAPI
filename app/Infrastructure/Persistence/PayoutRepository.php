@@ -29,17 +29,35 @@ class PayoutRepository extends BaseRepository
         return Payout::class;
     }
 
-    public function getPayoutInProgressByUser(string $userId): ?Builder
+    public function getPayoutInProgressByUser(string $userId = null): ?Builder
     {
-        return $this->model->newQuery()
-            ->where('user_id', $userId)
-            ->where('status', 'authorized');
+        $query = $this->model::query();
+        return $query->when($userId, function (Builder $q) use ($userId) {
+            $q->where('user_id', $userId);
+        })->where('status', 'authorized');
     }
 
-    public function getPayoutCompletedByUser(string $userId): ?Builder
+    public function getPayoutCompletedByUser(string $userId = null): ?Builder
     {
-        return $this->model->newQuery()
-            ->where('user_id', $userId)
-            ->where('status', 'completed');
+        $query = $this->model::query();
+        return $query->when($userId, function (Builder $q) use ($userId) {
+            $q->where('user_id', $userId);
+        })->where('status', 'completed');
+    }
+
+    public function getPayoutCancelledByUser(string $userId = null): ?Builder
+    {
+        $query = $this->model::query();
+        return $query->when($userId, function (Builder $q) use ($userId) {
+            $q->where('user_id', $userId);
+        })->where('status', 'cancelled');
+    }
+
+    public function getPayoutFailedByUser(string $userId = null): ?Builder
+    {
+        $query = $this->model::query();
+        return $query->when($userId, function (Builder $q) use ($userId) {
+            $q->where('user_id', $userId);
+        })->where('status', 'failed');
     }
 }
