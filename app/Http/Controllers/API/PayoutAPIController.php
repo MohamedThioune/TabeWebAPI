@@ -55,7 +55,7 @@ class PayoutAPIController extends AppBaseController
      *      path="/payouts",
      *      summary="getPayoutList",
      *      tags={"Payout"},
-     *      description="Get all Payouts",
+     *      description="Get all Payouts by the user",
      *      security={{"passport":{}}},
      *      @OA\Parameter(
      *            name="page",
@@ -158,6 +158,117 @@ class PayoutAPIController extends AppBaseController
         return $this->sendResponse($infoPayouts, 'Payouts retrieved successfully');
     }
 
+    /**
+     * @OA\Get(
+     *      path="/payouts/all",
+     *      summary="getAllPayoutList",
+     *      tags={"Payout"},
+     *      description="Get all Payouts | Only for admin !!",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *            name="page",
+     *            in="query",
+     *            description="Page",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
+     *            name="per_page",
+     *            in="query",
+     *            description="Per Page",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
+     *            name="skip",
+     *            in="query",
+     *            description="Skip",
+     *            required=false,
+     *            @OA\Schema(
+     *                type="integer"
+     *            )
+     *       ),
+     *       @OA\Parameter(
+     *             name="limit",
+     *             in="query",
+     *             description="Limit",
+     *             required=false,
+     *             @OA\Schema(
+     *                 type="integer"
+     *             )
+     *      ),
+     *      @OA\Parameter(
+     *              name="status",
+     *              in="query",
+     *              description="Filter by status",
+     *              required=false,
+     *              @OA\Schema(
+     *                  type="string",
+     *                  enum={"authorized", "completed", "cancelled", "failed"}
+     *              )
+     *      ),
+     *      @OA\Parameter(
+     *              name="filter_by_date",
+     *              in="query",
+     *              description="Filter by date",
+     *              required=false,
+     *              @OA\Schema(
+     *                  type="string",
+     *                  enum={"today", "week", "month", "year"}
+     *              )
+     *      ),
+     *     @OA\Parameter(
+     *             name="show_transactions",
+     *             in="query",
+     *             description="Show transactions in response",
+     *             required=false,
+     *             @OA\Schema(
+     *                 type="integer",
+     *                 enum={1, 0}
+     *             )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/Transaction")
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+    */
+    public function indexAll(GetPayoutAPIRequest $request): JsonResponse
+    {
+        $search = $request->except(['skip', 'limit', 'page', 'per_page']);
+        $perPage = $request->get('per_page') ?: 9;
+
+        $infoPayouts = $this->collect($search, $request, $perPage);
+        $infoPayouts['stats'] = [
+            'authorized' => $this->payoutRepo->getPayoutInProgressByUser()->count(),
+            'completed' => $this->payoutRepo->getPayoutCompletedByUser()->count(),
+            'cancelled' => $this->payoutRepo->getPayoutCancelledByUser()->count(),
+            'failed' => $this->payoutRepo->getPayoutFailedByUser()->count()
+        ];
+
+        return $this->sendResponse($infoPayouts, 'Payouts retrieved successfully');
+    }
+    
     /**
      * @OA\Post(
      *      path="/payouts/before/request",

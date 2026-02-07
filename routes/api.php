@@ -57,7 +57,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 
               //Users
               Route::get('/customer/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsCustomer'])->name('users.customers.stats'); //stats of the customer
-          });
+           });
           Route::get('/invoices', [App\Http\Controllers\API\InvoiceAPIController::class, 'index'])->name('invoices.index');
           Route::put('/gift-cards/share/{giftCard}', [App\Http\Controllers\API\GiftCardAPIController::class, 'share'])->name('gift-cards.share');
       });
@@ -102,6 +102,12 @@ Route::group(['middleware' => ['auth:api']], function () {
           //Users resource
           Route::get('/users', [App\Http\Controllers\API\UserAPIController::class, 'index'])->name('users.index');
           Route::patch('/users/{user}', [App\Http\Controllers\API\UserAPIController::class, 'update'])->name('users.update'); //Update any users
+
+          //Transaction resource
+          Route::get('/transactions/all', [App\Http\Controllers\API\TransactionAPIController::class, 'indexAll'])->name('transactions.admin.index');
+
+          //Payouts resource
+          Route::get('/payouts/all', [App\Http\Controllers\API\PayoutAPIController::class, 'indexAll'])->name('payouts.admin.index');
 
           //Categories resource
           Route::resource('categories', App\Http\Controllers\API\CategoryAPIController::class); //list, store, show, update, destroy

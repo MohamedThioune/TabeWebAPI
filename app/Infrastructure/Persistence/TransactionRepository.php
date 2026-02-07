@@ -54,21 +54,35 @@ class TransactionRepository extends BaseRepository
         return $query;
     }
 
-    public function getCapturedTransactionsByUser(string $user_id): Builder
+    public function getCapturedTransactionsByUser(string $user_id = null): Builder
     {
-        return $this->model::where('user_id', $user_id)
-            ->where('status', 'captured');
+        $query = $this->model::query();
+        return $query->when($user_id, function (Builder $q) use ($user_id) {
+            $q->where('user_id', $user_id);
+        })->where('status', 'captured');
     }
 
-    public function getAuthorizedTransactionsByUser(string $user_id): Builder
+    public function getAuthorizedTransactionsByUser(string $user_id = null): Builder
     {
-        return $this->model::where('user_id', $user_id)
-            ->where('status', 'authorized');
+        $query = $this->model::query();
+        return $query->when($user_id, function (Builder $q) use ($user_id) {
+            $q->where('user_id', $user_id);
+        })->where('status', 'authorized');
     }
 
-    public function getRefundedTransactionsByUser(string $user_id): Builder
+    public function getRefundedTransactionsByUser(string $user_id = null): Builder
     {
-        return $this->model::where('user_id', $user_id)
-            ->where('status', 'refunded');
+        $query = $this->model::query();
+        return $query->when($user_id, function (Builder $q) use ($user_id) {
+            $q->where('user_id', $user_id);
+        })->where('status', 'refunded');
+    }
+
+    public function getFailedTransactionsByUser(string $user_id = null): Builder
+    {
+        $query = $this->model::query();
+        return $query->when($user_id, function (Builder $q) use ($user_id) {
+            $q->where('user_id', $user_id);
+        })->where('status', 'failed');
     }
 }
