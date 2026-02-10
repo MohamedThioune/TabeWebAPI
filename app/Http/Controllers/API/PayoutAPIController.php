@@ -14,6 +14,9 @@ use App\Http\Controllers\AppBaseController;
 use App\Http\Resources\PayoutResource;
 use App\Http\Resources\TransactionResource;
 use App\Domain\GiftCards\Services\Payout as PayoutService;
+use App\Infrastructure\External\Payment\DTO\PaymentResponseDTO;
+use App\Infrastructure\External\Payment\PaymentGateway;
+use Mockery;
 
 /**
  * Class PayoutController
@@ -393,10 +396,10 @@ class PayoutAPIController extends AppBaseController
         $user = $request->user();
         
         //Check if another payout is already in progress
-        $existing_payout = $this->payoutRepo->getPayoutInProgressByUser($user->id); 
-        if ($existing_payout->exists()) {
-            return $this->sendError('Another payout is already in progress...');
-        }
+        // $existing_payout = $this->payoutRepo->getPayoutInProgressByUser($user->id); 
+        // if ($existing_payout->exists()) {
+        //     return $this->sendError('Another payout is already in progress...');
+        // }
 
         //Get captured transactions (not yet refunded) for the user
         $query_transactions = $this->transactionRepo->getCapturedTransactionsByUser($user->id);
@@ -406,6 +409,15 @@ class PayoutAPIController extends AppBaseController
         $gross_amount = $query_transactions->sum('amount');
         $transactions = $query_transactions->get();
 
+        //[TO COMMENT] When we will use the real gateway
+        $reference_number = fake()->regexify('^[A-Za-z0-9]{5}$');
+        $mock = Mockery::mock(PaymentGateway::class)->makePartial();
+        $mock->shouldReceive('initiate_refund')->once()->andReturn(new PaymentResponseDTO(
+            disburse_token : 'test_token_' . $reference_number,
+        ));
+        app()->instance(PaymentGateway::class, $mock);
+        $this->payoutSes = app(PayoutService::class); 
+
         //Initiate the payout process
         $payout = $this->payoutSes->initiatePayout(
             phone_number: $user->phone,
@@ -413,10 +425,10 @@ class PayoutAPIController extends AppBaseController
             withdraw_mode: $request->get('withdraw_mode'),
             user: $user,
             transactions: $transactions
-        );
+        ); 
 
-        // if(!$payout)
-        //     return $this->sendError('Something went wrong while initiating the payout !');
+        if(!$payout)
+            return $this->sendError('Something went wrong while initiating the payout !');
 
         //Load relations
         if($request->get('show_transactions')):

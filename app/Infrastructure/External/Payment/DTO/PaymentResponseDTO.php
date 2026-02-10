@@ -5,21 +5,21 @@ namespace App\Infrastructure\External\Payment\DTO;
 class PaymentResponseDTO implements DataTransferObject
 {
     public function __construct(
-        public ?string $status,
-        public ?string $hash,
-        public ?string $response_code,
-        public ?string $reference_number,
-        public ?string $url,
-        public ?string $response_text,
-        public ?string $description,
-        public ?string $withdraw_mode, 
-        public ?string $amount, 
-        public ?string $token,
-        public ?string $disburse_token,  
-        public ?string $transaction_id,      
-        public ?array  $custom_data,
-        public ?string $receipt_url,
-        public ?string $fail_reason,
+        public ?string $status = null,
+        public ?string $hash = null,
+        public ?string $response_code = null,
+        public ?string $reference_number = null,
+        public ?string $url = null,
+        public ?string $response_text = null,
+        public ?string $description = null,
+        public ?string $withdraw_mode = null, 
+        public ?string $amount = null, 
+        public ?string $token = null,
+        public ?string $disburse_token = null,  
+        public ?string $transaction_id = null,      
+        public ?array  $custom_data = null,
+        public ?string $receipt_url = null,
+        public ?string $fail_reason = null,
     ) {}
 
     public static function fromArray(array $data): self

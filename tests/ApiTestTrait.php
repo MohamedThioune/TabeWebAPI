@@ -35,14 +35,14 @@ trait ApiTestTrait
         $customer = Customer::factory()->create();
         $user = $customer->user;
         Passport::actingAs($user);
-        return $customer;
+        return $user;
     }
 
     public static function actingAsPartner(){
         $partner = Partner::factory()->create();
         $user = $partner->user;
         Passport::actingAs($user);
-        return $partner;
+        return $user;
     }
 
     // Assert API response

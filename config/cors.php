@@ -25,6 +25,7 @@ return [
         // for pre-prod, you get it here :
         'https://tabe.thenexcom.com',
         'https://partners.tabe.thenexcom.com',
+        'https://admin.tabe.thenexcom.com'
     ],
 
     'allowed_origins_patterns' => [],

@@ -614,16 +614,27 @@ class UserAPIController extends AppBaseController
         $infos =
             [
                 'total_actived_cards' => new Fluent([
-                    'current' => $this->giftCardRepository->allQuery($actived_search)->count() , 
+                    'current' => $this->giftCardRepository->allQuery($actived_search)->count(),
+                    'amount' => $this->giftCardRepository->allQuery($actived_search)->sum('face_amount'),
                     'previous' => 0 ]),
                 'total_month_activated_cards' => new Fluent([ 
                     'current' => $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $month_range)->count(),
+                    'amount' => $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $month_range)->sum('face_amount'),
                     'previous' => 0 ]),
                 'total_today_transactions' => new Fluent([
-                    'current' => $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->count(), 
+                    'current' => $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->count(),
+                    'amount' => $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->sum('amount'),
                     'previous' => 0 ]),
                 'total_amount_month_transactions' => new Fluent([ 
                     'current' => $this->transactionRepository->allQuery($captured_search)->whereBetween('created_at', $month_range)->sum('amount'),
+                    'previous' => 0 ]),
+                'total_payouts_captured' => new Fluent([
+                    'current' => $this->payoutRepository->getPayoutCompletedByUser()->count(),
+                    'amount' => $this->payoutRepository->getPayoutCompletedByUser()->sum('net_amount'),
+                    'previous' => 0 ]),
+                'total_payouts_authorized' => new Fluent([
+                    'current' => $this->payoutRepository->getPayoutInProgressByUser()->count(),
+                    'amount' => $this->payoutRepository->getPayoutInProgressByUser()->sum('net_amount'),
                     'previous' => 0 ]),
             ];
 
