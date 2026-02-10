@@ -74,14 +74,6 @@ class PayoutAPITest extends TestCase
 
         //Assert failure response (No remaining transactions to payout)
         $this->response->assertStatus(404);
-
-        // //Assert the structure of the response
-        // $this->response->assertJsonStructure([
-        //     'success',
-        //     'data' => self::$pattern_payout,
-        //     'message',
-        // ]); 
-
     }
 
     /**
