@@ -17,6 +17,7 @@ use App\Infrastructure\Persistence\PayoutRepository;
 class Payout
 {
     public const SUCCESS_TEXT = 'Transaction completed successfully';
+    public const SUCCESS = 'completed';
     private const FEES = 0;
 
     public function __construct(private PaymentGateway $gateway, private PayoutRepository $payoutRepo){}
@@ -24,18 +25,19 @@ class Payout
     public function initiatePayout(string $phone_number, int $gross_amount, string $withdraw_mode, User $user, Collection $transactions): ?PayoutModel
     {
         try {
-            //Iniatiate payout refund
-            $initiateResponse = null;
-            // $initiateResponse = $this->gateway->initiate_refund(
-            //     phone_number: $phone_number,
-            //     amount: $gross_amount,
-            //     withdraw_mode: $withdraw_mode
-            // );
 
-            // if(!$initiateResponse || !$initiateResponse->disburse_token):
-            //     Log::error('Payout initiation failed in service : ', (array)$initiateResponse);
-            //     return null;
-            // endif;
+            //Initiate payout refund
+            $initiateResponse = null;
+            $initiateResponse = $this->gateway->initiate_refund(
+                phone_number: $phone_number,
+                amount: $gross_amount,
+                withdraw_mode: $withdraw_mode
+            );
+
+            if(!$initiateResponse || !$initiateResponse->disburse_token):
+                Log::error('Payout initiation failed in service : ', (array)$initiateResponse);
+                return null;
+            endif;
 
             // Register the payout
             $fees = self::FEES; //Calculate fees if any
@@ -45,7 +47,7 @@ class Payout
                 'net_amount' => $net_amount,
                 'fees' => $fees,
                 'status' => 'authorized',
-                // 'reference_number' => $initiateResponse->disburse_token,
+                'reference_number' => $initiateResponse->disburse_token,
                 'user_id' => $user->id
             ]);
 
@@ -78,8 +80,7 @@ class Payout
                 disburse_id: null
             );  
 
-            // if(!$submitResponse || !$submitResponse->response_text || $submitResponse->response_text != self::SUCCESS_TEXT):
-            if(!$submitResponse || !$submitResponse->response_text):
+            if(!$submitResponse || !$submitResponse->response_text || $submitResponse->response_text != self::SUCCESS_TEXT):
                 Log::error('Payout submit failed : ' . $submitResponse);
                 return null;
             endif;
@@ -98,7 +99,7 @@ class Payout
                     'transaction_id',
                     'user_id',
                 ]);
-                $new_payout->status = 'completed';
+                $new_payout->status = self::SUCCESS;
                 $new_payout->parent_payout_id = $payout->id;
                 $new_payout->save();
                 // Update original payout

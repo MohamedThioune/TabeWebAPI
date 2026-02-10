@@ -19,7 +19,6 @@ class TransactionResource extends JsonResource
             'id' => $this->id,
             'status' => $this->status,
             'amount' => $this->amount,
-            'auth_code' => $this->auth_code,
             'currency' => $this->currency,
             'gift_card' => new GiftCardResource($this->whenLoaded('gift_card')),
             'created_at' => $this->created_at,

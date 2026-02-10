@@ -207,7 +207,6 @@ class PaydunyaGateway implements PaymentGateway
             'amount' => $amount,
             'withdraw_mode' => $withdraw_mode,
             'callback_url' => $this->actions['callback_url'],
-            // 'callback_url' => "https://nadora.dev-illimitis.com/api/paydunya/ipn"
         ];
 
         try
@@ -249,7 +248,7 @@ class PaydunyaGateway implements PaymentGateway
         catch (RequestException $e)
         {
             //Log the api request failed
-            Log::error('Paydunya request failed', [
+            Log::error('Paydunya service failed', [
                 'url' => $endpoint,
                 'status' => $e->response?->status(),
             ]);

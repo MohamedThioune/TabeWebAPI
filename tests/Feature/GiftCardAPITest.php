@@ -19,7 +19,7 @@ class GiftCardAPITest extends TestCase
 {
     use ApiTest, DatabaseTransactions;
     private static array $pattern_card = [
-           'id',
+            'id',
             'code',
             'belonging_type',
             'type',
@@ -201,15 +201,15 @@ class GiftCardAPITest extends TestCase
     public function test_list_gift_card()
     {
         //Acting as : Customer
-        $customer = ApiTest::actingAsCustomer();
+        $user = ApiTest::actingAsCustomer();
 
         $giftCard = GiftCard::factory()->create([
-            'owner_user_id' => $customer?->user?->id,
+            'owner_user_id' => $user?->id,
             'belonging_type' => 'others',
         ]);
 
         QRSession::factory()->create([
-            'gift_card_id' => $giftCard->id,
+            'gift_card_id' => $giftCard?->id,
         ]);
 
         $this->response = $this->json(
@@ -243,22 +243,21 @@ class GiftCardAPITest extends TestCase
         Notification::fake();
 
         //Acting as : Customer
-        $customer = ApiTest::actingAsCustomer();
+        $user = ApiTest::actingAsCustomer();
 
         $giftCard = GiftCard::factory()->create([
-            'owner_user_id' => $customer->user_id,
+            'owner_user_id' => $user?->id,
             'belonging_type' => 'others',
         ]);
 
         $this->response = $this->json(
             'PUT',
-            '/api/gift-cards/share/'. $giftCard->id,
+            '/api/gift-cards/share/'. $giftCard?->id,
         );
 
         $this->assertApiSuccess();
 
         // Assert that a notification was sent to the given user...
-        $user = $customer->user;
         Notification::assertSentTo(
             [$user],
             \App\Notifications\SharedCardNotification::class
@@ -274,7 +273,7 @@ class GiftCardAPITest extends TestCase
         $customer = Customer::factory()->create();
 
         //Acting as : Partner
-        $partner = ApiTest::actingAsPartner();
+        ApiTest::actingAsPartner();
 
         $giftCard = GiftCard::factory()->create([
             'owner_user_id' => $customer->user_id,
@@ -313,7 +312,7 @@ class GiftCardAPITest extends TestCase
         $customer = Customer::factory()->create();
 
         //Acting as : Partner
-        $partner = ApiTest::actingAsPartner();
+        ApiTest::actingAsPartner();
 
         $giftCard = GiftCard::factory()->create([
             'owner_user_id' => $customer->user_id,
