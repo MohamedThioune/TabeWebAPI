@@ -578,11 +578,11 @@ class UserAPIController extends AppBaseController
         return $this->sendResponse($infos, 'Partner retrieved stats successfully !');
     }
 
-     /**
+    /**
      * @OA\Get(
      *      path="/admin/stats",
      *      summary="statsAdmin",
-     *      tags={"Partner"},
+     *      tags={"Admin"},
      *      description="Get the stats of all partners and customers",
      *      security={{"passport":{}}},
      *      @OA\Response(
@@ -616,7 +616,7 @@ class UserAPIController extends AppBaseController
                 'total_actived_cards' => new Fluent([
                     'current' => $this->giftCardRepository->allQuery($actived_search)->count(),
                     'amount' => $this->giftCardRepository->allQuery($actived_search)->sum('face_amount'),
-                    'previous' => 0 ]),
+                    ]),
                 'total_month_activated_cards' => new Fluent([ 
                     'current' => $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $month_range)->count(),
                     'amount' => $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $month_range)->sum('face_amount'),
@@ -639,6 +639,47 @@ class UserAPIController extends AppBaseController
             ];
 
         return $this->sendResponse($infos, 'Admin retrieved stats successfully !');
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/admin/stats/cards",
+     *      summary="statsAdminCards",
+     *      tags={"Admin"},
+     *      description="Get the stats about distributions of cards",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+    */
+    public function statsAdminCards(Request $request): JsonResponse{
+        
+        $actived_search = ['status' => 'active'];
+        $used_search = ['status' => 'used'];
+        $expired_search = ['status' => 'expired'];
+        $infos = [
+                'total_active_cards' => $this->giftCardRepository->allQuery($actived_search)->count(),
+                'total_used_cards' => $this->giftCardRepository->allQuery($used_search)->count(),
+                'total_expired_cards' => $this->giftCardRepository->allQuery($expired_search)->count()
+            ];
+
+        return $this->sendResponse($infos, 'Admin retrieved cards stats successfully !');
     }
 
 }

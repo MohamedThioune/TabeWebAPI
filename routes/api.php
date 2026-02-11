@@ -116,7 +116,9 @@ Route::group(['middleware' => ['auth:api']], function () {
           Route::resource('designs', App\Http\Controllers\API\DesignAPIController::class); //list, store, show, update, destroy
 
           //Stats
-          Route::get('/admin/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsAdmin'])->name('users.admin.stats'); //stats of the customer
+          Route::get('/admin/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsAdmin'])->name('users.admin.stats'); //main stats 
+          Route::get('/admin/stats/cards', [App\Http\Controllers\API\UserAPIController::class, 'statsAdminCards'])->name('users.admin.stats.cards'); //stats of the cards
+
 
       });
 });
