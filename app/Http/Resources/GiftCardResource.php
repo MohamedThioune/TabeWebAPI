@@ -21,11 +21,6 @@ class GiftCardResource extends JsonResource
         $this->load('design');
 
         $qrResource = QRSessionResource::collection($this->whenLoaded('qrSessions'));
-        $card = $this->resource;
-        if($card->expired_at >= now()){
-            $card->status = 'expired';
-            $card->save();
-        }
 
         return [
             'id' => $this->id,

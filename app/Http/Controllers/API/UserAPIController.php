@@ -61,7 +61,7 @@ class UserAPIController extends AppBaseController
      * @OA\Get(
      *      path="/users",
      *      summary="listUsers",
-     *      tags={"User"},
+     *      tags={"Admin"},
      *      description="List the users | Only for admin !!",
      *      security={{"passport":{}}},
      *      @OA\Parameter(
