@@ -59,7 +59,7 @@ class PayoutAPITest extends TestCase
             'commentary' => "Hello, I want to withdraw my money [Testing]",
         ];
 
-       //mock paydunya call
+        //mock paydunya call
         $this->mock(PaymentGateway::class, function ($mock){
             $mock->shouldReceive('initiate_refund');
         });

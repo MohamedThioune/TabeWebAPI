@@ -163,6 +163,17 @@ class GiftCard extends Model
         });
     }
 
+    public function getComputedStatus(): String
+    {
+        return match (true) {
+            $this->status === 'active'
+                && $this->expired_at?->isPast()
+                    => 'expired',
+
+            default => $this->status,
+        };
+    }
+
     public function user(){
         return $this->belongsTo(User::class, 'owner_user_id', 'id');
     }

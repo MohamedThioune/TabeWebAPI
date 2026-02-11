@@ -18,6 +18,8 @@ class PayoutResource extends JsonResource
         $show_transactions = (bool)$request->get('show_transactions');
         $transactions = TransactionResource::collection($this->whenLoaded('transactions'));
         $total_transactions = ($this->resource->transactions()) ? $this->resource->transactions()->count() : 0;
+        //Context admin
+        $context_admin = $request->user()?->can('seeSensitiveData');
         return [
             'id' => $this->id,
             'gross_amount' => $this->gross_amount,
@@ -28,6 +30,7 @@ class PayoutResource extends JsonResource
             'status' => $this->status,
             'transactions' => $this->when($show_transactions, TransactionResource::collection($this->whenLoaded('transactions'))),
             'total_transactions' => $total_transactions,
+            'user' => $this->when($context_admin, new UserResource($this->resource->user)),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
