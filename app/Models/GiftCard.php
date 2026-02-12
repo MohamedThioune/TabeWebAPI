@@ -109,6 +109,7 @@ class GiftCard extends Model
     ];
 
     protected $casts = [
+        'expired_at' => 'datetime',
         'face_amount' => 'integer',
         'is_verified' => 'boolean',
         'with_summary' => 'boolean',
