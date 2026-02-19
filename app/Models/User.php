@@ -270,7 +270,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserCategory::class);
     }
-    public function qr_sessions()
+    public function qr_sessions() 
     {
         return $this->hasManyThrough(
             QrSession::class,    // Final related model

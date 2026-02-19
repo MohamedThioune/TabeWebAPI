@@ -67,7 +67,8 @@ class GiftCardAPIController extends AppBaseController
 
         return $infos;
     }
-     /**
+
+    /**
      * @OA\Get(
      *      path="/gift-cards",
      *      summary="getGiftCardListPerUser",
@@ -337,7 +338,6 @@ class GiftCardAPIController extends AppBaseController
 
         return $this->sendResponse($infos, 'Gift Card saved successfully !');
     }
-
     /**
      * @OA\Post(
      *      path="/gift-cards",
@@ -533,15 +533,79 @@ class GiftCardAPIController extends AppBaseController
         $input = $request->all();
 
         /** @var GiftCard $giftCard */
-        $giftCard = $this->giftCardRepository->find($id);
+        $giftCard = GiftCard::findOrFail($id);
 
-        if (empty($giftCard)) {
-            return $this->sendError('Gift Card not found');
+        if (empty($giftCard)) 
+            return $this->sendError('Gift Card not found !');
+
+        try{
+            $giftCard = $this->giftCardRepository->update($input, $id);
+        }
+        catch(\Exception $e){
+            Log::error("Error updating gift card : " . $e->getMessage());
+            return $this->sendError('Error occured, Please note that it is impossible to update the expiration date of an active,used gift card.', 403);
         }
 
-        $giftCard = $this->giftCardRepository->update($input, $id);
+        return $this->sendResponse(new GiftCardResource($giftCard), 'GiftCard updated successfully !');
+    }
 
-        return $this->sendResponse(new GiftCardResource($giftCard), 'GiftCard updated successfully');
+    /**
+     * @OA\Delete(
+     *      path="/gift-cards/{id}",
+     *      summary="deactivateGiftCard",
+     *      tags={"GiftCard"},
+     *      description="Deactivate GiftCard | Only for a admin !!",
+     *      security={{"passport":{}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="id of GiftCard",
+     *           @OA\Schema(
+     *             type="integer"
+     *          ),
+     *          required=true,
+     *          in="path"
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="string"
+     *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string"
+     *              )
+     *          )
+     *      )
+     * )
+    */
+    public function deactivate(Giftcard $giftCard): JsonResponse
+    {
+        /** @var GiftCard $giftCard */
+        $exception_deactivate = [
+            'used',
+            'pending'
+        ];
+
+        if (in_array($giftCard->status, $exception_deactivate)) 
+            return $this->sendError('Gift Card used or pending cannot be deactivated !');
+        
+        try{
+            $this->giftCardRepository->update(['status' => 'inactive'], $giftCard->id);
+        }
+        catch(\Exception $e){
+            Log::error("Error updating gift card : " . $e->getMessage());
+            return $this->sendError('Error occured', 403);
+        }
+
+        return $this->sendSuccess('Gift Card deactivated successfully');
     }
 
     /**
@@ -580,16 +644,22 @@ class GiftCardAPIController extends AppBaseController
      *          )
      *      )
      * )
-     */
+    */
     public function destroy($id): JsonResponse
     {
         /** @var GiftCard $giftCard */
         $giftCard = $this->giftCardRepository->find($id);
+        $exception_delete = [
+            'used',
+            'pending'
+        ];
 
-        if (empty($giftCard)) {
-            return $this->sendError('Gift Card not found');
-        }
+        if (empty($giftCard)) 
+            return $this->sendError('Gift Card not found or already expired !');
 
+        if (in_array($giftCard->status, $exception_delete)) 
+            return $this->sendError('Gift Card used or pending cannot be deleted !');
+        
         $giftCard->delete();
 
         return $this->sendSuccess('Gift Card deleted successfully');

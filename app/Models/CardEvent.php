@@ -57,7 +57,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
     ];
 
     public function giftcard(){
-        return $this->belongsTo(GiftCard::class);
+        return $this->belongsTo(GiftCard::class, 'gift_card_id');
     }
 
 }

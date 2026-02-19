@@ -107,4 +107,37 @@ class GiftCardRepository extends BaseRepository
 
         return $query->first($columns);
     }
+
+    public function update(array $input, string $id)
+    {
+        $query = $this->model->newQuery();
+
+        $model = $query->findOrFail($id);
+        $exception_face_amount = [
+            'used',
+            'expired',
+            'pending',
+            'inactive'
+        ];
+        $exception_expired_date = [
+            'active',
+            'used',
+            'pending',
+            'inactive'
+        ];
+        
+        //exception if the card is used 
+        if (isset($input['face_amount']) && in_array($model->status, $exception_face_amount)) 
+            throw new \Exception('Cannot update face amount of a used card');
+        
+        //exception on expiration date update if the card is active
+        if (isset($input['expired_at']) && in_array($model->status, $exception_expired_date)) 
+            throw new \Exception('Cannot update expiration date of an active card');
+        
+        $model->fill($input);
+
+        $model->save();
+
+        return $model;
+    }
 }

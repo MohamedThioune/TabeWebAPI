@@ -19,8 +19,10 @@ class GiftCardResource extends JsonResource
         $this->load('user');
         $this->load('beneficiary');
         $this->load('design');
-
+        $this->load('cardevent');
+        
         $qrResource = QRSessionResource::collection($this->whenLoaded('qrSessions'));
+        $context_admin = $request->user()?->can('seeSensitiveData', $this->resource);
 
         return [
             'id' => $this->id,
@@ -35,6 +37,7 @@ class GiftCardResource extends JsonResource
             'owner' => new UserResource($this->whenLoaded('user')),
             'beneficiary' => new BeneficiaryResource($this->whenLoaded('beneficiary')),
             'design' => new DesignResource($this->whenLoaded('design')),
+            'card_events' => CardEventResource::collection($this->whenLoaded('cardevent')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

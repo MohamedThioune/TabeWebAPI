@@ -14,12 +14,19 @@ class CardEventResource extends JsonResource
      */
     public function toArray($request)
     {
+        $gift_card = ($this->type === 'used') ? $this->giftcard : null;
         return [
-//            'id' => $this->id,
+            //'id' => $this->id,
             'type' => $this->type,
-            'meta_json' => $this->meta_json,
             'created_at' => $this->created_at,
-//            'updated_at' => $this->updated_at
+            'transaction' => $this->when($gift_card, function() use ($gift_card) {
+                $transaction = $gift_card->transactions()->where('transactions.status', 'authorized')->first();
+                return [
+                    'id' => $transaction?->id,
+                    'amount' => $transaction?->amount,
+                ];
+            }),
+            // 'updated_at' => $this->updated_at
         ];
     }
 }

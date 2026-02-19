@@ -98,7 +98,8 @@ Route::group(['middleware' => ['auth:api']], function () {
           Route::post('/gift-cards/users/{user}', [App\Http\Controllers\API\GiftCardAPIController::class, 'store'])->middleware('idempotency')->name('gift-cards.store'); //Store any gift cards via user id
           Route::resource('gift-cards', App\Http\Controllers\API\GiftCardAPIController::class)
               ->except(['store', 'index']); //show, update, destroy
-
+          Route::post('/gift-cards/deactivate/{giftCard}', [App\Http\Controllers\API\GiftCardAPIController::class, 'deactivate'])->name('gift-cards.deactivate'); //deactivate a gift card (soft delete)
+        
           //Users resource
           Route::get('/users', [App\Http\Controllers\API\UserAPIController::class, 'index'])->name('users.index');
           Route::patch('/users/{user}', [App\Http\Controllers\API\UserAPIController::class, 'update'])->name('users.update'); //Update any users

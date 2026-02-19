@@ -17,6 +17,12 @@ class UpdateGiftCardAPIRequest extends APIRequest
         return true;
     }
 
+    public function prepareForValidation()
+    {
+        // Keep only the fields wanted
+        $this->replace($this->only(['type', 'face_amount', 'expired_at', 'issued_via', 'design_id']));
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -24,7 +30,7 @@ class UpdateGiftCardAPIRequest extends APIRequest
      */
     public function rules()
     {
-        $rules = GiftCard::$rules;
+        $rules = GiftCard::$rules_updated;
         
         return $rules;
     }
