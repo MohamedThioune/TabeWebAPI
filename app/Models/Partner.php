@@ -42,12 +42,11 @@ class Partner extends Model
         'office_phone' => 'string|max:255',
         'payout_method' => 'string|in:bank_transfer,mobile_money',
         'payout_account' => 'string|max:255',
-//        'kyc_status' => 'string|in:pending,verified,rejected,not_submitted',
+        'kyc_status' => 'string|in:pending,verified,rejected,not_submitted',
     ];
 
     public function user(){
         return $this->belongsTo(User::class);
     }
-
 
 }

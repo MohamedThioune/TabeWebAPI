@@ -2,15 +2,17 @@
 
 namespace App\Infrastructure\Persistence;
 
-use App\Domain\Users\Entities\User;
 use App\Models\Enterprise;
 use App\Repositories\BaseRepository;
 
 class EnterpriseRepository extends BaseRepository
 {
     protected $fieldSearchable = [
-        'id',
-        'name'
+        'name',
+        'phone',
+        'size',
+        'sector',
+        'address'
     ];
 
     public function getFieldsSearchable(): array
@@ -21,16 +23,5 @@ class EnterpriseRepository extends BaseRepository
     public function model(): string
     {
         return Enterprise::class;
-    }
-
-    public function save(User $user): Enterprise
-    {
-        $model = Enterprise::create([
-            'id' => $user->getEnterpriseId(),
-            'name' => $user->getName(),
-            'user_id' => $user->getId(),
-        ]);
-
-        return $model;
     }
 }

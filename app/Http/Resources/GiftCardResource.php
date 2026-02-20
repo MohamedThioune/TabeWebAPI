@@ -37,7 +37,7 @@ class GiftCardResource extends JsonResource
             'owner' => new UserResource($this->whenLoaded('user')),
             'beneficiary' => new BeneficiaryResource($this->whenLoaded('beneficiary')),
             'design' => new DesignResource($this->whenLoaded('design')),
-            'card_events' => CardEventResource::collection($this->whenLoaded('cardevent')),
+            'card_events' => $this->when($context_admin, CardEventResource::collection($this->whenLoaded('cardevent'))),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

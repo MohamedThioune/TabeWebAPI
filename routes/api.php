@@ -62,7 +62,6 @@ Route::group(['middleware' => ['auth:api']], function () {
           Route::put('/gift-cards/share/{giftCard}', [App\Http\Controllers\API\GiftCardAPIController::class, 'share'])->name('gift-cards.share');
       });
 
-
       //Partner scope
       Route::group(['middleware' => ['role:partner|admin']], function () {
             //Qr sessions
@@ -116,10 +115,11 @@ Route::group(['middleware' => ['auth:api']], function () {
           //Designs resource
           Route::resource('designs', App\Http\Controllers\API\DesignAPIController::class); //list, store, show, update, destroy
 
+          //Enterprises resource
+          Route::resource('enterprises', App\Http\Controllers\API\EnterpriseAPIController::class);
+
           //Stats
           Route::get('/admin/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsAdmin'])->name('users.admin.stats'); //main stats 
           Route::get('/admin/stats/cards', [App\Http\Controllers\API\UserAPIController::class, 'statsAdminCards'])->name('users.admin.stats.cards'); //stats of the cards
-
-
       });
 });

@@ -4,7 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
- use Illuminate\Database\Eloquent\SoftDeletes; use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes; 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Enterprise;
+
 /**
  * @OA\Schema(
  *      schema="Beneficiary",
@@ -48,7 +51,7 @@ use Illuminate\Database\Eloquent\Model;
  *      )
  * )
  * @method static pluck(string $string)
- */
+*/
 class Beneficiary extends Model
 {
     use HasUuids, SoftDeletes, HasFactory;
@@ -57,7 +60,8 @@ class Beneficiary extends Model
     public $fillable = [
         'full_name',
         'phone',
-        'email'
+        'email',
+        'enterprise_id'
     ];
 
     protected $casts = [
@@ -73,7 +77,11 @@ class Beneficiary extends Model
     ];
 
     public function GiftCards(){
-        return $this->hasMany(GiftCard::class, );
+        return $this->hasMany(GiftCard::class);
+    }
+
+    public function Enterprise(){
+        return $this->belongsTo(Enterprise::class);
     }
 
 }
