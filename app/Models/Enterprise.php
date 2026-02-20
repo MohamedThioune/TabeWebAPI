@@ -2,43 +2,89 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletes; 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Models\Beneficiairy;
 
+/**
+ * @OA\Schema(
+ *      schema="Enterprise",
+ *      required={"name","phone"},
+ *      @OA\Property(
+ *          property="name",
+ *          description="",
+ *          readOnly=false,
+ *          nullable=false,
+ *          type="string",
+ *      ),
+ *      @OA\Property(
+ *          property="phone",
+ *          description="",
+ *          readOnly=false,
+ *          nullable=false,
+ *          type="string",
+ *      ),
+ *      @OA\Property(
+ *          property="size",
+ *          description="",
+ *          readOnly=true,
+ *          nullable=true,
+ *          type="string",
+ *      ),
+ *      @OA\Property(
+ *          property="sector",
+ *          description="",
+ *          readOnly=false,
+ *          nullable=true,
+ *          type="string",
+ *      ),
+ *      @OA\Property(
+ *          property="address",
+ *          description="",
+ *          readOnly=false,
+ *          nullable=true,
+ *          type="string",
+ *      ),
+ *      @OA\Property(
+ *          property="created_at",
+ *          description="",
+ *          readOnly=true,
+ *          nullable=true,
+ *          type="string",
+ *          format="date-time"
+ *      ),
+ *      @OA\Property(
+ *          property="updated_at",
+ *          description="",
+ *          readOnly=true,
+ *          nullable=true,
+ *          type="string",
+ *          format="date-time"
+ *      )
+ * )
+*/
 class Enterprise extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes, HasFactory;    
+    public $table = 'enterprises';
 
-    protected $table = 'enterprises';
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'id',
+    public $fillable = [
         'name',
-        'office_phone',
-        'kyc_status',
-        'user_id',
-        // 'tax_id',
-        // 'billing_profile',
+        'phone',
+        'size',
+        'sector',
+        'address'
     ];
 
-    public static array $ruleCreated = [
-        'name' => 'required|string|max:255',
+    public static array $rules = [
+        'name' => 'required|string',
+        'phone' => 'required|string'
     ];
 
-    public static array $ruleUpdated = [
-        'name' => 'string|max:255',
-        'office_phone' => 'string|max:255',
-//        'kyc_status' => 'string|in:pending,verified,rejected,not_submitted'
-    ];
-
-    public function user(){
-        return $this->belongsTo(User::class);
+    public function beneficiairies(){
+        return $this->hasMany(Beneficiairy::class);
     }
+
 }

@@ -21,7 +21,6 @@ class UserResource extends JsonResource
         if ($role != Type::Admin->value) $this->load($role);
         $this->load('categories');
 
-
         //Child resources part
         $childResources = match ($role) {
             Type::Customer->value   => CustomerResource::collection($this->whenLoaded('customer')),
@@ -57,10 +56,12 @@ class UserResource extends JsonResource
             'website' => $this->website,
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'bio' => $this->bio,
+            'cards' => $this->when($context_admin, $this->gift_cards()->count()),
             'country' => $this->country,
             'city' => $this->when($context_admin, $this->city),
             'address' => $this->when($context_admin, $this->address),
             'is_active' => $this->when($context_admin, $this->is_active),
+            'last_activity' => $this->when($context_admin, ""),
             'phone_verified_at' => $this->when($context_admin, $this->phone_verified_at),
             'user_registered_at' => $this->when($context_admin, $this->created_at?->format('M Y') ),
         ];
