@@ -120,6 +120,9 @@ Route::group(['middleware' => ['auth:api']], function () {
 
           //Stats
           Route::get('/admin/stats', [App\Http\Controllers\API\UserAPIController::class, 'statsAdmin'])->name('users.admin.stats'); //main stats 
+          Route::get('/admin/stats/weekly', [App\Http\Controllers\API\UserAPIController::class, 'weeklyTransactionStats'])->name('users.admin.stats.weekly'); //stats of the weekly transactions
           Route::get('/admin/stats/cards', [App\Http\Controllers\API\UserAPIController::class, 'statsAdminCards'])->name('users.admin.stats.cards'); //stats of the cards
+          Route::get('/admin/stats/activity', [App\Http\Controllers\API\UserAPIController::class, 'statsActivityPartners'])->name('users.admin.stats.activities'); //stats of the partners activity
+          Route::get('/admin/stats/partners', [App\Http\Controllers\API\UserAPIController::class, 'statsAdminPartners'])->name('users.admin.stats.partners'); //stats of the partners general
       });
 });

@@ -135,9 +135,10 @@ class UserAPIController extends AppBaseController
      */
     public function index(GetUsersAPIRequest $request): JsonResponse
     {
-        $search = $request->except(['skip', 'limit']);
+        $search = $request->except(['skip', 'limit', 'page', 'per_page']);
+        $perPage = $request->get('per_page') ?: 8;
 
-        $infos = $this->detached_index($search, $request);
+        $infos = $this->detached_index($search, $request, $perPage);
 
         return $this->sendResponse($infos, 'Users retrieved successfully.');
     }
@@ -643,6 +644,61 @@ class UserAPIController extends AppBaseController
 
     /**
      * @OA\Get(
+     *      path="/admin/stats/weekly",
+     *      summary="statsWeeklyTransaction",
+     *      tags={"Admin"},
+     *      description="Get the stats of weekly transaction",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+    */
+    public function weeklyTransactionStats(Request $request): JsonResponse{
+
+        $actual_week = [Carbon::now()->startOfWeek(), Carbon::now()];
+        $past_week = [Carbon::now()->subWeek()->startOfWeek(), Carbon::now()->subWeek()->endOfWeek()];
+
+        $data_current = $this->transactionRepository->weeklyTransactions($actual_week)->get();
+        $sum_current = $data_current->sum('total_amount');
+        $data_past = $this->transactionRepository->weeklyTransactions($past_week)->get();
+        $sum_past = $data_past->sum('total_amount');
+
+        $current_week_transactions_count = [
+            'data' => $data_current,
+            'sum' => $sum_current,
+        ];
+        $past_week_transactions_count = [
+            'data' => $data_past,
+            'sum' => $sum_past,
+        ];
+
+        $infos = [
+            'current_week_transactions' => $current_week_transactions_count,
+            'past_week_transactions' =>  $past_week_transactions_count,
+            'progression' => $sum_past > 0 ? round(($sum_current - $sum_past) / $sum_past * 100, 1) : 0,
+        ];
+
+        return $this->sendResponse($infos, 'Admin retrieved weekly transaction stats successfully !');
+    }
+
+    /**
+     * @OA\Get(
      *      path="/admin/stats/cards",
      *      summary="statsAdminCards",
      *      tags={"Admin"},
@@ -680,6 +736,93 @@ class UserAPIController extends AppBaseController
             ];
 
         return $this->sendResponse($infos, 'Admin retrieved cards stats successfully !');
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/admin/stats/activity",
+     *      summary="statsAdminActivity",
+     *      tags={"Admin"},
+     *      description="Get quick stats about activity",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+    */
+    public function statsActivityPartners(Request $request): JsonResponse{
+        
+        $activities = $this->transactionRepository->getAmountTransactions()->limit(5)->get()->map(function($item){
+
+            return [
+                'id' => $item->user_id,
+                'name' => $this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first()->name ?? 'N/A',
+                'avatar' => $this->userRepository->find($item->user_id)->files()->where('meaning', 'avatar')->latest('created_at')?->first() ?? null,
+                'total_transactions' => $item->total_transactions,
+                'total_amount' => $item->total_amount,
+            ];
+        });
+
+        $infos = [
+                'activities' => $activities
+            ];
+        return $this->sendResponse($infos, 'Admin retrieved activity transaction partners stats successfully !');
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/admin/stats/partners",
+     *      summary="statsAdminPartners",
+     *      tags={"Admin"},
+     *      description="Get quick stats about partners",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+    */
+    public function statsAdminPartners(Request $request): JsonResponse {
+        
+        $search_active = ['type' => 'partner', 'is_active' => 1];
+        $search_not_verified = ['type' => 'partner', 'phone_verified_at' => null];
+        $search_inactive = ['type' => 'partner', 'is_active' => 0];
+        $infos = [
+                'total_active_partners' => $this->userRepository->allQuery($search_active)->count(),
+                'total_not_verified_partners' => $this->userRepository->allQuery($search_not_verified)->count(),
+                'total_inactive_partners' => $this->userRepository->allQuery($search_inactive)->count()
+            ];
+
+        return $this->sendResponse($infos, 'Admin retrieved partners stats successfully !');
     }
 
 }

@@ -85,4 +85,27 @@ class TransactionRepository extends BaseRepository
             $q->where('user_id', $user_id);
         })->where('status', 'failed');
     }
+
+    public function getAmountTransactions(): Builder
+    {
+        $query = $this->model::query();
+        return $query->select('user_id')
+              ->selectRaw('count(CASE WHEN status = "authorized" THEN 1 END) as total_transactions')
+              ->selectRaw('SUM(amount) as total_amount')
+              ->groupBy('user_id')
+              ->orderByDesc('total_amount');    
+    }
+
+    public function weeklyTransactions(array $week_range): Builder
+    {
+        $query = $this->model::query();
+
+        return $query->where('status', 'authorized')
+            ->whereBetween('created_at', $week_range)
+            ->selectRaw('DATE(created_at) as date')
+            ->selectRaw('SUM(amount) as total_amount')
+            ->selectRaw('COUNT(*) as total')
+            ->groupByRaw('DATE(created_at)')
+            ->orderByRaw('DATE(created_at)');
+    }
 }
