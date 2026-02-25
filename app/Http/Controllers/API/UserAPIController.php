@@ -609,9 +609,18 @@ class UserAPIController extends AppBaseController
     public function statsAdmin(Request $request): JsonResponse{
         
         $actived_search = ['status' => 'active'];
-        $captured_search = ['status' => 'captured'];
+        $authorized_search = ['status' => 'authorized'];
+        $last_month_range = [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->subMonth()->endOfMonth()];
         $month_range = [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()];
+        $yesterday_range = [Carbon::now()->subDay()->startOfDay(), Carbon::now()->subDay()->endOfDay()];
         $today_range = [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()];
+
+        $sum_month_amount = $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $month_range)->sum('face_amount');
+        $sum_last_month_amount = $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $last_month_range)->sum('face_amount');
+        $sum_today_amount = $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->sum('amount');
+        $sum_yesterday_amount = $this->transactionRepository->allQuery()->whereBetween('created_at', $yesterday_range)->sum('amount');
+        $sum_month_tr_amount = $this->transactionRepository->allQuery($authorized_search)->whereBetween('created_at', $month_range)->sum('amount');
+        $sum_last_month_tr_amount = $this->transactionRepository->allQuery($authorized_search)->whereBetween('created_at', $last_month_range)->sum('amount');
         $infos =
             [
                 'total_actived_cards' => new Fluent([
@@ -620,23 +629,26 @@ class UserAPIController extends AppBaseController
                     ]),
                 'total_month_activated_cards' => new Fluent([ 
                     'current' => $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $month_range)->count(),
-                    'amount' => $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $month_range)->sum('face_amount'),
-                    'previous' => 0 ]),
+                    'amount' => $sum_month_amount,
+                    'percentage' => $sum_last_month_amount > 0 ? round(($sum_month_amount - $sum_last_month_amount) / $sum_last_month_amount * 100, 1) : 0 
+                    ]),
                 'total_today_transactions' => new Fluent([
                     'current' => $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->count(),
-                    'amount' => $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->sum('amount'),
-                    'previous' => 0 ]),
+                    'amount' => $sum_today_amount,
+                    'percentage' => $sum_yesterday_amount > 0 ? round(($sum_today_amount - $sum_yesterday_amount) / $sum_yesterday_amount * 100, 1) : 0 
+                    ]),
                 'total_amount_month_transactions' => new Fluent([ 
-                    'current' => $this->transactionRepository->allQuery($captured_search)->whereBetween('created_at', $month_range)->sum('amount'),
-                    'previous' => 0 ]),
+                    'current' => $sum_month_tr_amount,
+                    'percentage' => $sum_last_month_tr_amount > 0 ? round(($sum_month_tr_amount - $sum_last_month_tr_amount) / $sum_last_month_tr_amount * 100, 1) : 0 
+                    ]),
                 'total_payouts_captured' => new Fluent([
                     'current' => $this->payoutRepository->getPayoutCompletedByUser()->count(),
                     'amount' => $this->payoutRepository->getPayoutCompletedByUser()->sum('net_amount'),
-                    'previous' => 0 ]),
+                    ]),
                 'total_payouts_authorized' => new Fluent([
                     'current' => $this->payoutRepository->getPayoutInProgressByUser()->count(),
                     'amount' => $this->payoutRepository->getPayoutInProgressByUser()->sum('net_amount'),
-                    'previous' => 0 ]),
+                    ]),
             ];
 
         return $this->sendResponse($infos, 'Admin retrieved stats successfully !');
