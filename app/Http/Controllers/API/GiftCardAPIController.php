@@ -550,7 +550,7 @@ class GiftCardAPIController extends AppBaseController
     }
 
     /**
-     * @OA\Delete(
+     * @OA\Patch(
      *      path="/gift-cards/{id}",
      *      summary="deactivateGiftCard",
      *      tags={"GiftCard"},
@@ -611,37 +611,36 @@ class GiftCardAPIController extends AppBaseController
     /**
      * @OA\Delete(
      *      path="/gift-cards/{id}",
-     *      summary="deleteGiftCard",
+     *      summary="Delete a GiftCard",
      *      tags={"GiftCard"},
-     *      description="Delete GiftCard | Only for a admin !!",
+     *      description="Delete GiftCard | Only for admin",
      *      security={{"passport":{}}},
      *      @OA\Parameter(
      *          name="id",
-     *          description="id of GiftCard",
-     *           @OA\Schema(
-     *             type="integer"
-     *          ),
+     *          in="path",
+     *          description="UUID of GiftCard",
      *          required=true,
-     *          in="path"
+     *          @OA\Schema(
+     *              type="string",
+     *              format="uuid"
+     *          )
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="successful operation",
+     *          description="Successful operation",
      *          @OA\JsonContent(
      *              type="object",
-     *              @OA\Property(
-     *                  property="success",
-     *                  type="boolean"
-     *              ),
-     *              @OA\Property(
-     *                  property="data",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="message",
-     *                  type="string"
-     *              )
+     *              @OA\Property(property="success", type="boolean", example=true),
+     *              @OA\Property(property="message", type="string", example="Gift card deleted successfully")
      *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Gift Card not found or already expired !"
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Unauthorized"
      *      )
      * )
     */
