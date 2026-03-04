@@ -659,52 +659,6 @@ class UserAPIController extends AppBaseController
         return $this->sendResponse($infos, 'Admin retrieved stats successfully !');
     }
 
-     /**
-     * @OA\Get(
-     *      path="/admin/stats/activity",
-     *      summary="statsAdminActivity",
-     *      tags={"Admin"},
-     *      description="Get quick stats about activity",
-     *      security={{"passport":{}}},
-     *      @OA\Response(
-     *          response=200,
-     *          description="successful operation",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(
-     *                  property="success",
-     *                  type="boolean"
-     *              ),
-     *              @OA\Property(
-     *                  property="data",
-     *              ),
-     *              @OA\Property(
-     *                   property="message",
-     *                   type="string"
-     *               ),
-     *          )
-     *      )
-     * )
-    */
-    public function statsActivityPartners(Request $request): JsonResponse{
-        
-        $activities = $this->transactionRepository->getAmountTransactions()->limit(5)->get()->map(function($item){
-
-            return [
-                'id' => $item->user_id,
-                'name' => $this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first()->name ?? 'N/A',
-                'avatar' => $this->userRepository->find($item->user_id)->files()->where('meaning', 'avatar')->latest('created_at')?->first() ?? null,
-                'total_transactions' => $item->total_transactions,
-                'total_amount' => $item->total_amount,
-            ];
-        });
-
-        $infos = [
-                'activities' => $activities
-            ];
-        return $this->sendResponse($infos, 'Admin retrieved activity transaction partners stats successfully !');
-    }
-    
     /**
      * @OA\Get(
      *      path="/admin/stats/weekly",
@@ -799,6 +753,54 @@ class UserAPIController extends AppBaseController
             ];
 
         return $this->sendResponse($infos, 'Admin retrieved cards stats successfully !');
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/admin/stats/activity",
+     *      summary="statsAdminActivity",
+     *      tags={"Admin"},
+     *      description="Get quick stats about activity",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+    */
+    public function statsActivityPartners(Request $request): JsonResponse{
+        
+        $activities = $this->transactionRepository->getAmountTransactions()->get()
+        ->filter(fn($item) => !empty($this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first()))
+        ->take(5)
+        ->map(function($item){
+            return [
+                'id' => $item->user_id,
+                'name' => $this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first()->name ?? 'N/A',
+                'avatar' => $this->userRepository->find($item->user_id)->files()->where('meaning', 'avatar')->latest('created_at')?->first() ?? null,
+                'total_transactions' => $item->total_transactions,
+                'total_amount' => $item->total_amount,
+            ];
+        });
+
+        $infos = [
+                'activities' => $activities
+            ];
+        return $this->sendResponse($infos, 'Admin retrieved activity transaction partners stats successfully !');
     }
 
     /**
