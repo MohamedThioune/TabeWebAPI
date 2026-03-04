@@ -84,6 +84,7 @@ class QrSession extends Model
     protected $casts = [
         'url' => 'string',
         'status' => 'string',
+        'expired_at' => 'datetime',
     ];
 
     public static array $rules = [
