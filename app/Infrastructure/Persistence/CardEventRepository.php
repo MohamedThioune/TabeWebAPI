@@ -32,9 +32,16 @@ class CardEventRepository extends BaseRepository
     //               $qr_query->where('status', 'used');
     //               $qr_query->whereMonth('updated_at', date('m'));
     //           });
-
     //     // dd($query->toSql());
-
     //     return $query->count();
     // }
+
+    // find events 
+    public function findEvents(array $range, string $status){
+        $query = $this->model()::query();
+
+        return $query->select('gift_card_id', 'card_events.type')
+                ->where('card_events.type', $status)->whereBetween('card_events.created_at', $range)
+                ->groupBy('gift_card_id', 'card_events.type');
+    }
 }
