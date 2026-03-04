@@ -21,6 +21,7 @@ use App\Infrastructure\Persistence\TransactionRepository;
 use App\Infrastructure\Persistence\PayoutRepository;
 use App\Infrastructure\Persistence\CardEventRepository;
 use App\Models\User;
+use App\Models\GiftCard;
 use App\Notifications\ProfileUpdateNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ use Illuminate\Support\Fluent;
 
 class UserAPIController extends AppBaseController
 {
-    public function __construct(private UserRepository $userRepository, private EnterpriseRepository $enterpriseRepository, private PartnerRepository $partnerRepository, private CustomerRepository $customerRepository, private GiftCardRepository $giftCardRepository, private TransactionRepository $transactionRepository, private PayoutRepository $payoutRepository){}
+    public function __construct(private UserRepository $userRepository, private EnterpriseRepository $enterpriseRepository, private PartnerRepository $partnerRepository, private CustomerRepository $customerRepository, private GiftCardRepository $giftCardRepository, private TransactionRepository $transactionRepository, private PayoutRepository $payoutRepository, private CardEventRepository $cardEventRepository ){}
 
     public function detached_index(array $search, Request $request, int $perPage = 8): array
     {
@@ -615,8 +616,12 @@ class UserAPIController extends AppBaseController
         $yesterday_range = [Carbon::now()->subDay()->startOfDay(), Carbon::now()->subDay()->endOfDay()];
         $today_range = [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()];
 
-        $sum_month_amount = $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $month_range)->sum('face_amount');
-        $sum_last_month_amount = $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $last_month_range)->sum('face_amount');
+        $activated_this_month = $this->cardEventRepository->findEvents($month_range, 'activated')->get();
+        $activated_last_month = $this->cardEventRepository->findEvents($last_month_range, 'activated')->get();
+        $sum_month_amount = $activated_this_month->filter(fn($event) => GiftCard::find($event->gift_card_id)?->status === "active")
+                            ->sum(fn($event) => GiftCard::find($event->gift_card_id)->face_amount); 
+        $sum_last_month_amount = $activated_last_month->filter(fn($event) => GiftCard::find($event->gift_card_id)?->status === "active")
+                            ->sum(fn($event) => GiftCard::find($event->gift_card_id)->face_amount); 
         $sum_today_amount = $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->sum('amount');
         $sum_yesterday_amount = $this->transactionRepository->allQuery()->whereBetween('created_at', $yesterday_range)->sum('amount');
         $sum_month_tr_amount = $this->transactionRepository->allQuery($authorized_search)->whereBetween('created_at', $month_range)->sum('amount');
@@ -625,10 +630,10 @@ class UserAPIController extends AppBaseController
             [
                 'total_actived_cards' => new Fluent([
                     'current' => $this->giftCardRepository->allQuery($actived_search)->count(),
-                    'amount' => $this->giftCardRepository->allQuery($actived_search)->sum('face_amount'),
+                    'amount' => (int)$this->giftCardRepository->allQuery($actived_search)->sum('face_amount'),
                     ]),
                 'total_month_activated_cards' => new Fluent([ 
-                    'current' => $this->giftCardRepository->allQuery($actived_search)->whereBetween('created_at', $month_range)->count(),
+                    'current' => !empty($activated_this_month) ? count($activated_this_month) : 0,
                     'amount' => $sum_month_amount,
                     'percentage' => $sum_last_month_amount > 0 ? round(($sum_month_amount - $sum_last_month_amount) / $sum_last_month_amount * 100, 1) : 0 
                     ]),
@@ -643,17 +648,63 @@ class UserAPIController extends AppBaseController
                     ]),
                 'total_payouts_captured' => new Fluent([
                     'current' => $this->payoutRepository->getPayoutCompletedByUser()->count(),
-                    'amount' => $this->payoutRepository->getPayoutCompletedByUser()->sum('net_amount'),
+                    'amount' => (int)$this->payoutRepository->getPayoutCompletedByUser()->sum('net_amount'),
                     ]),
                 'total_payouts_authorized' => new Fluent([
                     'current' => $this->payoutRepository->getPayoutInProgressByUser()->count(),
-                    'amount' => $this->payoutRepository->getPayoutInProgressByUser()->sum('net_amount'),
+                    'amount' => (int)$this->payoutRepository->getPayoutInProgressByUser()->sum('net_amount'),
                     ]),
             ];
 
         return $this->sendResponse($infos, 'Admin retrieved stats successfully !');
     }
 
+     /**
+     * @OA\Get(
+     *      path="/admin/stats/activity",
+     *      summary="statsAdminActivity",
+     *      tags={"Admin"},
+     *      description="Get quick stats about activity",
+     *      security={{"passport":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="success",
+     *                  type="boolean"
+     *              ),
+     *              @OA\Property(
+     *                  property="data",
+     *              ),
+     *              @OA\Property(
+     *                   property="message",
+     *                   type="string"
+     *               ),
+     *          )
+     *      )
+     * )
+    */
+    public function statsActivityPartners(Request $request): JsonResponse{
+        
+        $activities = $this->transactionRepository->getAmountTransactions()->limit(5)->get()->map(function($item){
+
+            return [
+                'id' => $item->user_id,
+                'name' => $this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first()->name ?? 'N/A',
+                'avatar' => $this->userRepository->find($item->user_id)->files()->where('meaning', 'avatar')->latest('created_at')?->first() ?? null,
+                'total_transactions' => $item->total_transactions,
+                'total_amount' => $item->total_amount,
+            ];
+        });
+
+        $infos = [
+                'activities' => $activities
+            ];
+        return $this->sendResponse($infos, 'Admin retrieved activity transaction partners stats successfully !');
+    }
+    
     /**
      * @OA\Get(
      *      path="/admin/stats/weekly",
@@ -748,52 +799,6 @@ class UserAPIController extends AppBaseController
             ];
 
         return $this->sendResponse($infos, 'Admin retrieved cards stats successfully !');
-    }
-
-    /**
-     * @OA\Get(
-     *      path="/admin/stats/activity",
-     *      summary="statsAdminActivity",
-     *      tags={"Admin"},
-     *      description="Get quick stats about activity",
-     *      security={{"passport":{}}},
-     *      @OA\Response(
-     *          response=200,
-     *          description="successful operation",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(
-     *                  property="success",
-     *                  type="boolean"
-     *              ),
-     *              @OA\Property(
-     *                  property="data",
-     *              ),
-     *              @OA\Property(
-     *                   property="message",
-     *                   type="string"
-     *               ),
-     *          )
-     *      )
-     * )
-    */
-    public function statsActivityPartners(Request $request): JsonResponse{
-        
-        $activities = $this->transactionRepository->getAmountTransactions()->limit(5)->get()->map(function($item){
-
-            return [
-                'id' => $item->user_id,
-                'name' => $this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first()->name ?? 'N/A',
-                'avatar' => $this->userRepository->find($item->user_id)->files()->where('meaning', 'avatar')->latest('created_at')?->first() ?? null,
-                'total_transactions' => $item->total_transactions,
-                'total_amount' => $item->total_amount,
-            ];
-        });
-
-        $infos = [
-                'activities' => $activities
-            ];
-        return $this->sendResponse($infos, 'Admin retrieved activity transaction partners stats successfully !');
     }
 
     /**
