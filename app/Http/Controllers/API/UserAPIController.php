@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Fluent;
+use App\Helpers\CarbonRange;
 
 
 class UserAPIController extends AppBaseController
@@ -692,8 +693,12 @@ class UserAPIController extends AppBaseController
         $past_week = [Carbon::now()->subWeek()->startOfWeek(), Carbon::now()->subWeek()->endOfWeek()];
 
         $data_current = $this->transactionRepository->weeklyTransactions($actual_week)->get();
-        $sum_current = $data_current->sum('total_amount');
+        $data_current = CarbonRange::fillMissingDates($data_current, $actual_week[0], $actual_week[1]);
+
         $data_past = $this->transactionRepository->weeklyTransactions($past_week)->get();
+        $data_past = CarbonRange::fillMissingDates($data_past, $past_week[0], $past_week[1]);
+
+        $sum_current = $data_current->sum('total_amount');
         $sum_past = $data_past->sum('total_amount');
 
         $current_week_transactions_count = [
