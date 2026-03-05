@@ -90,7 +90,8 @@ class TransactionRepository extends BaseRepository
     {
         $query = $this->model::query();
         return $query->select('user_id')
-              ->selectRaw('count(CASE WHEN status = "authorized" THEN 1 END) as total_transactions')
+              ->where('status', 'authorized')
+              ->selectRaw('count(*) as total_transactions')
               ->selectRaw('SUM(amount) as total_amount')
               ->groupBy('user_id')
               ->orderByDesc('total_amount');    
