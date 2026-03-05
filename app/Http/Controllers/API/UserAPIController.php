@@ -12,6 +12,7 @@ use App\Http\Requests\API\UpdateEnterpriseAPIRequest;
 use App\Http\Requests\API\UpdatePartnerAPIRequest;
 use App\Http\Requests\API\UserRequest;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\FileResource;
 use App\Infrastructure\Persistence\CustomerRepository;
 use App\Infrastructure\Persistence\EnterpriseRepository;
 use App\Infrastructure\Persistence\PartnerRepository;
@@ -29,6 +30,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Fluent;
+
 
 class UserAPIController extends AppBaseController
 {
@@ -786,10 +788,12 @@ class UserAPIController extends AppBaseController
         ->filter(fn($item) => !empty($this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first()))
         ->take(5)
         ->map(function($item){
+            $partner = $this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first();
+            $avatar = $this->userRepository->find($item->user_id)->files()->where('meaning', 'avatar')->latest('created_at')?->first();
             return [
                 'id' => $item->user_id,
-                'name' => $this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first()->name ?? 'N/A',
-                'avatar' => $this->userRepository->find($item->user_id)->files()->where('meaning', 'avatar')->latest('created_at')?->first() ?? null,
+                'name' => $partner->name ?? 'N/A',
+                'avatar' => $avatar ? new FileResource($avatar) : null,
                 'total_transactions' => $item->total_transactions,
                 'total_amount' => $item->total_amount,
             ];
