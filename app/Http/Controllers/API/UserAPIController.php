@@ -790,6 +790,8 @@ class UserAPIController extends AppBaseController
         ->map(function($item){
             $partner = $this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first();
             $avatar = $this->userRepository->find($item->user_id)->files()->where('meaning', 'avatar')->latest('created_at')?->first();
+            var_dump($partner);
+
             return [
                 'id' => $item->user_id,
                 'name' => $partner->name ?? 'N/A',
