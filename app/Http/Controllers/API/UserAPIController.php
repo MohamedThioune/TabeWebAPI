@@ -618,10 +618,8 @@ class UserAPIController extends AppBaseController
 
         $activated_this_month = $this->cardEventRepository->findEvents($month_range, 'activated')->get();
         $activated_last_month = $this->cardEventRepository->findEvents($last_month_range, 'activated')->get();
-        $sum_month_amount = $activated_this_month->filter(fn($event) => GiftCard::find($event->gift_card_id)?->status === "active")
-                            ->sum(fn($event) => GiftCard::find($event->gift_card_id)->face_amount); 
-        $sum_last_month_amount = $activated_last_month->filter(fn($event) => GiftCard::find($event->gift_card_id)?->status === "active")
-                            ->sum(fn($event) => GiftCard::find($event->gift_card_id)->face_amount); 
+        $sum_month_amount = $activated_this_month->sum(fn($event) => GiftCard::find($event->gift_card_id)?->face_amount); 
+        $sum_last_month_amount = $activated_last_month->sum(fn($event) => GiftCard::find($event->gift_card_id)?->face_amount); 
         $sum_today_amount = $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->sum('amount');
         $sum_yesterday_amount = $this->transactionRepository->allQuery()->whereBetween('created_at', $yesterday_range)->sum('amount');
         $sum_month_tr_amount = $this->transactionRepository->allQuery($authorized_search)->whereBetween('created_at', $month_range)->sum('amount');
