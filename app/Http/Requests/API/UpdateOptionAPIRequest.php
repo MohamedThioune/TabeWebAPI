@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\API;
 
-use App\Models\Invoice;
+use App\Models\Option;
 use InfyOm\Generator\Request\APIRequest;
 
-class UpdateInvoiceAPIRequest extends APIRequest
+class UpdateOptionAPIRequest extends APIRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,9 @@ class UpdateInvoiceAPIRequest extends APIRequest
      * @return array
      */
     public function rules()
-    {        
-        return Invoice::rules();
+    {
+        $rules = Option::$rules;
+        
+        return $rules;
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes; 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Helpers\Parameter;
 /**
  * @OA\Schema(
  *      schema="Invoice",
@@ -110,14 +111,17 @@ class Invoice extends Model
         'endpoint' => 'string',
     ];
 
-    public static array $rules = [
-        'type' => 'required|string|in:Achat de carte,Paiement en boutique',
-        'status' => 'required|string|in:pending,completed,failed',
-        'amount' => 'required|integer|min:10000',
-        'receipt_url' => 'nullable|url',
-        'user_id' => 'nullable|exists:users,id',
-        'gift_card_id' => 'required|exists:gift_cards,id',
-    ];
+    public static function rules(): array {
+
+        return [
+            'type' => 'required|string|in:Achat de carte,Paiement en boutique',
+            'status' => 'required|string|in:pending,completed,failed',
+            'amount' => 'required|integer|min:' . Parameter::minAmountCard(),
+            'receipt_url' => 'nullable|url',
+            'user_id' => 'nullable|exists:users,id',
+            'gift_card_id' => 'required|exists:gift_cards,id',
+        ];
+    }
 
     public function gift_card(){
         return $this->belongsTo(GiftCard::class);

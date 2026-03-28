@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Option;
+use App\Observers\OptionObserver;
 use App\Channels\TwilioChannel;
 use Illuminate\Support\ServiceProvider;
 use Notification;
@@ -43,6 +45,9 @@ class AppServiceProvider extends ServiceProvider
 
         //Avoid destructive commands in production
         // DB::prohibitDestructiveCommands(app()->isProduction());
+
+        //Observer for models
+        Option::observe(OptionObserver::class);
     }
 
     //Normalize the phone number

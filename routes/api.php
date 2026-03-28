@@ -124,5 +124,10 @@ Route::group(['middleware' => ['auth:api']], function () {
           Route::get('/admin/stats/cards', [App\Http\Controllers\API\UserAPIController::class, 'statsAdminCards'])->name('users.admin.stats.cards'); //stats of the cards
           Route::get('/admin/stats/activity', [App\Http\Controllers\API\UserAPIController::class, 'statsActivityPartners'])->name('users.admin.stats.activities'); //stats of the partners activity
           Route::get('/admin/stats/partners', [App\Http\Controllers\API\UserAPIController::class, 'statsAdminPartners'])->name('users.admin.stats.partners'); //stats of the partners general
+
+          //Options
+          Route::get('/options', [App\Http\Controllers\API\OptionAPIController::class, 'index'])->name('options.index');
+          Route::patch('/options', [App\Http\Controllers\API\OptionAPIController::class, 'update'])->name('options.update');
+
       });
 });

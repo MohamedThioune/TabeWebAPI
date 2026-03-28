@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\SoftDeletes; 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Helpers\Parameter;
 
 /**
  * @OA\Schema(
@@ -86,11 +87,14 @@ class Transaction extends Model
         'currency' => 'string',
     ];
 
-    public static array $rules = [
-        'status' => 'string|in:authorized,captured,cancelled,refunded,failed',
-        'amount' => 'required|integer|min:10000|max:150000',
-        'gift_card_id' => 'required|string|exists:gift_cards,id',        
-    ];
+    public static function rules()
+    {
+        return [
+            'status' => 'string|in:authorized,captured,cancelled,refunded,failed',
+            'amount' => 'required|integer|between:' . Parameter::minAmountCard() . ',' . Parameter::maxAmountCard(),
+            'gift_card_id' => 'required|string|exists:gift_cards,id',
+        ];
+    }
 
     public static array $rules_confirm = [
         'otp_code' => 'string|min:6|max:6',

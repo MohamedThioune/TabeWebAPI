@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Domain\GiftCards\Events\CardOperated;
 use App\Helpers\TokenHelper;
+use App\Helpers\Parameter;
 use Tuupola\Base62;
+
 
 class CardFullyGenerated
 {
@@ -26,7 +28,7 @@ class CardFullyGenerated
                 belonging_type: $dto['belonging_type'],
                 type: $dto['type'],
                 face_amount: $dto['face_amount'],
-                expired_at: now()->addMonths(3),
+                expired_at: now()->addMonths(Parameter::periodValidityCard()),
                 owner_user_id: $dto['owner_user_id'],
                 beneficiary_id: $dto['beneficiary_id'],
                 design_id: $dto['design_id'],
@@ -41,7 +43,7 @@ class CardFullyGenerated
                 id : $uuid_qr,
                 token: $payload,
                 url: $url,
-                expired_at: now()->addMonths(3),
+                expired_at: now()->addMonths(Parameter::periodValidityCard()),
                 gift_card_id: $card->getId(),
             );
 

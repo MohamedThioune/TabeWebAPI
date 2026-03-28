@@ -30,7 +30,7 @@ class UpdateGiftCardAPIRequest extends APIRequest
      */
     public function rules()
     {
-        $rules = GiftCard::$rules_updated;
+        $rules = GiftCard::rules_updated();
         
         return $rules;
     }

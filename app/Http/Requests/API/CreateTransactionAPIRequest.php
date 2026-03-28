@@ -24,6 +24,6 @@ class CreateTransactionAPIRequest extends APIRequest
      */
     public function rules()
     {
-        return Transaction::$rules;
+        return Transaction::rules();
     }
 }
