@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Helpers\Parameter;
 use App\Helpers\CodeGenerator;
 
 /**
@@ -35,7 +36,7 @@ use App\Helpers\CodeGenerator;
  *       ),
  *      @OA\Property(
  *          property="face_amount",
- *          description="amount of the card between [10000, 150000] ",
+ *          description="amount of the card default value beetween 10000 and 150000",
  *          readOnly=false,
  *          nullable=false,
  *          type="integer",
@@ -118,21 +119,27 @@ class GiftCard extends Model
     protected $hidden = [
     ];
 
-    public static array $rules = [
-        'belonging_type' => 'required|string|in:myself,others',
-        'type' => 'required|string|in:physical,digital',
-        'face_amount' => 'required|integer|between:10000,150000',
-        'design_id' => 'required|integer|exists:designs,id'
-    ];
+    public static function rules() : array
+    { 
+        return [
+            'belonging_type' => 'required|string|in:myself,others',
+            'type' => 'required|string|in:physical,digital',
+            'face_amount' => 'required|integer|between:' . Parameter::minAmountCard() . ',' . Parameter::maxAmountCard(),
+            'design_id' => 'required|integer|exists:designs,id'
+        ];
+    }
 
-    public static array $rules_updated = [
-        'type' => 'string|in:physical,digital',
-        // 'belonging_type' => 'required|string|in:myself,others',
-        'face_amount' => 'integer|between:10000,150000',
-        'design_id' => 'integer|exists:designs,id',
-        'expired_at' => 'date|after:today',
-        'issued_via' => 'string|in:B2C,B2B,Admin'
-    ];
+    public static function rules_updated() : array
+    { 
+        return [
+            'type' => 'string|in:physical,digital',
+            // 'belonging_type' => 'required|string|in:myself,others',
+            'face_amount' => 'integer|between:' . Parameter::minAmountCard() . ',' . Parameter::maxAmountCard(),
+            'design_id' => 'integer|exists:designs,id',
+            'expired_at' => 'date|after:today',
+            'issued_via' => 'string|in:B2C,B2B,Admin'
+        ];
+    }
 
     public static array $rules_listed = [
         'code' => 'string',

@@ -26,7 +26,8 @@ class DatabaseSeeder extends Seeder
             // CustomerSeeder::class,
             // DesignsTableSeeder::class,
             // CategoriesTableSeeder::class,
-            UserCategoriesTableSeeder::class,
+            // UserCategoriesTableSeeder::class,
+            OptionsTableSeeder::class,
         ]);
     }
 }

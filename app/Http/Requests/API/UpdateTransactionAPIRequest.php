@@ -24,7 +24,7 @@ class UpdateTransactionAPIRequest extends APIRequest
      */
     public function rules()
     {
-        $rules = Transaction::$rules;
+        $rules = Transaction::rules();
         
         return $rules;
     }

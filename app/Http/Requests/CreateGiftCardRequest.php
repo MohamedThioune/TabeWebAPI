@@ -24,6 +24,6 @@ class CreateGiftCardRequest extends FormRequest
      */
     public function rules()
     {
-        return GiftCard::$rules;
+        return GiftCard::rules();
     }
 }

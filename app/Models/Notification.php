@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
 /**
  * @OA\Schema(
  *      schema="Notification",
@@ -83,6 +82,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * )
  * @method static where(string $string, mixed $id)
  */
+
 //transaction, card, profile, maintenance
 //Important, Urgent, Info
 class Notification extends Model

@@ -24,6 +24,6 @@ class CreateGiftCardAPIRequest extends APIRequest
      */
     public function rules()
     {
-        return GiftCard::$rules;
+        return GiftCard::rules();
     }
 }

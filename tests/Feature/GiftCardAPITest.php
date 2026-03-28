@@ -93,7 +93,7 @@ class GiftCardAPITest extends TestCase
         $data = [
             'belonging_type' => "others",
             'type' => fake()->randomElement(['physical', 'digital']),  
-            'face_amount' => fake()->numberBetween(10000, 150000),
+            'face_amount' => fake()->numberBetween(config('parameter.card.min_amount'), config('parameter.card.max_amount')),
             'full_name' => fake()->name(),
             'phone' => fake()->unique()->phoneNumber(),
             'design_id' => fake()->randomElement(Design::pluck('id')),
@@ -151,7 +151,7 @@ class GiftCardAPITest extends TestCase
         $data = [
             'belonging_type' => "myself",
             'type' => fake()->randomElement(['physical', 'digital']),  
-            'face_amount' => fake()->numberBetween(10000, 150000),
+            'face_amount' => fake()->numberBetween(config('parameter.card.min_amount'), config('parameter.card.max_amount')),
             'design_id' => fake()->randomElement(Design::pluck('id')),
         ];
 

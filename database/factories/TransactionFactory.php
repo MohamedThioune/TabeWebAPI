@@ -27,7 +27,7 @@ class TransactionFactory extends Factory
         return [
             'id' => $this->faker->uuid(),
             'status' => $this->faker->randomElement(['authorized', 'completed', 'cancelled', 'failed']),
-            'amount' => $this->faker->numberBetween(10000, 150000),
+            'amount' => $this->faker->numberBetween(config('parameter.card.min_amount'), config('parameter.card.max_amount')),
             'currency' => 'FCFA',
             'user_id' => $this->faker->randomElement(User::pluck('id')),
             'gift_card_id' => $this->faker->randomElement(GiftCard::pluck('id')),

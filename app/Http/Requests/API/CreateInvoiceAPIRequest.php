@@ -24,6 +24,6 @@ class CreateInvoiceAPIRequest extends APIRequest
      */
     public function rules()
     {
-        return Invoice::$rules;
+        return Invoice::rules();
     }
 }
