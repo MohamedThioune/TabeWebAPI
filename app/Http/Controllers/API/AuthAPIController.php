@@ -103,26 +103,26 @@ class AuthAPIController extends Controller
      */
     public function register(UserRequest $request): JsonResponse
     {
-       $dto = array();
-       $type = $request->get("type");
-       if($type == "admin"){
+        $dto = array();
+        $type = $request->get("type");
+        if($type == "admin"){
            return $this->error("You cannot create admin by yourself !", 403);
-       }
+        }
 
-       match ($type) {
+        match ($type) {
             Type::Customer->value   => app(CustomerAPIRequest::class)->validated(),
             Type::Enterprise->value => app(EnterpriseAPIRequest::class)->validated(),
             Type::Partner->value    => app(PartnerAPIRequest::class)->validated(),
-       };
+        };
 
-       $dto = $request->only("type", "first_name", "last_name", "gender", "email", "phone", "whatsApp", "password", "name");
-       $model = $this->registerUser->execute($dto);
+        $dto = $request->only("type", "first_name", "last_name", "gender", "email", "phone", "whatsApp", "password", "name", "sector");
+        $model = $this->registerUser->execute($dto);
 
-       if(!$model instanceof User){
+        if(!$model instanceof User){
           return $this->error("something went wrong, check your data(ex : whatsapp and phone must be unique and in format) !", 403);
-       }
+        }
 
-       $user = new UserResource($model);
+        $user = new UserResource($model);
         //Request OTP
         $input = [
             "purpose" => "login",

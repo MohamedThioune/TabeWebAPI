@@ -34,6 +34,7 @@ class PartnerRepository extends BaseRepository
         $model = Partner::create([
             'id' => $user->getPartnerId(),
             'name' => $user->getName(),
+            'sector' => $user->getSector(),
             'user_id' => $user->getId(),
         ]);
 

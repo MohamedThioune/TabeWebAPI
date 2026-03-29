@@ -21,10 +21,11 @@ class User
     //Partner & Enterprise
     private string $partnerId;
     private ?string $name;
+    private ?string $sector;
     private string $enterpriseId;
 
 
-    public function __construct(string $id, string $type, ?string $firstName, ?string $lastName, ?string $gender, Phone $phone, Phone $whatsApp, string $email, string $passwordHash, ?string $name, ?string $customerId, ?string $partnerId, ?string $enterpriseId)
+    public function __construct(string $id, string $type, ?string $firstName, ?string $lastName, ?string $gender, Phone $phone, Phone $whatsApp, string $email, string $passwordHash, ?string $name, ?string $sector, ?string $customerId, ?string $partnerId, ?string $enterpriseId)
     {
        $this->firstName = $firstName;
        $this->lastName = $lastName;
@@ -36,6 +37,7 @@ class User
        $this->type = $type;
        $this->id = $id;
        $this->name = $name;
+       $this->sector = $sector;
 
        $this->customerId = $customerId;
        $this->partnerId = $partnerId;
@@ -88,6 +90,11 @@ class User
     public function getName(): ?string
     {
         return $this->name;
+    }
+
+    public function getSector(): ?string
+    {
+        return $this->sector;
     }
 
     public function getEmail(): ?string
