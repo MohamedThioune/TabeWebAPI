@@ -39,6 +39,7 @@ class RegisterUser
                 email: $dto['email'],
                 passwordHash: Hash::make($dto['password']),
                 name: !isset($dto['name']) ? null : $dto['name'],
+                sector: !isset($dto['sector']) ? null : $dto['sector'],
                 customerId: Str::uuid()->toString(),
                 partnerId: Str::uuid()->toString(),
                 enterpriseId: Str::uuid()->toString()
