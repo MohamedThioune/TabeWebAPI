@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Option;
+use App\Models\Payout;
 use App\Observers\OptionObserver;
+use App\Observers\PayoutObserver;
 use App\Channels\TwilioChannel;
 use Illuminate\Support\ServiceProvider;
 use Notification;
@@ -48,6 +50,8 @@ class AppServiceProvider extends ServiceProvider
 
         //Observer for models
         Option::observe(OptionObserver::class);
+        Payout::observe(PayoutObserver::class);
+
     }
 
     //Normalize the phone number

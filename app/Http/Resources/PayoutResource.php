@@ -15,9 +15,15 @@ class PayoutResource extends JsonResource
      */
     public function toArray($request)
     {
+        //Transactions
         $show_transactions = (bool)$request->get('show_transactions');
         $transactions = TransactionResource::collection($this->whenLoaded('transactions'));
         $total_transactions = ($this->resource->transactions()) ? $this->resource->transactions()->count() : 0;
+
+        //Timeline
+        $show_timeline = (bool)$request->get('show_timeline');
+        $timeline = $this->resource->timeline();
+
         //Context admin
         $context_admin = $request->user()?->can('seeSensitiveData');
         return [
@@ -28,9 +34,10 @@ class PayoutResource extends JsonResource
             'fees' => $this->fees,
             'currency' => $this->currency,
             'status' => $this->status,
-            'transactions' => $this->when($show_transactions, TransactionResource::collection($this->whenLoaded('transactions'))),
-            'total_transactions' => $total_transactions,
+            'transactions' => $this->when($show_transactions && $context_admin, TransactionResource::collection($this->whenLoaded('transactions'))),
+            'total_transactions' => $this->when($context_admin, $total_transactions),
             'user' => $this->when($context_admin, new UserResource($this->resource->user)),
+            'timeline' => $this->when($show_timeline && $context_admin, $timeline),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
