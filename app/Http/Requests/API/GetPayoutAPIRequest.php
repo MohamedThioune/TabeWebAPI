@@ -18,7 +18,7 @@ class GetPayoutAPIRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         // Keep only the fields wanted
-        $this->replace($this->only(['status', 'filter_by_date', 'skip', 'limit', 'per_page', 'page']));
+        $this->replace($this->only(['status', 'filter_by_date', 'skip', 'limit', 'per_page', 'page', 'show_transactions', 'show_timeline']));
     }
 
     /**

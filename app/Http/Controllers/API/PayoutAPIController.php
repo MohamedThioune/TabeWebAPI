@@ -390,16 +390,16 @@ class PayoutAPIController extends AppBaseController
      *          )
      *      )
      * )
-     */
+    */
     public function request(CreatePayoutAPIRequest $request): JsonResponse
     {
         $user = $request->user();
         
         //Check if another payout is already in progress
-        // $existing_payout = $this->payoutRepo->getPayoutInProgressByUser($user->id); 
-        // if ($existing_payout->exists()) {
-        //     return $this->sendError('Another payout is already in progress...');
-        // }
+        $existing_payout = $this->payoutRepo->getPayoutInProgressByUser($user->id); 
+        if ($existing_payout->exists()) {
+            return $this->sendError('Another payout is already in progress...');
+        }
 
         //Get captured transactions (not yet refunded) for the user
         $query_transactions = $this->transactionRepo->getCapturedTransactionsByUser($user->id);
