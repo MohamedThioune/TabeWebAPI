@@ -76,12 +76,12 @@ class Payout
         try{
             // Submit payout refund
             $submitResponse = $this->gateway->submit_refund(
-                disburse_token: $payout->reference_number,
+                disburse_token: $payout?->reference_number,
                 disburse_id: null
             );  
 
             if(!$submitResponse || !$submitResponse->response_text || $submitResponse->response_text != self::SUCCESS_TEXT):
-                Log::error('Payout submit failed : ' . $submitResponse);
+                Log::error('Payout submit failed : ', (array)$submitResponse);
                 return null;
             endif;
 
@@ -147,7 +147,6 @@ class Payout
         //     Log::error('Error logging payment response: ' . $e->getMessage());
         // }
     
-
         return (Object)['reference' => $reference, 'transaction' => $submitResponse->transaction_id, 'status' => $submitResponse->response_text];
     }
 }

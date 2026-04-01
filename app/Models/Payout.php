@@ -150,6 +150,31 @@ class Payout extends Model
     {
         return $this->hasManyThrough(Transaction::class, PayoutLine::class, 'payout_id', 'id', 'id', 'transaction_id');
     }
+
+    public function previous()
+    {
+        return $this->hasOne(self::class, 'next_payout_id');
+    }
+
+    public function timeline()
+    {
+        $timeline = collect();
+        $current = $this;
+        $visited = [];
+
+        while ($current->previous) {
+            $current = $current->previous;
+
+            $timeline->push([
+                'id' => $current->id,
+                'status' => $current->status,
+                'created_at' => $current->created_at,
+            ]);
+        }
+
+        return $timeline;
+    }
+    
     
 }
 

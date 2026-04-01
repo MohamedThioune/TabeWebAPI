@@ -29,6 +29,17 @@ class PayoutRepository extends BaseRepository
         return Payout::class;
     }
 
+    /*
+    * @Override allQuery method 
+    */
+    public function allQuery(array $search = [], int $skip = null, int $limit = null): Builder
+    {
+        $query = Parent::allQuery($search, $skip, $limit);
+        $query->whereNull('next_payout_id');
+
+        return $query;
+    }
+
     public function getPayoutInProgressByUser(string $userId = null): ?Builder
     {
         $query = $this->model::query();
@@ -59,5 +70,11 @@ class PayoutRepository extends BaseRepository
         return $query->when($userId, function (Builder $q) use ($userId) {
             $q->where('user_id', $userId);
         })->where('status', 'failed');
+    }
+
+    public function getTimeline(string $payoutId): ?Builder
+    {
+        $payout = $this->find($payoutId);
+        return $payout->timeline();
     }
 }
