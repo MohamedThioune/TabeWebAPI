@@ -123,8 +123,8 @@ class PaydunyaGateway implements PaymentGateway
 
     }
 
-    public function quick_pay(int $amount,string $recipient_email, GiftCard $gift_card, string $recipient_phone = null,  int $support_fees = 1, int $send_notification = 0)
-    {
+    public function quick_pay(int $amount, string $recipient_email, GiftCard $gift_card, string $recipient_phone = null,  int $support_fees = 1, int $send_notification = 0)
+    {       
         $endpoint = $this->url . '/dmp-api';
 
         $payload = [
@@ -161,7 +161,7 @@ class PaydunyaGateway implements PaymentGateway
         return PaymentResponseDTO::fromArray($response->json());
     }
 
-    public function status_pay(string $reference_number, string $type_endpoint)
+    public function status_pay(string $reference_number, ?string $type_endpoint = null)
     {
         $payload = [
             'reference_number' => (int)$reference_number,

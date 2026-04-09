@@ -27,6 +27,7 @@ class GiftCardRepository extends BaseRepository
     public array $statuses = [
         'pending',
         'active',
+        'inactive',
         'used',
         'expired'    
     ];
@@ -35,6 +36,12 @@ class GiftCardRepository extends BaseRepository
         'active',
         'used',
         'expired'    
+    ];
+
+    public array $other_statuses = [
+        'used', 
+        'pending', 
+        'inactive'
     ];
 
     public function getFieldsSearchable(): array
@@ -61,12 +68,13 @@ class GiftCardRepository extends BaseRepository
     {
         $query = $user->gift_cards();
         $query->when(!$status, fn($query) => $query->whereIn('status', $this->statuses));
-        $query->when($status, fn($query) => $query->where('status', $status));
+        $query->when($status && $status === "expired", fn($query) => $query->where('expired_at', '<=', now())->whereNotIn('status', $this->other_statuses));
+        $query->when($status && $status !== "expired", fn($query) => $query->where('status', $status));
 
         return $query->count();
     }
 
-    // total available cards amount, total cards amount
+    // total cards amount
     public function countQueryAmount(?string $status, User $user): int //status:active or null
     {
         $query = $user->gift_cards();
@@ -82,8 +90,6 @@ class GiftCardRepository extends BaseRepository
         $query = $user->gift_cards();
         $query->where('status', 'used')
             ->whereMonth('updated_at', date('m'));
-
-        // dd($query->toSql());
 
         return $query->count();
     }

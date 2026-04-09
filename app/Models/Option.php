@@ -80,7 +80,7 @@ class Option extends Model
     ];
 
     public static array $rules = [
-        'min_amount_card' => 'integer|min:1000|max:100000',
+        'min_amount_card' => 'integer|min:200|max:100000',
         'max_amount_card' => 'integer|min:100000|max:1000000',
         'period_validity_card' => 'integer|min:1|max:12'
     ];
