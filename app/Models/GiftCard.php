@@ -211,7 +211,7 @@ class GiftCard extends Model
     {
         return $this->hasMany(Invoice::class);
     }
-    public function latest_invoice(string $endpoint)
+    public function latest_invoice(string $endpoint = "dmp")
     {
         return $this->hasMany(Invoice::class)->where('endpoint', $endpoint)->where('type', 'Achat de carte')->latest('created_at')->first();
     }

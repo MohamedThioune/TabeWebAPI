@@ -63,7 +63,7 @@ class PaydunyaController extends AppBaseController
 
     /**
      * @OA\Post(
-     *      path="/verify/{giftCard}",
+     *      path="/paydunya/verify/{giftCard}",
      *      summary="VerifyPayment",
      *      tags={"Payment"},
      *      description="Verify status of payment",
@@ -111,10 +111,9 @@ class PaydunyaController extends AppBaseController
      */
     public function verify(GiftCard $giftCard, Request $request){
         $user = $request->user();
-        $type_endpoint = $request->get('endpoint', 'checkout');
         if($giftCard->status != 'pending')
             return $this->sendError("This gift card is not pending !", 401);
-        $data = $this->checkStatus->execute($giftCard, $type_endpoint);
+        $data = $this->checkStatus->execute($giftCard);
         $status = $data->status ?? null;
         $message = "Status : {$status}";
 
@@ -125,10 +124,10 @@ class PaydunyaController extends AppBaseController
 
         try{
             DB::beginTransaction();
-            if(!hash_equals($data->hash, hash('sha512', config("services.paydunya.masterKey")) )){
-                return $this->sendError('Invalid signature provider');
-            }
-            if(!$status || $status !== PayDunyaStatus::Pending->value){
+            // if(!hash_equals($data->hash, hash('sha512', config("services.paydunya.masterKey")) )){
+            //     return $this->sendError('Invalid signature provider');
+            // }
+            if(!$status || $status !== PayDunyaStatus::Completed->value){
                 Log::error($data->fail_reason ?? null);
                 return $this->sendError($data->fail_reason ?? $message);
             }

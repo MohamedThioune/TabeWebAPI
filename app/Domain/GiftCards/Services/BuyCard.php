@@ -20,25 +20,30 @@ class BuyCard
             return null;
 
         $description = "Achat d'une carte d'un montant de {$amount}";
-        $response = tap($this->gateway->charge($amount, $description, $gift_card),
-            function ($response) {
+        // $response = tap($this->gateway->charge($amount, $description, $gift_card),
+        //     function ($response) {
+        //         Log::info('Response DTO', (array)$response);
+        //     });
+            
+        $response = tap($this->gateway->quick_pay($amount, $user->email, $gift_card),
+                function ($response) {
                 Log::info('Response DTO', (array)$response);
             });
 
-        //$reponse->url !null
-        if(!$response || !$response->response_text)
+        // if(!$response || !$response->response_text)
+        if(!$response?->url)
             return null;
 
         $reference = $response->reference_number ?: $response->token;
         try {
             // Register the invoice
             $user->invoices()->create([
-                'id' => Str::uuid()->toString(),
+                'id' => Str::uuid()->toString(), 
                 'type' => 'Achat de carte',
                 'amount' => $amount,
                 'reference_number' => $reference,
                 'status' => $response->status ?: 'pending',
-                'endpoint' => 'checkout',
+                'endpoint' => 'dmp',
                 'gift_card_id' => $gift_card->id
             ]);
 
@@ -46,6 +51,7 @@ class BuyCard
             Log::error('Error logging payment response: ' . $e->getMessage());
         }
        
-        return (Object)['reference' => $reference, 'url' => $response->response_text];
+        // return (Object)['reference' => $reference, 'url' => $response->response_text];
+        return (Object)['reference' => $reference, 'url' => $response->url];
     }
 }

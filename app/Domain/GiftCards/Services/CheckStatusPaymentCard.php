@@ -10,15 +10,15 @@ class CheckStatusPaymentCard
 {
     public function __construct(private PaymentGateway $gateway){}
 
-    public function execute(GiftCard $gift_card, String $endpoint = "checkout") : mixed
+    public function execute(GiftCard $gift_card, ?String $endpoint = null) : mixed
     {
-        $invoice = $gift_card->latest_invoice($endpoint);
+        $invoice = $gift_card->latest_invoice();
         $reference_number = $invoice?->reference_number ?: null;
 
         if(!$reference_number)
             return null;
 
-        $response = tap($this->gateway->status_pay($reference_number, $endpoint),
+        $response = tap($this->gateway->status_pay($reference_number),
             function ($response) {
                 Log::info('Response DTO', (array)$response);
             });
