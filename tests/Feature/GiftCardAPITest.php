@@ -102,11 +102,11 @@ class GiftCardAPITest extends TestCase
         //mock paydunya call
         $reference_number = fake()->regexify('^[A-Za-z0-9]{10}$');
         $this->mock(PaymentGateway::class, function ($mock) use ($reference_number) {
-            $mock->shouldReceive('charge')
+            $mock->shouldReceive('quick_pay')
                 ->once()
                 ->andReturn((object)[
-                    'reference_number' => 'test_' . $reference_number,
-                    'response_text' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
+                    'reference_number' => $reference_number,
+                    'url' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
                     'status' => 'pending',
                 ]);
         });
@@ -119,7 +119,7 @@ class GiftCardAPITest extends TestCase
         //assert database insertion
         $this->assertDatabaseHas('invoices', [
             'type' => 'Achat de carte',
-            'reference_number' => 'test_' . $reference_number,
+            'reference_number' => $reference_number,
             'amount' => $data['face_amount'],
         ]);
 
@@ -158,14 +158,15 @@ class GiftCardAPITest extends TestCase
         //mock paydunya call
         $reference_number = fake()->regexify('^[A-Za-z0-9]{10}$');
         $this->mock(PaymentGateway::class, function ($mock) use ($reference_number) {
-            $mock->shouldReceive('charge')
+            $mock->shouldReceive('quick_pay')
                 ->once()
                 ->andReturn((object)[
-                    'reference_number' => 'test_' . $reference_number,
-                    'response_text' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
+                    'reference_number' => $reference_number,
+                    'url' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
                     'status' => 'pending',
                 ]);
         });
+
         $this->response = $this->json(
             'POST',
             '/api/gift-cards', $data, $headers
@@ -174,7 +175,7 @@ class GiftCardAPITest extends TestCase
         //assert database insertion
         $this->assertDatabaseHas('invoices', [
             'type' => 'Achat de carte',
-            'reference_number' => 'test_' . $reference_number,
+            'reference_number' => $reference_number,
             'amount' => $data['face_amount'],
         ]);
 
