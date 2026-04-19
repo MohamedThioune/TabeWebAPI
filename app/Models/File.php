@@ -98,7 +98,7 @@ class File extends Model
             'file' => [
                 'required',
                 'file',
-                'max:5000', // 5 MB max
+                'max:10000', // 10 MB max
                 function ($attribute, $value, $fail) {
                     $forbidden = ['exe', 'php', 'sh'];
                     $extension = strtolower($value->getClientOriginalExtension());

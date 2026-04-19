@@ -20,7 +20,7 @@ class UpdateGiftCardAPIRequest extends APIRequest
     public function prepareForValidation()
     {
         // Keep only the fields wanted
-        $this->replace($this->only(['type', 'face_amount', 'expired_at', 'issued_via', 'design_id']));
+        $this->replace($this->only(['type', 'expired_at', 'issued_via', 'design_id']));
     }
 
     /**

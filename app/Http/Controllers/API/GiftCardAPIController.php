@@ -543,7 +543,7 @@ class GiftCardAPIController extends AppBaseController
         }
         catch(\Exception $e){
             Log::error("Error updating gift card : " . $e->getMessage());
-            return $this->sendError('Error occured, Please note that it is impossible to update the expiration date of an active,used gift card.', 403);
+            return $this->sendError('Error occured, Please note that it is impossible to update the expiration date of an used gift card.', 403);
         }
 
         return $this->sendResponse(new GiftCardResource($giftCard), 'GiftCard updated successfully !');

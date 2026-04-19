@@ -134,7 +134,7 @@ class GiftCard extends Model
         return [
             'type' => 'string|in:physical,digital',
             // 'belonging_type' => 'required|string|in:myself,others',
-            'face_amount' => 'integer|between:' . Parameter::minAmountCard() . ',' . Parameter::maxAmountCard(),
+            // 'face_amount' => 'integer|between:' . Parameter::minAmountCard() . ',' . Parameter::maxAmountCard(),
             'design_id' => 'integer|exists:designs,id',
             'expired_at' => 'date|after:today',
             'issued_via' => 'string|in:B2C,B2B,Admin'
