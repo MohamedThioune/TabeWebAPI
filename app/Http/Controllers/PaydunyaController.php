@@ -19,24 +19,26 @@ class PaydunyaController extends AppBaseController
     {
         // Change the status card to active
         $gift_card = tap(GiftCard::find($data->custom_data['gift_card_id']), function($gift_card) {
+            if($gift_card->status !== 'pending')
+                return NULL;
+
             $gift_card->status = "active";
             $gift_card->save();
         });
 
         // Find & update the status invoice to completed
-        $invoice = tap($gift_card->latest_invoice($type_endpoint),
-            function($invoice) use ($data) {
-                $invoice->status = PayDunyaStatus::Completed->value;
-                $invoice->receipt_url = $data->receipt_url;
-                $invoice->updated_at = now();
-                $invoice->save();
+        $invoice = tap($gift_card->latest_invoice($type_endpoint), function($invoice) use ($data) {
+            $invoice->status = PayDunyaStatus::Completed->value;
+            $invoice->receipt_url = $data->receipt_url;
+            $invoice->updated_at = now();
+            $invoice->save();
         });
 
     }
 
     public function ipn_handle(Request $request){
         $input = tap($request->all(), function($input) {
-            Log::info('PaydunyaIPN::handle', $input);
+            Log::info('PaydunyaIPN::handle', (array)$input);
         });
 
         $data = $input['data'] ?? null;
@@ -45,7 +47,7 @@ class PaydunyaController extends AppBaseController
             DB::beginTransaction();
             if(!hash_equals(hash('sha512', config("services.paydunya.masterKey")), $data['hash'])):
                 if($data['status'] !== PayDunyaStatus::Completed->value){
-                    $this->success_pay($data, 'checkout');
+                    $this->success_pay($data, 'dmp');
                     DB::commit();
                 }
             else
@@ -114,6 +116,7 @@ class PaydunyaController extends AppBaseController
         if($giftCard->status != 'pending')
             return $this->sendError("This gift card is not pending !", 401);
         $data = $this->checkStatus->execute($giftCard);
+
         $status = $data->status ?? null;
         $message = "Status : {$status}";
 
@@ -122,22 +125,20 @@ class PaydunyaController extends AppBaseController
         if(!$hasCard)
             return $this->sendError('Invalid authorization !', 401);
 
-        try{
+        // try{
             DB::beginTransaction();
-            // if(!hash_equals($data->hash, hash('sha512', config("services.paydunya.masterKey")) )){
-            //     return $this->sendError('Invalid signature provider');
-            // }
             if(!$status || $status !== PayDunyaStatus::Completed->value){
                 Log::error($data->fail_reason ?? null);
                 return $this->sendError($data->fail_reason ?? $message);
             }
-            $this->success_pay($data, $type_endpoint);
+            $data->custom_data['gift_card_id'] = $giftCard->id;
+            $this->success_pay($data, 'dmp');
             DB::commit();
 
-        }catch (\Exception $exception){
-            Log::error('Failed IPN :', (array)$exception);
-            DB::rollBack();
-        }
+        // }catch (\Exception $exception){
+            // Log::error('Failed IPN :', (array)$exception);
+            // DB::rollBack();
+        // }
 
         return $this->sendSuccess("{$message}, payment processed successfully !");
     }
