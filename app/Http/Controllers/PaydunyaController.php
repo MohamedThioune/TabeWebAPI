@@ -125,20 +125,14 @@ class PaydunyaController extends AppBaseController
         if(!$hasCard)
             return $this->sendError('Invalid authorization !', 401);
 
-        // try{
-            DB::beginTransaction();
-            if(!$status || $status !== PayDunyaStatus::Completed->value){
-                Log::error($data->fail_reason ?? null);
-                return $this->sendError($data->fail_reason ?? $message);
-            }
-            $data->custom_data['gift_card_id'] = $giftCard->id;
-            $this->success_pay($data, 'dmp');
-            DB::commit();
-
-        // }catch (\Exception $exception){
-            // Log::error('Failed IPN :', (array)$exception);
-            // DB::rollBack();
-        // }
+        DB::beginTransaction();
+        if(!$status || $status !== PayDunyaStatus::Completed->value){
+            Log::error($data->fail_reason ?? null);
+            return $this->sendError($data->fail_reason ?? $message);
+        }
+        $data->custom_data['gift_card_id'] = $giftCard->id;
+        $this->success_pay($data, 'dmp');
+        DB::commit();
 
         return $this->sendSuccess("{$message}, payment processed successfully !");
     }

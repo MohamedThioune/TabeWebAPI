@@ -26,7 +26,7 @@ class GiftCardRepository extends BaseRepository
     ];
 
     public array $statuses = [
-        'pending',
+        // 'pending',
         'active',
         'inactive',
         'used',
@@ -63,11 +63,13 @@ class GiftCardRepository extends BaseRepository
         $query = parent::allQuery($search, $skip, $limit);
 
         $query->when(!$status, fn($query) => $query->whereIn('status', $this->statuses));
-        $query->when($status && $status === "active", fn($query) => $query->where('status', $status)->where('expired_at', '>', now()));
-        $query->when($status && $status !== "active", fn($query) => $query->where('status', $status));
+        $query->when($status === "active", fn($query) => $query->where('status', $status)->where('expired_at', '>', now()));
+        $query->when($status === "expired", fn($query) => $query->where('status', "active")->orWhere('status', $status)->where('expired_at', '>', now()));
+        $query->when(in_array($status, $this->other_statuses), fn($query) => $query->where('status', $status));
 
         // var_dump($query->toSql());
         // die();
+
         return $query;
     }
 
@@ -76,8 +78,12 @@ class GiftCardRepository extends BaseRepository
     {
         $query = $user->gift_cards();
         $query->when(!$status, fn($query) => $query->whereIn('status', $this->statuses));
-        $query->when($status && $status === "active", fn($query) => $query->where('status', $status)->where('expired_at', '>', now()));
-        $query->when($status && $status !== "active", fn($query) => $query->where('status', $status));
+        $query->when($status === "active", fn($query) => $query->where('status', $status)->where('expired_at', '>', now()));
+        $query->when($status === "expired", fn($query) => $query->where('status', "active")->orWhere('status', $status)->where('expired_at', '>', now()));
+        $query->when(in_array($status, $this->other_statuses), fn($query) => $query->where('status', $status));
+        
+        // var_dump($query->toSql());
+        // die();
 
         return $query->count();
     }
