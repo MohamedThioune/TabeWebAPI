@@ -41,7 +41,9 @@ class PaydunyaController extends AppBaseController
             Log::info('PaydunyaIPN::handle', (array)$input);
         });
 
+        $data = is_string($data) ? json_decode($data) : $data;
         $data = $input['data'] ?? null;
+        $data = !is_array($data) ? array($data) : $data;
 
         try{
             DB::beginTransaction();
