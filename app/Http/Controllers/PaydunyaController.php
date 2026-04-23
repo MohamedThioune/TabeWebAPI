@@ -44,7 +44,7 @@ class PaydunyaController extends AppBaseController
         $data = is_string($data) ? json_decode($data) : $data;
         $data = $input['data'] ?? null;
         $data = !is_array($data) ? array($data) : $data;
-
+ 
         try{
             DB::beginTransaction();
             if(!hash_equals(hash('sha512', config("services.paydunya.masterKey")), $data['hash'])):
