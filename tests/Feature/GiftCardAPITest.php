@@ -161,8 +161,8 @@ class GiftCardAPITest extends TestCase
             $mock->shouldReceive('quick_pay')
                 ->once()
                 ->andReturn((object)[
-                    'reference_number' => $reference_number,
-                    'url' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
+                    'reference_number' => 'test_' . $reference_number,
+                    'url' => 'https://paydunya.com/sandbox-checkout/invoice/test_'. $reference_number,
                     'status' => 'pending',
                 ]);
         });
