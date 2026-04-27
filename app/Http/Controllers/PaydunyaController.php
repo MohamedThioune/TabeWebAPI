@@ -18,7 +18,7 @@ class PaydunyaController extends AppBaseController
     public function success_pay(mixed $data, string $type_endpoint): void
     {
         // Change the status card to active
-        $gift_card = tap(GiftCard::find($data->custom_data['gift_card_id']), function($gift_card) {
+        $gift_card = tap(GiftCard::find($data['custom_data']['gift_card_id']), function($gift_card) {
             if($gift_card->status !== 'pending')
                 return NULL;
 
@@ -29,7 +29,7 @@ class PaydunyaController extends AppBaseController
         // Find & update the status invoice to completed
         $invoice = tap($gift_card->latest_invoice($type_endpoint), function($invoice) use ($data) {
             $invoice->status = PayDunyaStatus::Completed->value;
-            $invoice->receipt_url = $data->receipt_url;
+            $invoice->receipt_url = $data['receipt_url'];
             $invoice->updated_at = now();
             $invoice->save();
         });
@@ -41,21 +41,21 @@ class PaydunyaController extends AppBaseController
             Log::info('PaydunyaIPN::handle', (array)$input);
         });
 
-        $data = is_string($input) ? json_decode($input) : $input;
         $data = $input['data'] ?? null;
         $data = !is_array($data) ? array($data) : $data;
  
         try {
             DB::beginTransaction();
-            if(!hash_equals(hash('sha512', config("services.paydunya.masterKey")), $data['hash'])):
-                if($data['status'] !== PayDunyaStatus::Completed->value){
+            if(hash_equals(hash('sha512', config("services.paydunya.masterKey")), $data['hash']))
+                if($data['status'] === PayDunyaStatus::Completed->value){
                     $this->success_pay($data, 'checkout');
                     DB::commit();
                 }
-            else
+            else{
                 Log::error('Invalid signature provider');
-            endif;
-
+                var_dump('error', $data);
+                DB::rollBack();
+            }
         } catch (\Exception $exception){
             Log::error('Failed IPN :', (array)$exception);
             DB::rollBack();

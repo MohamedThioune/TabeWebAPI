@@ -49,11 +49,11 @@ class PaydunyaGateway implements PaymentGateway
             ->post($url, $payload);
 
         //Log the api request
-        Log::info('PayDunya request', [
-            'endpoint' => $url,
-            'headers' => $headers,
-            'payload' => $payload,
-        ]);
+        // Log::info('PayDunya request', [
+        //     'endpoint' => $url,
+        //     'headers' => $headers,
+        //     'payload' => $payload,
+        // ]);
 
         $response->throw(); // launch exception if 4xx/5xx
 
@@ -69,10 +69,10 @@ class PaydunyaGateway implements PaymentGateway
             ->get($url, $query);
 
         //Log the api request
-        Log::info('PayDunya request', [
-            'endpoint' => $url,
-            'headers' => $headers,
-        ]);
+        // Log::info('PayDunya request', [
+        //     'endpoint' => $url,
+        //     'headers' => $headers,
+        // ]);
 
         $response->throw(); // launch exception if 4xx/5xx
 
