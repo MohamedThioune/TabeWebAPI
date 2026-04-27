@@ -100,15 +100,23 @@ class GiftCardAPITest extends TestCase
         ];
 
         //mock paydunya call
+         //mock paydunya call
         $reference_number = fake()->regexify('^[A-Za-z0-9]{10}$');
         $this->mock(PaymentGateway::class, function ($mock) use ($reference_number) {
-            $mock->shouldReceive('quick_pay')
-                ->once()
-                ->andReturn((object)[
-                    'reference_number' => $reference_number,
-                    'url' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
-                    'status' => 'pending',
-                ]);
+            $mock->shouldReceive('charge')
+            ->once()
+            ->andReturn((object)[
+                'reference_number' => $reference_number,
+                'response_text' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
+                'status' => 'completed',
+            ]);
+            // $mock->shouldReceive('quick_pay')
+            //     ->once()
+            //     ->andReturn((object)[
+            //         'reference_number' => $reference_number,
+            //         'url' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
+            //         'status' => 'pending',
+            //     ]);
         });
 
         $this->response = $this->json(
@@ -119,10 +127,10 @@ class GiftCardAPITest extends TestCase
         //assert database insertion
         $this->assertDatabaseHas('invoices', [
             'type' => 'Achat de carte',
+            // 'reference_number' => $reference_number,
             'reference_number' => $reference_number,
             'amount' => $data['face_amount'],
         ]);
-
         //assert status(200) & the response data matches the correct structure
         $this->response
             ->assertStatus(200)
@@ -158,13 +166,20 @@ class GiftCardAPITest extends TestCase
         //mock paydunya call
         $reference_number = fake()->regexify('^[A-Za-z0-9]{10}$');
         $this->mock(PaymentGateway::class, function ($mock) use ($reference_number) {
-            $mock->shouldReceive('quick_pay')
-                ->once()
-                ->andReturn((object)[
-                    'reference_number' => 'test_' . $reference_number,
-                    'url' => 'https://paydunya.com/sandbox-checkout/invoice/test_'. $reference_number,
-                    'status' => 'pending',
-                ]);
+            $mock->shouldReceive('charge')
+            ->once()
+            ->andReturn((object)[
+                'reference_number' => $reference_number,
+                'response_text' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
+                'status' => 'completed',
+            ]);
+            // $mock->shouldReceive('quick_pay')
+            //     ->once()
+            //     ->andReturn((object)[
+            //         'reference_number' => $reference_number,
+            //         'url' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
+            //         'status' => 'pending',
+            //     ]);
         });
 
         $this->response = $this->json(
@@ -175,6 +190,7 @@ class GiftCardAPITest extends TestCase
         //assert database insertion
         $this->assertDatabaseHas('invoices', [
             'type' => 'Achat de carte',
+            // 'reference_number' => $reference_number,
             'reference_number' => $reference_number,
             'amount' => $data['face_amount'],
         ]);
