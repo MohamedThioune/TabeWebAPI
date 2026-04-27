@@ -81,7 +81,6 @@ class PaydunyaGateway implements PaymentGateway
 
     public function charge(int $amount, string $description, GiftCard $gift_card , array $customer = []) : ?PaymentResponseDTO
     {
-        // $this->url = config('services.paydunya.urlSandBox');
         $endpoint = $this->url . '/checkout-invoice/create';
 
         $payload = [
@@ -161,13 +160,11 @@ class PaydunyaGateway implements PaymentGateway
         return PaymentResponseDTO::fromArray($response->json());
     }
 
-    public function status_pay(string $reference_number, ?string $type_endpoint = null)
+    public function status_pay(string $reference_number, ?string $type_endpoint = "checkout")
     {
         $payload = [
-            'reference_number' => (int)$reference_number,
+            'reference_number' => $reference_number,
         ];
-
-        $invoice = Invoice::where('reference_number', $reference_number)->first();
 
         try
         {
@@ -175,7 +172,7 @@ class PaydunyaGateway implements PaymentGateway
 
             if($type_endpoint == "checkout"):
                 // $this->url = config('services.paydunya.urlSandBox');
-                $endpoint = $this->url . "/checkout-invoice/confirm/" . $invoice?->reference_number;
+                $endpoint = $this->url . "/checkout-invoice/confirm/" . $reference_number;
             endif;
 
             $response = ($type_endpoint == "checkout") ? $this->get_callout($endpoint, $this->headers) : $this->post_callout($endpoint, $this->headers, $payload);
