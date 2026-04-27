@@ -45,18 +45,18 @@ class PaydunyaController extends AppBaseController
         $data = $input['data'] ?? null;
         $data = !is_array($data) ? array($data) : $data;
  
-        try{
+        try {
             DB::beginTransaction();
             if(!hash_equals(hash('sha512', config("services.paydunya.masterKey")), $data['hash'])):
                 if($data['status'] !== PayDunyaStatus::Completed->value){
-                    $this->success_pay($data, 'dmp');
+                    $this->success_pay($data, 'checkout');
                     DB::commit();
                 }
             else
                 Log::error('Invalid signature provider');
             endif;
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception){
             Log::error('Failed IPN :', (array)$exception);
             DB::rollBack();
         }
@@ -133,7 +133,7 @@ class PaydunyaController extends AppBaseController
             return $this->sendError($data->fail_reason ?? $message);
         }
         $data->custom_data['gift_card_id'] = $giftCard->id;
-        $this->success_pay($data, 'dmp');
+        $this->success_pay($data, 'checkout');
         DB::commit();
 
         return $this->sendSuccess("{$message}, payment processed successfully !");
