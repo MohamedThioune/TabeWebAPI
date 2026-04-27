@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Domain\GiftCards\Services\CheckStatusPaymentCard;
 use App\Infrastructure\External\Payment\ValueObjects\PayDunyaStatus;
+use App\Infrastructure\External\Payment\PaymentGateway;
 use App\Infrastructure\Persistence\GiftCardRepository;
 use App\Models\GiftCard;
+use App\Http\Resources\GiftCardResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 class PaydunyaController extends AppBaseController
 {
 
-    public function __construct(private GiftCardRepository $giftCardRepository, private CheckStatusPaymentCard $checkStatus){}
+    public function __construct(private GiftCardRepository $giftCardRepository, private CheckStatusPaymentCard $checkStatus, private PaymentGateway $gateway){}
 
     public function success_pay(mixed $data, string $type_endpoint): void
     {
@@ -133,10 +135,41 @@ class PaydunyaController extends AppBaseController
             return $this->sendError($data->fail_reason ?? $message);
         }
         $data->custom_data['gift_card_id'] = $giftCard->id;
-        $this->success_pay($data, 'checkout');
+        $this->success_pay((array)$data, 'checkout');
         DB::commit();
 
         return $this->sendSuccess("{$message}, payment processed successfully !");
     }
+
+    public function return_success(Request $request){
+
+        $input = $request->only('token');
+        $token = $input['token'] ?? null;
+        $response = tap($this->gateway->status_pay($token),
+            function ($response) {
+                Log::info('Response DTO', (array)$response);
+            });
+
+        // dd($response);
+        $fail_reason = null;
+        if(!hash_equals(hash('sha512', config("services.paydunya.masterKey")), $response->hash))
+            return $this->sendError('Invalid signature provider !', 403);
+
+        if($response?->status !== PayDunyaStatus::Completed->value)
+            return $this->sendError('Payment not processed completely !', 403);
+
+        $gift_card = tap(GiftCard::find($response?->custom_data['gift_card_id'] ?? 0), function($gift_card) use ($response, &$fail_reason) {
+            if(!$gift_card || $gift_card->status !== 'active')
+                $fail_reason = 'Gift card is not active till now, something went wrong !';
+
+            return $gift_card;
+        });
+
+        if(($fail_reason))
+            return $this->sendError($fail_reason);
+        
+        return $this->sendResponse(new GiftCardResource($gift_card), 'Payment processed successfully !',);
+    }
+
 
 }

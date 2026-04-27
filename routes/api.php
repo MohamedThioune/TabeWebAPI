@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 // PayDunya IPN
+Route::get('/paydunya/return/success', [\App\Http\Controllers\PaydunyaController::class, 'return_success'])->middleware('throttle:20,1')->name('paydunya.return.success');
 Route::post('/paydunya/ipn', [\App\Http\Controllers\PaydunyaController::class, 'ipn_handle'])->name('paydunya.ipn');
 Route::post('/gift-cards/verify/{nonce}', [\App\Http\Controllers\API\GiftCardAPIController::class, 'verifyToken'])->name('giftcards.verify.token');
 Route::get('/partners', [App\Http\Controllers\API\UserAPIController::class, 'indexPartner'])->name('users.index.partner');
