@@ -81,7 +81,7 @@ class PaydunyaGateway implements PaymentGateway
 
     public function charge(int $amount, string $description, GiftCard $gift_card , array $customer = []) : ?PaymentResponseDTO
     {
-        $this->url = config('services.paydunya.urlSandBox');
+        // $this->url = config('services.paydunya.urlSandBox');
         $endpoint = $this->url . '/checkout-invoice/create';
 
         $payload = [
@@ -174,7 +174,7 @@ class PaydunyaGateway implements PaymentGateway
             $endpoint = $this->url . '/dmp-api/check-status';
 
             if($type_endpoint == "checkout"):
-                $this->url = config('services.paydunya.urlSandBox');
+                // $this->url = config('services.paydunya.urlSandBox');
                 $endpoint = $this->url . "/checkout-invoice/confirm/" . $invoice?->reference_number;
             endif;
 
