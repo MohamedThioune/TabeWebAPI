@@ -14,7 +14,7 @@ class PushSMSNotification extends Notification
 
     /**
      * Create a new notification instance.
-     */
+    */
     public function __construct(private Node $node, public string $channel = 'sms')
     {
         $this->channel = $channel;
@@ -23,7 +23,7 @@ class PushSMSNotification extends Notification
      * Get the notification's delivery channels.
      *
      * @return array<int, string>
-     */
+    */
     public function via(object $notifiable): array
     {
         return ['twilio'];
@@ -44,7 +44,7 @@ class PushSMSNotification extends Notification
 
     /**
      * Get the mail representation of the notification.
-     */
+    */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
@@ -64,7 +64,7 @@ class PushSMSNotification extends Notification
      * Get the array representation of the notification.
      *
      * @return array<string, mixed>
-     */
+    */
     public function toArray(object $notifiable): array
     {
         return [
