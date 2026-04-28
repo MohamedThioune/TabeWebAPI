@@ -20,6 +20,7 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "paydunya/paydunya": "^1.0",
         "predis/predis": "^2.3",
+        "pusher/pusher-php-server": "^7.2",
         "spatie/laravel-permission": "^6.16",
         "tuupola/base62": "^2.1",
         "twilio/sdk": "^8.8"

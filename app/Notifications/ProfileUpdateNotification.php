@@ -15,10 +15,7 @@ class ProfileUpdateNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(private Node $node, public string $channel)
-    {
-        $this->channel = $channel;
-    }
+    public function __construct(private Node $node) { }
 
     /**
      * Get the notification's delivery channels.

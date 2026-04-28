@@ -11,6 +11,8 @@ use App\Http\Resources\GiftCardResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Domain\Users\DTO\Node;
+use App\Notifications\TransactionNotification;
 
 class PaydunyaController extends AppBaseController
 {
@@ -26,6 +28,12 @@ class PaydunyaController extends AppBaseController
 
             $gift_card->status = "active";
             $gift_card->save();
+
+            //Notify the owner of the card
+            $owner = $gift_card->user;
+            $content = "Votre carte tabé a été activée avec succès ! 🎊";
+            $node = new Node(content: $content, contentVariables: null, level: "Important", model: "card", title: "Carte cadeau activée !", body: $content);
+            $owner->notify(new TransactionNotification(node: $node, channel: 'whatsapp'));
         });
 
         // Find & update the status invoice to completed
@@ -132,7 +140,7 @@ class PaydunyaController extends AppBaseController
         DB::beginTransaction();
         if(!$status || $status !== PayDunyaStatus::Completed->value){
             Log::error($data->fail_reason ?? null);
-            return $this->sendError($data->fail_reason ?? $message);
+            return $this->sendError($data->fail_reason ?: $message);
         }
         $data->custom_data['gift_card_id'] = $giftCard->id;
         $this->success_pay((array)$data, 'checkout');

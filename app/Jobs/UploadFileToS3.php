@@ -72,6 +72,6 @@ class UploadFileToS3 implements ShouldQueue
         }
 
     }
-
+ 
 
 }

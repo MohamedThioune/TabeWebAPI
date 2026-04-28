@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\FileProcessed;
 use App\Infrastructure\Persistence\FileRepository;
 use App\Models\File;
+use App\Domain\Users\DTO\Node;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Storage;
@@ -28,8 +29,21 @@ class RegisterFileProcessed
         $user = $event->user;
         $meaning = $event->meaning;
 
+        //Notify the user that the file has been processed
+        $node = new Node(
+            content: null,
+            contentVariables: null,
+            level: "Info",
+            model: "profile", 
+            title: "Profil mis à jour",
+            body: "Votre fichier de profil a été traité avec succès et votre profil a été mis à jour en conséquence."
+        );
+        $user->notify(new ProfileUpdateNotification(node: $node));        
+        
+
         //Send Notification
         /* instructions here */
         //End the event
     }
+     
 }

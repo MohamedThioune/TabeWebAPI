@@ -8,14 +8,14 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PushSMSNotification extends Notification implements ShouldQueue
+class PushSMSNotification extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(private Node $node, public string $channel)
+    public function __construct(private Node $node, public string $channel = 'sms')
     {
         $this->channel = $channel;
     }
@@ -30,10 +30,10 @@ class PushSMSNotification extends Notification implements ShouldQueue
         // return ['twilio', 'mail', 'database'];
     }
 
-//    public function shouldSend($notifiable, string $channel): bool
-//    {
-//        return (bool) $notifiable->accept_notification;
-//    }
+    //    public function shouldSend($notifiable, string $channel): bool
+    //    {
+    //        return (bool) $notifiable->accept_notification;
+    //    }
 
     public function toTwilio(object $notifiable): array{
         return [
