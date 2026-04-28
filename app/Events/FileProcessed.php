@@ -24,5 +24,5 @@ class FileProcessed
         $this->path = $path;
         $this->user = $user;
     }
-
+ 
 }

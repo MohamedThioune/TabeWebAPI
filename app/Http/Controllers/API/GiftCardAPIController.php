@@ -338,6 +338,7 @@ class GiftCardAPIController extends AppBaseController
 
         return $this->sendResponse($infos, 'Gift Card saved successfully !');
     }
+    
     /**
      * @OA\Post(
      *      path="/gift-cards",

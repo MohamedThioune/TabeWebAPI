@@ -8,19 +8,18 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PushBeneficiarySMSNotification extends Notification
+class TransactionNotification extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(private Node $node, public string $beneficiary_phone, public string $channel = "sms")
+    public function __construct(private Node $node, public string $channel = 'whatsApp')
     {
         $this->channel = $channel;
-        $this->$beneficiary_phone = $beneficiary_phone;
     }
-
+    
     /**
      * Get the notification's delivery channels.
      *
@@ -28,15 +27,7 @@ class PushBeneficiarySMSNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        $notifiable->phone = $this->beneficiary_phone;
-        return ['twilio'];
-    }
-
-    public function toTwilio(object $notifiable): array{
-        return [
-            "from" => config("services.twilio.phone"),
-            "body" => $this->node->content
-        ];
+        return ['database'];
     }
 
     /**
@@ -50,6 +41,15 @@ class PushBeneficiarySMSNotification extends Notification
                     ->line('Thank you for using our application!');
     }
 
+    public function toTwilio(object $notifiable): array{
+        return [
+            "from" => config("services.twilio.whatsapp"),
+            "contentSid" => "HX6f3cea733bef5b6e6f1e3d44395476a9",
+            "contentVariables" => $this->node->contentVariables,
+            "body" => $this->node->body
+        ];
+    }
+
     /**
      * Get the array representation of the notification.
      *
@@ -58,7 +58,11 @@ class PushBeneficiarySMSNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'content' => $this->node->content,
+            'title' => $this->node->title,
+            'body' => $this->node->body,
+            'level' => $this->node->level, //Important, Urgent, Info
+            'model' => $this->node->model, //transaction, card, profile, maintenance
         ];
     }
 }

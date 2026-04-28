@@ -19,6 +19,7 @@ use App\Notifications\PushBeneficiaryWhatsAppNotification;
 use App\Notifications\PushWhatsAppNotification;
 use App\Notifications\PushBeneficiarySMSNotification;
 use App\Notifications\PushSMSNotification;
+use App\Notifications\TransactionNotification;
 use App\Domain\Users\DTO\Node;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -337,11 +338,9 @@ class TransactionAPIController extends AppBaseController
 
         //Get former transactions of this gift card to check limits
         $formerTransaction = $this->transactionRepository->last_transaction_for_gift_card($gift_card->id);
-        if ($formerTransaction) {
-            if ($formerTransaction->status == 'captured' || $formerTransaction->status == 'refunded') {
+        if ($formerTransaction) 
+            if ($formerTransaction->status == 'captured' || $formerTransaction->status == 'refunded') 
                 return $this->sendError('A transaction is already captured/refunded for this card, contact support !');
-            }
-        }
 
         //Creating the transaction
         DB::beginTransaction();
@@ -384,23 +383,20 @@ class TransactionAPIController extends AppBaseController
         $node_customer = new Node(content: $content, contentVariables: $content_variables, level: null, model: null, title: null, body: null);
         $beneficiary = $gift_card->beneficiary;
         $owner = $gift_card->user;
-        //Notify customer via WhatsApp
-        if ($beneficiary) {
+        //Notify customer via WhatsApp to valid the transaction
+        if ($beneficiary) 
             $owner->notify(new PushBeneficiarySMSNotification(
                 node: $node_customer,
                 beneficiary_phone: $beneficiary->phone,
                 channel: 'sms'
             ));        
-        }
-        else {
+        else
             $owner->notify(new PushSMSNotification(
                 node: $node_customer,
                 channel: 'sms'
             ));
-
-        // Notify partner 
-        /** Instructions code here ! */ 
-        }
+            // Notify partner 
+            /** Instructions code here ! */ 
 
         //Cache store OTP
         Cache::put('otp_code:' . $transaction->id, bcrypt($otp_code), now()->addMinutes(30));
@@ -514,14 +510,22 @@ class TransactionAPIController extends AppBaseController
         }
 
         /* Notify parties (owner, beneficiary, shop) */
-        $content_variables = json_encode(["1" => '']);
-        $content = "";
-        $node = new Node(content: $content, contentVariables: $content_variables, level: null, model: null, title: null, body: null);
+        $gift_card = $transaction->gift_card;
+        $shop = $transaction->user;
+        $owner = $gift_card?->user;
+        $beneficiary = $gift_card?->beneficiary;
         //Notify owner via WhatsApp
-     
+        $node_owner = new Node(content:  "Votre carte tabé | {{$gift_card->code}} a été utilisée avec succès ! 🎊", contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);
+        $owner->notify(new TransactionNotification(node: $node_owner, channel: 'whatsApp'));
         //Notify beneficiary via WhatsApp
- 
-        //Notify shop via WhatsApp      
+        if ($beneficiary) {
+            // $node_beneficiary = new Node(content:  "La carte tabé | {{$gift_card->code}} qui vous a été offerte a été utilisée avec succès ! 🎊", contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);
+            // $beneficiary->notify(new TransactionNotification(node: $node_beneficiary, channel: 'whatsApp'));
+        }
+        //Notify shop via WhatsApp 
+        $node_shop = new Node(content:  "Une carte tabé  | {{$gift_card->code}} a été utilisée avec succès dans votre boutique ! 🎊", contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);     
+        $shop->notify(new TransactionNotification(node: $node_shop, channel: 'whatsApp'));
+        /* End of notifications */
 
         $transaction->load('gift_card');
         return $this->sendResponse(new TransactionResource($transaction), 'Transaction confirmed successfully !');

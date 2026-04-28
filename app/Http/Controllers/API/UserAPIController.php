@@ -342,9 +342,9 @@ class UserAPIController extends AppBaseController
             level: "Info",
             model: "profile", //
             title: "Profil mis à jour",
-            body: "Vos informations de profil ont été modifiées avec succès"
+            body: "Votre fichier de profil a été traité avec succès et votre profil a été mis à jour en conséquence."
         );
-        $user->notify(new ProfileUpdateNotification($node,  "whatsapp"));
+        $user->notify(new ProfileUpdateNotification($node));
 
         return $this->sendResponse(new UserResource($user), 'Users retrieved successfully.');
     }
