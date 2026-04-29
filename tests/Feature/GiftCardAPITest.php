@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Log;
 class GiftCardAPITest extends TestCase
 {
     use ApiTest, DatabaseTransactions;
-    private static array $pattern_card = [
+    public static array $pattern_card = [
             'id',
             'code',
             'belonging_type',
@@ -100,7 +100,6 @@ class GiftCardAPITest extends TestCase
         ];
 
         //mock paydunya call
-         //mock paydunya call
         $reference_number = fake()->regexify('^[A-Za-z0-9]{10}$');
         $this->mock(PaymentGateway::class, function ($mock) use ($reference_number) {
             $mock->shouldReceive('charge')
@@ -213,7 +212,7 @@ class GiftCardAPITest extends TestCase
     }
 
     /**
-     * @test lists gift card
+     * @test list gift card
     */
     public function test_list_gift_card()
     {
