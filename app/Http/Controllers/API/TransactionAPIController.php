@@ -359,7 +359,7 @@ class TransactionAPIController extends AppBaseController
             $input['status'] = 'authorized';
 
             //Update gift card status to inactive
-            $used_status = "used";
+            $used_status = "inactive";
             $this->giftCardRepository->update(['status' => $used_status, 'updated_at' => now()], $gift_card->id);
             //Log updated gift card
             $this->cardEventRepository->create(['type' => $used_status, 'gift_card_id' => $gift_card->id]);
@@ -488,20 +488,23 @@ class TransactionAPIController extends AppBaseController
         if (!Hash::check($otp_code, $bcrypt_otp_code)) {
             return $this->sendError('Invalid OTP code !');
         }  
-        
         DB::beginTransaction();
         try{
-            //Create a transaction with a status 'captured'
+            //Create a new transaction with a status 'captured'
             $new_transaction = $transaction->replicate([
+                'id',
                 'status',
-                'amount',
-                'currency',
-                'user_id',
-                'gift_card_id',
+                'parent_transaction_id',
+                'created_at',
+                'updated_at'
             ]);
             $new_transaction->status = 'captured';
             $new_transaction->parent_transaction_id = $transaction->id;
             $new_transaction->save();
+
+            //Update the former transaction
+            $transaction->next_transaction_id = $new_transaction->id;
+            $transaction->save();
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -509,21 +512,29 @@ class TransactionAPIController extends AppBaseController
             return $this->sendError('Something went wrong while confirming the transaction !');
         }
 
-        /* Notify parties (owner, beneficiary, shop) */
+        //Update gift card status to inactive
         $gift_card = $transaction->gift_card;
+        $used_status = "used";
+        $this->giftCardRepository->update(['status' => $used_status, 'updated_at' => now()], $gift_card->id);
+        //Log updated gift card
+        $this->cardEventRepository->create(['type' => $used_status, 'gift_card_id' => $gift_card->id]);
+
+        /* Notify parties (owner, beneficiary, shop) */
         $shop = $transaction->user;
         $owner = $gift_card?->user;
         $beneficiary = $gift_card?->beneficiary;
         //Notify owner via WhatsApp
-        $node_owner = new Node(content:  "Votre carte tabé | {{$gift_card->code}} a été utilisée avec succès ! 🎊", contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);
+        $content = "Votre carte tabé | {{$gift_card->code}} a été utilisée avec succès ! 🎊";
+        $node_owner = new Node(content: $content, contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);
         $owner->notify(new TransactionNotification(node: $node_owner, channel: 'whatsApp'));
         //Notify beneficiary via WhatsApp
-        if ($beneficiary) {
-            // $node_beneficiary = new Node(content:  "La carte tabé | {{$gift_card->code}} qui vous a été offerte a été utilisée avec succès ! 🎊", contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);
+        if ($beneficiary) { 
+            // $node_beneficiary = new Node(content: "La carte tabé | {{$gift_card->code}} qui vous a été offerte a été utilisée avec succès ! 🎊", contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);
             // $beneficiary->notify(new TransactionNotification(node: $node_beneficiary, channel: 'whatsApp'));
         }
         //Notify shop via WhatsApp 
-        $node_shop = new Node(content:  "Une carte tabé  | {{$gift_card->code}} a été utilisée avec succès dans votre boutique ! 🎊", contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);     
+        $content = "La carte tabé | {{$gift_card->code}} a été utilisée avec succès dans votre boutique ! 🎊";
+        $node_shop = new Node(content: $content, contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);     
         $shop->notify(new TransactionNotification(node: $node_shop, channel: 'whatsApp'));
         /* End of notifications */
 
