@@ -68,10 +68,10 @@ class UploadFileToS3 implements ShouldQueue
         }
         catch (\Exception $e){
             Log::error('Error uploading file to S3: ' . $e->getMessage());
+            event(new FileFailed($this->meaning, User::find($this->user_id)));
             DB::rollBack();
         }
 
     }
  
-
 }

@@ -129,6 +129,5 @@ Route::group(['middleware' => ['auth:api']], function () {
           //Options
           Route::get('/options', [App\Http\Controllers\API\OptionAPIController::class, 'index'])->name('options.index');
           Route::patch('/options', [App\Http\Controllers\API\OptionAPIController::class, 'update'])->name('options.update');
-
       });
 });

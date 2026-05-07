@@ -92,6 +92,8 @@ class Notification extends Model
     protected $table = 'notifications';
 
     protected $fillable = [
+        'type',
+        'notifiable_type',
         'data',
         'notifiable_id',
         'is_read',
@@ -101,4 +103,13 @@ class Notification extends Model
     public static array $ruleListed = [
         'is_read' => 'boolean',
     ];
+
+    protected $casts = [
+        'data' => 'array',
+    ];
+
+    // public function user()
+    // {
+    //     return $this->belongsTo(User::class, 'notifiable_id');
+    // }
 }

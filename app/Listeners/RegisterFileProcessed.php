@@ -9,6 +9,7 @@ use App\Domain\Users\DTO\Node;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Storage;
+use App\Notifications\ProfileUpdateNotification;
 
 class RegisterFileProcessed
 {
@@ -40,7 +41,6 @@ class RegisterFileProcessed
         );
         $user->notify(new ProfileUpdateNotification(node: $node));        
         
-
         //Send Notification
         /* instructions here */
         //End the event

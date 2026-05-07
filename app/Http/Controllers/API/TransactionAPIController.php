@@ -24,7 +24,10 @@ use App\Domain\Users\DTO\Node;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use App\Models\User;
+use App\Events\PurchaseMerchantProcessed;
+use App\Events\NewTransactionProcessed;
 
 /**
  * Class TransactionController
@@ -483,11 +486,13 @@ class TransactionAPIController extends AppBaseController
             }
         }
         
-        //Confirm transaction
+        //Check OTP code
         $bcrypt_otp_code = Cache::get('otp_code:' . $transaction->id);
         if (!Hash::check($otp_code, $bcrypt_otp_code)) {
             return $this->sendError('Invalid OTP code !');
         }  
+
+        //Confirm transaction
         DB::beginTransaction();
         try{
             //Create a new transaction with a status 'captured'
@@ -519,27 +524,43 @@ class TransactionAPIController extends AppBaseController
         //Log updated gift card
         $this->cardEventRepository->create(['type' => $used_status, 'gift_card_id' => $gift_card->id]);
 
+        //Create invoices of the transaction 
+        $owner = $gift_card?->user;
+        $owner->invoices()->create([
+            'id' => Str::uuid()->toString(), 
+            'type' => 'Paiement en boutique',
+            'amount' => $new_transaction->amount,
+            'reference_number' => "INV-" . strtoupper(Str::random(10)),
+            'status' => 'completed',
+            'endpoint' => 'shop_transaction',
+            'gift_card_id' => $gift_card->id
+        ]);
+
         /* Notify parties (owner, beneficiary, shop) */
         $shop = $transaction->user;
-        $owner = $gift_card?->user;
         $beneficiary = $gift_card?->beneficiary;
         //Notify owner via WhatsApp
         $content = "Votre carte tabé | {{$gift_card->code}} a été utilisée avec succès ! 🎊";
         $node_owner = new Node(content: $content, contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);
-        $owner->notify(new TransactionNotification(node: $node_owner, channel: 'whatsApp'));
+        $owner->notify(new TransactionNotification(node: $node_owner, channel: 'whatsApp'));        
         //Notify beneficiary via WhatsApp
         if ($beneficiary) { 
             // $node_beneficiary = new Node(content: "La carte tabé | {{$gift_card->code}} qui vous a été offerte a été utilisée avec succès ! 🎊", contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);
             // $beneficiary->notify(new TransactionNotification(node: $node_beneficiary, channel: 'whatsApp'));
         }
+
         //Notify shop via WhatsApp 
         $content = "La carte tabé | {{$gift_card->code}} a été utilisée avec succès dans votre boutique ! 🎊";
         $node_shop = new Node(content: $content, contentVariables: null, level: "Important", model: "transaction", title: "Carte cadeau utilisée !", body: $content);     
         $shop->notify(new TransactionNotification(node: $node_shop, channel: 'whatsApp'));
         /* End of notifications */
 
+        /* Broadcast event to update notifications in real time for the different parties (owner, partner) */
+        event(new PurchaseMerchantProcessed($shop, $owner, $transaction->amount, $gift_card)); //broadcast event for the owner
+        event(new NewTransactionProcessed($shop, $transaction->amount, $gift_card)); //broadcast event for the partner
+
         $transaction->load('gift_card');
-        return $this->sendResponse(new TransactionResource($transaction), 'Transaction confirmed successfully !');
+        return $this->sendResponse(new TransactionResource($new_transaction), 'Transaction confirmed successfully !');
     }
 
     /**

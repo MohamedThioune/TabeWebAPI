@@ -11,24 +11,27 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-
-class FileProcessed implements ShouldBroadcast
+class FileFailed implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     private string $meaning;
-    private string $path;
     public User $user;
+
     /**
      * Create a new event instance.
-     */
-    public function __construct(string $meaning, string $path, User $user)
+    */
+    public function __construct(string $meaning, User $user)
     {
         $this->meaning = $meaning;
-        $this->path = $path;
         $this->user = $user;            
     }
 
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return array<int, \Illuminate\Broadcasting\Channel>
+    */
     public function broadcastOn(): Channel
     {
         $channel = new FindChannel($this->user);
@@ -38,9 +41,11 @@ class FileProcessed implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            "title" => "Fichier traité !",
-            "message" => "Votre " . $this->meaning . " a été traité avec succès. Vous pouvez les consulter dans votre profil.",
+            "title" => "Echec de traitement !",
+            "message" => "Votre " . $this->meaning . " a échoué lors du traitement. Veuillez réessayer ultérieurement ou contacter le support si le problème persiste.",
             "notification_count" => $this->user->unreadNotifications()->count()
         ];
+       
     }
+
 }

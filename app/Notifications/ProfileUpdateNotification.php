@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 
 class ProfileUpdateNotification extends Notification
 {
@@ -15,7 +16,7 @@ class ProfileUpdateNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(private Node $node) { }
+    public function __construct(public Node $node) { }
 
     /**
      * Get the notification's delivery channels.
@@ -52,5 +53,8 @@ class ProfileUpdateNotification extends Notification
             'level' => $this->node->level, //Important, Urgent, Info
             'model' => $this->node->model, //transaction, card, profile, maintenance
         ];
+
+        Log::info('Data to be stored in database notification: ' . json_encode($data));
+        return $data;
     }
 }

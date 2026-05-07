@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Domain\Users\DTO\Node;
 use App\Notifications\TransactionNotification;
+use App\Events\BuyCardProcessed;
 
 class PaydunyaController extends AppBaseController
 {
@@ -29,11 +30,14 @@ class PaydunyaController extends AppBaseController
             $gift_card->status = "active";
             $gift_card->save();
 
-            //Notify the owner of the card
+            // Notify the owner of the card
             $owner = $gift_card->user;
             $content = "Votre carte tabé a été activée avec succès ! 🎊";
             $node = new Node(content: $content, contentVariables: null, level: "Important", model: "card", title: "Carte cadeau activée !", body: $content);
             $owner->notify(new TransactionNotification(node: $node, channel: 'whatsapp'));
+
+            // Broadcast the event to the client
+            event(new BuyCardProcessed($gift_card, $owner));
         });
 
         // Find & update the status invoice to completed
@@ -43,25 +47,24 @@ class PaydunyaController extends AppBaseController
             $invoice->updated_at = now();
             $invoice->save();
         });
-
     }
 
     public function ipn_handle(Request $request){
         $input = tap($request->all(), function($input) {
-            Log::info('PaydunyaIPN::handle', (array)$input);
+            // Log::info('PaydunyaIPN::handle', (array)$input);
         });
 
         $data = $input['data'] ?? null;
         $data = !is_array($data) ? array($data) : $data;
- 
+
         try {
             DB::beginTransaction();
-            if(hash_equals(hash('sha512', config("services.paydunya.masterKey")), $data['hash']))
+            if(hash_equals(hash('sha512', config("services.paydunya.masterKey")), $data['hash'])){
                 if($data['status'] === PayDunyaStatus::Completed->value){
                     $this->success_pay($data, 'checkout');
                     DB::commit();
                 }
-            else{
+            }else{
                 Log::error('Invalid signature provider');
                 var_dump('error', $data);
                 DB::rollBack();
