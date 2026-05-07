@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\ReceivePayoutProcessed;
 use App\Http\Requests\API\CreatePayoutAPIRequest;
 use App\Http\Requests\API\UpdatePayoutAPIRequest;
 use App\Http\Requests\API\GetPayoutAPIRequest;
 use App\Models\Payout;
+use App\Models\User;
 use App\Infrastructure\Persistence\PayoutRepository;
 use App\Infrastructure\Persistence\TransactionRepository;
 use Illuminate\Http\JsonResponse;
@@ -20,7 +22,7 @@ use Mockery;
 
 /**
  * Class PayoutController
- */
+*/
 
 class PayoutAPIController extends AppBaseController
 {
@@ -50,7 +52,6 @@ class PayoutAPIController extends AppBaseController
                 'total_items' => $payouts->total(),
             ]
         ];
-       
     }
     
     /**
@@ -328,7 +329,7 @@ class PayoutAPIController extends AppBaseController
 
     /**
      * @OA\Post(
-     *      path="/payouts",
+     *      path="/payouts/request",
      *      summary="requestPayout",
      *      tags={"Payout"},
      *      description="Request a Payout",
@@ -434,6 +435,10 @@ class PayoutAPIController extends AppBaseController
         if($request->get('show_transactions')):
             $payout->load('transactions');
         endif;
+
+        //Broadcast event for the customer and admin
+        $admin = User::role('admin')->first();
+        event(new ReceivePayoutProcessed($payout, $admin));
 
         return $this->sendResponse(new PayoutResource($payout), 'Payout saved successfully');
     }

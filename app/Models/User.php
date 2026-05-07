@@ -303,4 +303,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Payout::class);
     }
+    
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'notifiable_id', 'id');
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->notifications()->where('is_read', 0);
+    }
 }
