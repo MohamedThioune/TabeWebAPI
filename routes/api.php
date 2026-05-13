@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
 // PayDunya IPN
 Route::get('/paydunya/return/success', [\App\Http\Controllers\PaydunyaController::class, 'return_success'])->middleware('throttle:20,1')->name('paydunya.return.success');
 Route::post('/paydunya/ipn', [\App\Http\Controllers\PaydunyaController::class, 'ipn_handle'])->name('paydunya.ipn');

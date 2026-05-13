@@ -54,11 +54,13 @@ class PaydunyaController extends AppBaseController
             // Log::info('PaydunyaIPN::handle', (array)$input);
         });
 
-        $data = $input['data'] ?? null;
+        $data = $input['data'] ?? $input;
         $data = !is_array($data) ? array($data) : $data;
 
         try {
             DB::beginTransaction();
+
+            // Process the PAYMENT if completed and signature is valid
             if(hash_equals(hash('sha512', config("services.paydunya.masterKey")), $data['hash'])){
                 if($data['status'] === PayDunyaStatus::Completed->value){
                     $this->success_pay($data, 'checkout');
@@ -68,6 +70,11 @@ class PaydunyaController extends AppBaseController
                 Log::error('Invalid signature provider');
                 var_dump('error', $data);
                 DB::rollBack();
+            }
+
+            // Process the reimbursement if success
+            if($data['status'] === "success"){
+                // Add logic function here !
             }
         } catch (\Exception $exception){
             Log::error('Failed IPN :', (array)$exception);

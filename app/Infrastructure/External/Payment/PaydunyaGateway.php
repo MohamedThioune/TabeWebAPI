@@ -36,7 +36,8 @@ class PaydunyaGateway implements PaymentGateway
         $this->actions = [
             "cancel_url" => config('services.paydunya.cancelUrl'),
             "return_url" => config('services.paydunya.returnUrl'),
-            "callback_url" => route('api.paydunya.ipn')
+            // "callback_url" => route('api.paydunya.ipn'),
+            "callback_url" => "http://nadora.dev-illimitis.com/api/paydunya/ipn",
         ];
     }
 
@@ -258,5 +259,5 @@ class PaydunyaGateway implements PaymentGateway
         return PaymentResponseDTO::fromArray($response->json());
     }
 
-
+  
 }
