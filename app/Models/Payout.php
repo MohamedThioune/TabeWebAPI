@@ -48,7 +48,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  *          readOnly=true,
  *          nullable=false,
  *          type="string",
- *          enum={"authorized", "captured", "cancelled", "refunded", "failed"}
+ *          enum={"authorized", "completed", "cancelled", "refunded", "failed"}
  *      ),
  *      @OA\Property(
  *          property="withdraw_mode",

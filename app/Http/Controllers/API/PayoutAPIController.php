@@ -18,12 +18,13 @@ use App\Http\Resources\TransactionResource;
 use App\Domain\GiftCards\Services\Payout as PayoutService;
 use App\Infrastructure\External\Payment\DTO\PaymentResponseDTO;
 use App\Infrastructure\External\Payment\PaymentGateway;
-use Mockery;
+use App\Notifications\TransactionNotification;
+use App\Domain\Users\DTO\Node;
+use App\Jobs\ReimbursePayment;
 
 /**
  * Class PayoutController
 */
-
 class PayoutAPIController extends AppBaseController
 {
 
@@ -409,19 +410,10 @@ class PayoutAPIController extends AppBaseController
         
         $gross_amount = $query_transactions->sum('amount');
         $transactions = $query_transactions->get();
-
-        //[TO COMMENT] When we will use the real gateway
-        $reference_number = fake()->regexify('^[A-Za-z0-9]{5}$');
-        $mock = Mockery::mock(PaymentGateway::class)->makePartial();
-        $mock->shouldReceive('initiate_refund')->once()->andReturn(new PaymentResponseDTO(
-            disburse_token : 'test_token_' . $reference_number,
-        ));
-        app()->instance(PaymentGateway::class, $mock);
-        $this->payoutSes = app(PayoutService::class); 
-
+        $phone_number = substr($user->phone, -9); //Extract the last 9 digits of the phone number for the payout
         //Initiate the payout process
         $payout = $this->payoutSes->initiatePayout(
-            phone_number: $user->phone,
+            phone_number: $phone_number,
             gross_amount: $gross_amount,
             withdraw_mode: $request->get('withdraw_mode'),
             user: $user,
@@ -429,15 +421,18 @@ class PayoutAPIController extends AppBaseController
         ); 
 
         if(!$payout)
-            return $this->sendError('Something went wrong while initiating the payout !');
+            return $this->sendError('Something went wrong while initiating the payout, please try again later !');
 
         //Load relations
-        if($request->get('show_transactions')):
+        if($request->get('show_transactions'))
             $payout->load('transactions');
-        endif;
 
-        //Broadcast event for the customer and admin
+        //Notify admin via WhatsApp
         $admin = User::role('admin')->first();
+        $content = "Nouvelle demande de retrait de {$gross_amount} FCFA initiée par l'utilisateur avec le numéro de téléphone {$user->phone}.";
+        $node_owner = new Node(content: $content, contentVariables: null, level: "Important", model: "transaction", title: "Nouvelle demande de remboursement !", body: $content);
+        $admin->notify(new TransactionNotification(node: $node_owner, channel: 'whatsApp'));        
+        //Broadcast event for the customer and admin
         event(new ReceivePayoutProcessed($payout, $admin));
 
         return $this->sendResponse(new PayoutResource($payout), 'Payout saved successfully');
@@ -446,17 +441,19 @@ class PayoutAPIController extends AppBaseController
     public function submit(Request $request, Payout $payout): JsonResponse
     {
         $user = $request->user();
+        $existing_payout = $this->payoutRepo->getPayoutInProgressByUser($user->id); 
+        if ($existing_payout->exists()) {
+            return $this->sendError('Another payout is already in progress...');
+        }
+
+        if ($payout->status !== 'authorized') {   
+            return $this->sendError('Only authorized payouts can be processed !');
+        }
 
         // Process the payout
-        $processResponse = $this->payoutSes->processPayout(
-            payout: $payout,
-            disburse_id: null
-        );
-
-        if(!$processResponse)
-            return $this->sendError('Something went wrong while processing the payout !');
-
-        return $this->sendResponse($processResponse, 'Payout processed successfully');
+        ReimbursePayment::dispatch($user, $payout, null, $this->payoutSes);
+    
+        return $this->sendSuccess('Payout is being processed !');
     }
 
     /**

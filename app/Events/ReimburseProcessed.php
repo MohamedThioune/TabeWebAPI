@@ -2,8 +2,6 @@
 
 namespace App\Events;
 
-use App\Models\User;
-use App\Models\Payout;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -11,22 +9,17 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Payout;
+use App\Models\User;
 
-class ReceivePayoutProcessed implements ShouldBroadcast
+class ReimburseProcessed implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public User $user;
-    public Payout $payout;
     /**
-     * Create a new event instance "admin notification of a payout received". 
+     * Create a new event instance.
      */
-    public function __construct(Payout $payout, User $user)
-    {
-        $this->user = $user;
-        $this->payout = $payout;
-    }
-
+    public function __construct(public Payout $payout, public User $user){}
     /**
      * Get the channels the event should broadcast on.
      *
@@ -41,12 +34,13 @@ class ReceivePayoutProcessed implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            "title" => "Nouvelle demande de remboursement reçue !",
-            "message" => "Vous avez reçu une nouvelle demande de remboursement d'un montant de " . $this->payout?->gross_amount . " venant d'un partenaire !",
+            "title" => "Demande de remboursement traitée avec succès !",
+            "message" => "La demande de remboursement d'un montant de " . $this->payout?->gross_amount . " a été traitée avec succès !",
             "payout" => [
                 'id' => $this->payout?->id,
                 'gross_amount' => $this->payout?->gross_amount,
                 'requested_at' => $this->payout?->created_at,
+                'transactions' => $this->payout->transactions
             ],
             "notification_count" => $this->user->unreadNotifications()->count()
         ];

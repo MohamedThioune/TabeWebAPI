@@ -500,6 +500,7 @@ class TransactionAPIController extends AppBaseController
                 'id',
                 'status',
                 'parent_transaction_id',
+                'next_transaction_id',
                 'created_at',
                 'updated_at'
             ]);
@@ -557,7 +558,7 @@ class TransactionAPIController extends AppBaseController
 
         /* Broadcast event to update notifications in real time for the different parties (owner, partner) */
         event(new PurchaseMerchantProcessed($shop, $owner, $transaction->amount, $gift_card)); //broadcast event for the owner
-        event(new NewTransactionProcessed($shop, $transaction->amount, $gift_card)); //broadcast event for the partner
+        // event(new NewTransactionProcessed($shop, $transaction->amount, $gift_card)); //broadcast event for the partner
 
         $transaction->load('gift_card');
         return $this->sendResponse(new TransactionResource($new_transaction), 'Transaction confirmed successfully !');

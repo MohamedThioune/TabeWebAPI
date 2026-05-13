@@ -24,8 +24,8 @@ class Payout
 
     public function initiatePayout(string $phone_number, int $gross_amount, string $withdraw_mode, User $user, Collection $transactions): ?PayoutModel
     {
+        $gross_amount = 200;
         try {
-
             //Initiate payout refund
             $initiateResponse = null;
             $initiateResponse = $this->gateway->initiate_refund(
@@ -51,12 +51,12 @@ class Payout
                 'user_id' => $user->id
             ]);
 
+            // Bulk insert payout lines
             DB::transaction(function () use ($transactions, $payout) {
-                // Bulk insert payout lines
                 $payoutLines = $transactions->map(fn ($transaction) => [
                     'id' => Str::uuid()->toString(),
                     'transaction_id' => $transaction->id,
-                    'payout_id'      => $payout->id,
+                    'payout_id'  => $payout->id,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ])->toArray();
@@ -85,27 +85,26 @@ class Payout
                 return null;
             endif;
 
+            $transactions = $payout->transactions;
             // Update Transaction & Payout status
             DB::transaction(function () use ($payout, $transactions) {
                 // Create payout with completed status
                 $new_payout = $payout->replicate([
-                    'gross_amount',
-                    'net_amount',
-                    'commenntary',
-                    'fees',
-                    'currency',
-                    'withdraw_mode',
+                    'id',
+                    'status',
+                    'parent_payout_id',
+                    'next_payout_id',
                     'reference_number',
-                    'transaction_id',
-                    'user_id',
                 ]);
                 $new_payout->status = self::SUCCESS;
                 $new_payout->parent_payout_id = $payout->id;
+                $new_payout->reference_number = $payout->reference_number . '-REFUND';
                 $new_payout->save();
+
                 // Update original payout
                 $payout->next_payout_id = $new_payout->id;
                 $payout->save();
-                // var_dump($transactions);
+                
                 // Bulk create refunded transactions
                 $refundedTransactions = $transactions->map(fn ($transaction) => [
                     'id' => Str::uuid()->toString(),
@@ -147,6 +146,6 @@ class Payout
         //     Log::error('Error logging payment response: ' . $e->getMessage());
         // }
     
-        return (Object)['reference' => $reference, 'transaction' => $submitResponse->transaction_id, 'status' => $submitResponse->response_text];
+        return (Object)['reference' => $payout->reference_number, 'transaction' => $submitResponse->transaction_id, 'status' => $submitResponse->response_text];
     }
 }

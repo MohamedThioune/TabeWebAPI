@@ -20,7 +20,7 @@ class PayoutObserver
     public function updated(Payout $payout): void
     {
         $payout->updated_at = now();
-        $payout->save();
+        $payout->saveQuietly();
     }
 
     /**
