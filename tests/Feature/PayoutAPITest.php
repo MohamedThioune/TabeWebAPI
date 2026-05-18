@@ -13,6 +13,7 @@ use App\Models\GiftCard;
 use Illuminate\Support\Facades\Log;
 use App\Infrastructure\External\Payment\PaymentGateway;
 use App\Infrastructure\External\Payment\DTO\PaymentResponseDTO;
+use Illuminate\Support\Str;
 
 class PayoutAPITest extends TestCase
 {
@@ -103,11 +104,11 @@ class PayoutAPITest extends TestCase
 
         //mock paydunya call
         $this->mock(PaymentGateway::class, function ($mock){
-            $mock->shouldReceive('initiate_refund');
-            // ->once()
-            // ->andReturn(new PaymentResponseDTO(
-            //     disburse_token : 'test_hash_token',
-            // ));
+            $mock->shouldReceive('initiate_refund')
+            ->once()
+            ->andReturn((object)[
+                'disburse_token' => 'test_hash_token_' . Str::random(5),
+            ]);
         });
 
         //callout 
