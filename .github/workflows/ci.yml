@@ -50,7 +50,7 @@ jobs:
           restore-keys: composer-
 
       - name: 📦 Install dependencies
-        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader 
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader 
 
       - name: ⚙️ Setup .env
         run: |
