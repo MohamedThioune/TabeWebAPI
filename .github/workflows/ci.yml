@@ -131,7 +131,7 @@ jobs:
           restore-keys: composer-
 
       - name: 📦 Install dependencies (prod)
-        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader 
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader 
 
       - name: 📄 Generate Swagger docs
         run: |
