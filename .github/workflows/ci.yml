@@ -50,7 +50,7 @@ jobs:
           restore-keys: composer-
 
       - name: 📦 Install dependencies
-        run: composer install --no-dev --no-interaction --ignore-platform-reqs --disable-security-advisory
+        run: composer install --no-dev --no-interaction --ignore-platform-reqs 
 
       - name: ⚙️ Setup .env
         run: |
@@ -98,7 +98,7 @@ jobs:
           restore-keys: composer-
 
       - name: 📦 Install dependencies
-        run: composer install --no-dev --no-interaction --ignore-platform-reqs --disable-security-advisory
+        run: composer install --no-dev --no-interaction --ignore-platform-reqs 
 
       - name: 🔍 Laravel Pint (code style)
         run: ./vendor/bin/pint --test   # tu as pint dans composer.json ✅
@@ -130,7 +130,7 @@ jobs:
           restore-keys: composer-
 
       - name: 📦 Install dependencies (prod)
-        run: composer install --no-dev --no-interaction --ignore-platform-reqs --disable-security-advisory
+        run: composer install --no-dev --no-interaction --ignore-platform-reqs 
 
       - name: 📄 Generate Swagger docs
         run: |
