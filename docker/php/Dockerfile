@@ -33,6 +33,9 @@ RUN php artisan optimize:clear || true
 # ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --no-dev --optimize-autoloader
 
+# Remove default NGINX configuration
+RUN rm -f /etc/nginx/sites-enabled/default
+
 # COPY NGINX CONFIG
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
