@@ -32,8 +32,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        var_dump (env('APP_KEY'));
-
         // Alias new channel "Twilio"
         Notification::extend('twilio', function ($app) {
             return new TwilioChannel();
