@@ -33,6 +33,9 @@ RUN php artisan optimize:clear || true
 # ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --no-dev --optimize-autoloader
 
+# COPY NGINX CONFIG
+COPY docker/nginx/default.conf /etc/nginx/sites-available/default
+
 # COPY STARTING SCRIPT
 COPY docker/php/start.sh /start.sh
 RUN chmod +x /start.sh
