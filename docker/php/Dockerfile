@@ -37,7 +37,7 @@ RUN composer install --no-dev --optimize-autoloader
 RUN rm -f /etc/nginx/sites-enabled/default
 
 # COPY NGINX CONFIG
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx/default.conf /etc/nginx/sites-available/default
 
 # COPY STARTING SCRIPT
 COPY docker/php/start.sh /start.sh
