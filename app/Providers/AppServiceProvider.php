@@ -32,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->environment('production') && !file_exists(storage_path('oauth-private.key'))) {
+            \Artisan::call('passport:keys');
+        }
         // Alias new channel "Twilio"
         Notification::extend('twilio', function ($app) {
             return new TwilioChannel();
