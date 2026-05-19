@@ -36,19 +36,16 @@ COPY docker/nginx/default.conf /etc/nginx/sites-available/default
 COPY docker/php/start.sh /start.sh
 RUN chmod +x /start.sh
 
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
-RUN chown -R www-data:www-data storage bootstrap/cache
-
-EXPOSE 80
-
 # Clear caches and optimize
 RUN php artisan config:clear || true
 RUN php artisan cache:clear || true
 RUN php artisan optimize:clear || true
 
-# Generate application key
-RUN php artisan key:generate --show
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache 
+RUN chmod -R 775 /var/www/html/storage
+
+EXPOSE 80
 
 CMD ["/start.sh"]
