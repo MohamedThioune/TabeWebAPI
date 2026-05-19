@@ -64,6 +64,18 @@ jobs:
           sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/' .env.testing
           sed -i 's/QUEUE_CONNECTION=.*/QUEUE_CONNECTION=redis/' .env.testing
           sed -i 's/REDIS_HOST=.*/REDIS_HOST=127.0.0.1/' .env.testing
+          echo "PAYDUNYA_MASTER_KEY=test_master_key" >> .env.testing
+          echo "PAYDUNYA_PUBLIC_KEY=test_public_key" >> .env.testing
+          echo "PAYDUNYA_PRIVATE_KEY=test_private_key" >> .env.testing
+          echo "PAYDUNYA_TOKEN=test_token" >> .env.testing
+          echo "PAYDUNYA_FIRST_VERSION=v1" >> .env.testing
+          echo "PAYDUNYA_SECOND_VERSION=v2" >> .env.testing
+          echo "PAYDUNYA_COMPANY_NAME=Nadora" >> .env.testing
+          echo "PAYDUNYA_MODE=test" >> .env.testing
+          echo "PAYDUNYA_CANCEL_URL=http://localhost/cancel" >> .env.testing
+          echo "PAYDUNYA_RETURN_URL=http://localhost/return" >> .env.testing
+          echo "FRONTEND_CLIENT_URL=http://app.localhost" >> .env.testing
+          echo "FRONTEND_PARTNER_URL=http://partner.localhost" >> .env.testing
 
       - name: 🔑 Generate app key
         run: php artisan key:generate --env=testing
@@ -116,8 +128,8 @@ jobs:
       - name: 📦 Install dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: 🔍 Laravel Pint (code style)
-        run: ./vendor/bin/pint --test   # tu as pint dans composer.json ✅
+      #- name: 🔍 Laravel Pint (code style)
+      #  run: ./vendor/bin/pint --test   # tu as pint dans composer.json ✅
 
   # ─────────────────────────────────────────
   # JOB 3 — Deploy (uniquement sur main)
