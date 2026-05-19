@@ -34,7 +34,7 @@ RUN php artisan optimize:clear || true
 RUN composer install --no-dev --optimize-autoloader
 
 # COPY NGINX CONFIG
-COPY docker/nginx/default.conf /etc/nginx/sites-available/default
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # COPY STARTING SCRIPT
 COPY docker/php/start.sh /start.sh
