@@ -130,7 +130,7 @@ jobs:
           restore-keys: composer-
 
       - name: 📦 Install dependencies (prod)
-        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader  --ignore-platform-reqs --disable-security-advisory
+        run: composer install --no-dev --no-interaction --ignore-platform-reqs --disable-security-advisory
 
       - name: 📄 Generate Swagger docs
         run: |
