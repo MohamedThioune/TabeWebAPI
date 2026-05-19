@@ -76,7 +76,19 @@ jobs:
 
       - name: 🗄️ Run seeds
         run: php artisan db:seed --env=testing --force
+      
+      - name : empty cache
+        run: php artisan cache:clear --env=testing
 
+      - name : empty config cache
+        run: php artisan config:clear --env=testing
+
+      - name : empty optimization cache
+        run: php artisan optimize:clear --env=testing
+
+      - name : autoload composer
+        run: composer dump-autoload
+        
       - name: 🧪 Run tests
         run: php artisan test
 
