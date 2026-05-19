@@ -14,9 +14,6 @@ return new class extends Migration
         Schema::table('partners', function (Blueprint $table) {
             $table->uuid('id')->change();
         });
-        // Schema::table('enterprises', function (Blueprint $table) {
-        //     $table->uuid('id')->change();
-        // });
     }
 
     /**
@@ -27,8 +24,5 @@ return new class extends Migration
         Schema::table('partners', function (Blueprint $table) {
             $table->integer('id')->change();
         });
-        // Schema::table('enterprises', function (Blueprint $table) {
-        //     $table->integer('id')->change();
-        // });
     }
 };
