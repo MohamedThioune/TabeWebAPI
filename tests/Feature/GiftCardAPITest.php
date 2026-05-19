@@ -12,6 +12,7 @@ use App\Models\GiftCard;
 use App\Models\Design;
 use App\Models\QrSession;
 use App\Models\Customer;
+use App\Models\Beneficiary;
 use Illuminate\Support\Facades\Log;
 
 
@@ -109,13 +110,6 @@ class GiftCardAPITest extends TestCase
                 'response_text' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
                 'status' => 'completed',
             ]);
-            // $mock->shouldReceive('quick_pay')
-            //     ->once()
-            //     ->andReturn((object)[
-            //         'reference_number' => $reference_number,
-            //         'url' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
-            //         'status' => 'pending',
-            //     ]);
         });
 
         $this->response = $this->json(
@@ -222,6 +216,7 @@ class GiftCardAPITest extends TestCase
         $giftCard = GiftCard::factory()->create([
             'owner_user_id' => $user?->id,
             'belonging_type' => 'others',
+            'beneficiary_id' => Beneficiary::factory()->create()->id,
         ]);
 
         QrSession::factory()->create([
@@ -264,6 +259,7 @@ class GiftCardAPITest extends TestCase
         $giftCard = GiftCard::factory()->create([
             'owner_user_id' => $user?->id,
             'belonging_type' => 'others',
+            'beneficiary_id' => Beneficiary::factory()->create()->id,
         ]);
 
         $this->response = $this->json(
@@ -335,6 +331,7 @@ class GiftCardAPITest extends TestCase
         $giftCard = GiftCard::factory()->create([
             'owner_user_id' => $customer->user_id,
             'belonging_type' => 'others',
+            'beneficiary_id' => Beneficiary::factory()->create()->id,
         ]);
 
         $qr = QrSession::factory()->create([

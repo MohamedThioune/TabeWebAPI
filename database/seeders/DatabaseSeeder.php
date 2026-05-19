@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             CustomerSeeder::class,
             DesignsTableSeeder::class,
             CategoriesTableSeeder::class,
+            BeneficiariesTableSeeder::class,
             // UserCategoriesTableSeeder::class,
             OptionsTableSeeder::class,
         ]);
