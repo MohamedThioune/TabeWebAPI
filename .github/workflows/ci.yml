@@ -55,6 +55,7 @@ jobs:
       - name: ⚙️ Setup .env
         run: |
           cp .env.example .env.testing
+          sed -i 's|APP_URL=.*|APP_URL=http://localhost|' .env.testing
           sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env.testing
           sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env.testing
           sed -i 's/DB_PORT=.*/DB_PORT=3306/' .env.testing
