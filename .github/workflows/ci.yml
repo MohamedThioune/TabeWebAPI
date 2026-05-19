@@ -102,7 +102,7 @@ jobs:
         run: composer dump-autoload
 
       - name: 🧪 Run tests
-        run: php artisan test --filter=GiftCardAPITest
+        run: php artisan test
 
   # ─────────────────────────────────────────
   # JOB 2 — Quality code (optional)
@@ -164,7 +164,7 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
-          php artisan l5-swagger:generate
+          php artisan l5:generate
 
       - name: 🚀 Install Railway CLI
         run: npm install -g @railway/cli
