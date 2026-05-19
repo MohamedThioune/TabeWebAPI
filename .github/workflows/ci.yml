@@ -69,7 +69,7 @@ jobs:
         run: php artisan key:generate --env=testing
 
       - name: 🔑 Generate Passport keys
-        run: php artisan passport:keys --env=testing
+        run: php artisan passport:keys  --force --env=testing
 
       - name: 🗄️ Run migrations
         run: php artisan migrate --env=testing --force
