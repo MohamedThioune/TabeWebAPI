@@ -37,9 +37,9 @@ COPY docker/php/start.sh /start.sh
 RUN chmod +x /start.sh
 
 # Clear caches and optimize
-RUN php artisan config:clear || true
-RUN php artisan cache:clear || true
-RUN php artisan optimize:clear || true
+RUN php artisan config:clear
+RUN php artisan cache:clear  
+#RUN php artisan optimize:clear
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html
