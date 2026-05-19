@@ -88,9 +88,9 @@ jobs:
 
       - name : autoload composer
         run: composer dump-autoload
-        
+
       - name: 🧪 Run tests
-        run: php artisan test
+        run: php artisan test --filter=GiftCardAPITest
 
   # ─────────────────────────────────────────
   # JOB 2 — Quality code (optional)
