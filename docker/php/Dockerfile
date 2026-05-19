@@ -25,18 +25,17 @@ COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
-# ENV COMPOSER_ALLOW_SUPERUSER=1
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Remove default NGINX configuration
+# Remove default NGINX configuration & copy nginx config (special railway)
 RUN rm -f /etc/nginx/sites-enabled/default
-
-# COPY NGINX CONFIG
 COPY docker/nginx/default.conf /etc/nginx/sites-available/default
 
-# COPY STARTING SCRIPT
+# Copy the start script and make it executable 
 COPY docker/php/start.sh /start.sh
 RUN chmod +x /start.sh
+
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html
@@ -45,8 +44,11 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 EXPOSE 80
 
 # Clear caches and optimize
-#RUN php artisan config:clear || true
-#RUN php artisan cache:clear || true
-#RUN php artisan optimize:clear || true
+RUN php artisan config:clear || true
+RUN php artisan cache:clear || true
+RUN php artisan optimize:clear || true
+
+# Generate application key
+RUN php artisan key:generate --show
 
 CMD ["/start.sh"]
