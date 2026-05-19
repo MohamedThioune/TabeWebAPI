@@ -50,7 +50,7 @@ jobs:
           restore-keys: composer-
 
       - name: 📦 Install dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+        run: composer install --no-dev --no-interaction --ignore-platform-reqs --disable-security-advisory
 
       - name: ⚙️ Setup .env
         run: |
@@ -98,7 +98,7 @@ jobs:
           restore-keys: composer-
 
       - name: 📦 Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-dev --no-interaction --ignore-platform-reqs --disable-security-advisory
 
       - name: 🔍 Laravel Pint (code style)
         run: ./vendor/bin/pint --test   # tu as pint dans composer.json ✅
