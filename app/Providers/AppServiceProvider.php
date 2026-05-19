@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        dd (env('APP_KEY'));
+        var_dump (env('APP_KEY'));
 
         // Alias new channel "Twilio"
         Notification::extend('twilio', function ($app) {
