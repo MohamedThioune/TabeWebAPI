@@ -25,11 +25,6 @@ COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
-# Clear caches and optimize
-RUN php artisan config:clear || true
-RUN php artisan cache:clear || true
-RUN php artisan optimize:clear || true
-
 # ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --no-dev --optimize-autoloader
 
@@ -44,13 +39,14 @@ COPY docker/php/start.sh /start.sh
 RUN chmod +x /start.sh
 
 # Set permissions
-RUN chown -R www-data:www-data /var
 RUN chown -R www-data:www-data /var/www/html
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
 
-RUN cat /etc/nginx/nginx.conf
+# Clear caches and optimize
+#RUN php artisan config:clear || true
+#RUN php artisan cache:clear || true
+#RUN php artisan optimize:clear || true
 
 CMD ["/start.sh"]
-
