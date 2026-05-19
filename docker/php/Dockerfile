@@ -33,9 +33,15 @@ RUN php artisan optimize:clear || true
 # ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --no-dev --optimize-autoloader
 
+# COPY STARTING SCRIPT
+COPY docker/php/start.sh /start.sh
+RUN chmod +x /start.sh
+
 # Set permissions
 RUN chown -R www-data:www-data /var
 RUN chown -R www-data:www-data /var/www/html
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-CMD php-fpm
+EXPOSE 80
+
+CMD ["/start.sh"]
