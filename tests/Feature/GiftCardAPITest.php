@@ -10,7 +10,7 @@ use Tests\TestCase;
 use Tests\ApiTestTrait as ApiTest;
 use App\Models\GiftCard;
 use App\Models\Design;
-use App\Models\QRSession;
+use App\Models\QrSession;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Log;
 
@@ -224,7 +224,7 @@ class GiftCardAPITest extends TestCase
             'belonging_type' => 'others',
         ]);
 
-        QRSession::factory()->create([
+        QrSession::factory()->create([
             'gift_card_id' => $giftCard?->id,
         ]);
 
@@ -296,7 +296,7 @@ class GiftCardAPITest extends TestCase
             'belonging_type' => 'others',
         ]);
 
-        QRSession::factory()->create([
+        QrSession::factory()->create([
             'gift_card_id' => $giftCard->id,
         ]);
 
@@ -335,7 +335,7 @@ class GiftCardAPITest extends TestCase
             'belonging_type' => 'others',
         ]);
 
-        $qr = QRSession::factory()->create([
+        $qr = QrSession::factory()->create([
             'gift_card_id' => $giftCard->id,
         ]);
 

@@ -144,7 +144,7 @@ class QRSessionAPIController extends AppBaseController
         }
 
         //delete the former qr
-        $former_qr = QRSession::where('gift_card_id', $input['gift_card_id'])->first();
+        $former_qr = QrSession::where('gift_card_id', $input['gift_card_id'])->first();
         if ($former_qr) $former_qr->delete(); //safe delete on the last state of this QR
 
         //process the creation of the qr code
