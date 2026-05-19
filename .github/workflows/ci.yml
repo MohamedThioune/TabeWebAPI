@@ -1,0 +1,169 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─────────────────────────────────────────
+  # JOB 1 — Tests
+  # ─────────────────────────────────────────
+  test:
+    name: 🧪 Tests
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql, redis, zip
+          coverage: none
+
+      # Cache dependency composer 
+      - name: 📦 Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: 📦 Install dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: ⚙️ Setup .env
+        run: |
+          cp .env.example .env.testing
+          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env.testing
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env.testing
+          sed -i 's/DB_PORT=.*/DB_PORT=3306/' .env.testing
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=testing/' .env.testing
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env.testing
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/' .env.testing
+          sed -i 's/QUEUE_CONNECTION=.*/QUEUE_CONNECTION=redis/' .env.testing
+          sed -i 's/REDIS_HOST=.*/REDIS_HOST=127.0.0.1/' .env.testing
+
+      - name: 🔑 Generate app key
+        run: php artisan key:generate --env=testing
+
+      - name: 🔑 Generate Passport keys
+        run: php artisan passport:keys --env=testing
+
+      - name: 🗄️ Run migrations
+        run: php artisan migrate --env=testing --force
+
+      - name: 🧪 Run tests
+        run: php artisan test --parallel
+
+  # ─────────────────────────────────────────
+  # JOB 2 — Quality code (optional)
+  # ─────────────────────────────────────────
+  lint:
+    name: 🔍 Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: 📦 Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: 📦 Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: 🔍 Laravel Pint (code style)
+        run: ./vendor/bin/pint --test   # tu as pint dans composer.json ✅
+
+  # ─────────────────────────────────────────
+  # JOB 3 — Deploy (uniquement sur main)
+  # ─────────────────────────────────────────
+  deploy:
+    name: 🚀 Deploy
+    needs: [test, lint]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql, redis, zip
+
+      - name: 📦 Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: 📦 Install dependencies (prod)
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: 📄 Generate Swagger docs
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan l5-swagger:generate
+
+      - name: 🚀 Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: 🚀 Deploy App
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service ${{ secrets.RAILWAY_SERVICE_ID }}
+
+      - name: ⚙️ Deploy Worker
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service ${{ secrets.RAILWAY_WORKER_SERVICE_ID }}
+
+      - name: 🗄️ Run migrations (production)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} \
+            php artisan migrate --force
+
+      - name: 🔄 Clear & cache config (production)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} \
+            php artisan config:clear \
+            php artisan cache:clear \
+            php artisan optimize:clear \
+            php artisan optimize

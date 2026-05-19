@@ -26,7 +26,13 @@ return [
         // for pre-prod, you get it here :
         'https://tabe.thenexcom.com',
         'https://partners.tabe.thenexcom.com',
-        'https://admin.tabe.thenexcom.com'
+        'https://admin.tabe.thenexcom.com',
+
+        // for prod, you get it here :
+        'https://app.cartetabe.sn',
+        'https://partners.cartetabe.sn',
+        'https://admin.cartetabe.sn',
+
     ],
 
     'allowed_origins_patterns' => [],
