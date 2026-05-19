@@ -47,4 +47,7 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
 
+RUN cat /etc/nginx/nginx.conf
+
 CMD ["/start.sh"]
+
