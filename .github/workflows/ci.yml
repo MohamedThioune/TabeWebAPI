@@ -162,31 +162,21 @@ jobs:
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader 
 
       - name: 🚀 Deploy App
-        uses: bervProject/railway-deploy@main
-        with:
-          railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          service: ${{ secrets.RAILWAY_SERVICE_ID }}
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ secrets.RAILWAY_SERVICE_ID }}\") }"
+            }' \
+            https://backboard.railway.app/graphql/v2
 
       - name: ⚙️ Deploy Worker
-        uses: bervProject/railway-deploy@main
-        with:
-          railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          service: ${{ secrets.RAILWAY_WORKER_SERVICE_ID }}
-
-      - name: 🚀 Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: 🗄️ Run migrations
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan migrate --force
-
-      - name: 📄 Generate Swagger
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan l5-swagger:generate
-
-      - name: 🔄 Optimize
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan optimize
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ secrets.RAILWAY_WORKER_SERVICE_ID }}\") }"
+            }' \
+            https://backboard.railway.app/graphql/v2
