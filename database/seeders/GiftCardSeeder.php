@@ -15,3 +15,4 @@ class GiftCardSeeder extends Seeder
         \App\Models\GiftCard::factory(5)->create();
     }
 }
+ 
