@@ -13,10 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create a admin user 
-        $user = User::factory()->create();
-        $user->assignRole('admin');
-
         $this->call([
             //Seeds the roles, partners, customers, designs, categories, user_categories
             RoleSeeder::class,
@@ -28,5 +24,11 @@ class DatabaseSeeder extends Seeder
             // UserCategoriesTableSeeder::class,
             OptionsTableSeeder::class,
         ]);
+
+        // Create a admin user 
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+
     }
 }
