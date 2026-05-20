@@ -228,7 +228,7 @@ class GiftCardAPITest extends TestCase
             '/api/gift-cards?per_page=1&page=1'
         );
 
-        var_dump($this->response->getContent());
+        // var_dump($this->response->getContent());
 
         //assert status(200) & the response data matches the correct structure
         $this->response
@@ -267,7 +267,7 @@ class GiftCardAPITest extends TestCase
             '/api/gift-cards/share/'. $giftCard?->id,
         );
 
-        var_dump($this->response->getContent());
+        // var_dump($this->response->getContent());
 
         $this->assertApiSuccess();
 

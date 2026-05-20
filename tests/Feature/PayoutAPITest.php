@@ -117,6 +117,8 @@ class PayoutAPITest extends TestCase
             '/api/payouts/request?show_transactions=1', $data, $headers
         );
 
+        var_dump($this->response->getContent());
+
         //Assert success 
         $this->assertApiSuccess();
 
