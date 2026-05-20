@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
 
-    container_name: carte_tabe_app
+    container_name: app_tabe
     working_dir: /var/www/html
     volumes:
       - .:/var/www/html
@@ -17,7 +17,7 @@ services:
 
   nginx:
     image: nginx:latest
-    container_name: carte_tabe_nginx
+    container_name: nginx_tabe
     ports:
       - "8000:80"
     volumes:
@@ -28,4 +28,4 @@ services:
 
   redis:
     image: redis:latest
-    container_name: carte_tabe_redis
+    container_name: redis_tabe
