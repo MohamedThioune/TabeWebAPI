@@ -178,7 +178,8 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} \
-            php artisan migrate --force
+            php artisan migrate --force \
+            php artisan l5:generate
 
       - name: 🔄 Clear & cache config (production)
         env:
