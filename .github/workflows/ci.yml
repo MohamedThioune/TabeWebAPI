@@ -102,7 +102,7 @@ jobs:
         run: composer dump-autoload
 
       - name: 🧪 Run tests
-        run: php artisan test --filter=PayoutAPITest
+        run: php artisan test
 
   # ─────────────────────────────────────────
   # JOB 2 — Quality code (optional)

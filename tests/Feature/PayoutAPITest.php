@@ -121,7 +121,7 @@ class PayoutAPITest extends TestCase
             '/api/payouts/request?show_transactions=1', $data, $headers
         );
 
-        var_dump($this->response->getContent());
+        // var_dump($this->response->getContent());
 
         //Assert success 
         $this->assertApiSuccess();
@@ -129,8 +129,8 @@ class PayoutAPITest extends TestCase
         // Assert that a notification was sent to the admin...
         $admin = User::role('admin')->first();
         Notification::assertSentTo(
-            [$user],
-            \App\Notifications\SharedCardNotification::class
+            [$admin],
+            \App\Notifications\TransactionNotification::class
         );
 
         //Assert the structure of the response
