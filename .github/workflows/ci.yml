@@ -139,8 +139,7 @@ jobs:
     needs: [test, lint]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: keen-encouragement/production  
-
+    environment: production  
 
     steps:
       - name: 📥 Checkout code
