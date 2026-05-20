@@ -80,11 +80,11 @@ jobs:
       - name: 🔑 Generate app key
         run: php artisan key:generate --env=testing
 
-      - name: 🔑 Setup Passport
-        run: php artisan passport:install --force --env=testing
-        
       - name: 🗄️ Run migrations
         run: php artisan migrate --env=testing --force
+
+      - name: 🔑 Setup Passport
+        run: php artisan passport:install --force --env=testing
 
       - name: 🗄️ Run seeds
         run: php artisan db:seed --env=testing --force
@@ -100,8 +100,6 @@ jobs:
 
       - name : autoload composer
         run: composer dump-autoload
-
-      
 
       - name: 🧪 Run tests
         run: php artisan test
