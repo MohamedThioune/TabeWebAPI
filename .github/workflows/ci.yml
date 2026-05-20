@@ -161,33 +161,32 @@ jobs:
       - name: 📦 Install dependencies (prod)
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader 
 
+      - name: 🚀 Deploy App
+        uses: bervProject/railway-deploy@main
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: ${{ secrets.RAILWAY_SERVICE_ID }}
+
+      - name: ⚙️ Deploy Worker
+        uses: bervProject/railway-deploy@main
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: ${{ secrets.RAILWAY_WORKER_SERVICE_ID }}
+
       - name: 🚀 Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: 🚀 Deploy App
+      - name: 🗄️ Run migrations
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service ${{ secrets.RAILWAY_SERVICE_ID }}
+        run: railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan migrate --force
 
-      - name: ⚙️ Deploy Worker
+      - name: 📄 Generate Swagger
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service ${{ secrets.RAILWAY_WORKER_SERVICE_ID }}
+        run: railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan l5-swagger:generate
 
-      - name: 🗄️ Run migrations (production)
+      - name: 🔄 Optimize
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} \
-            php artisan migrate --force \
-            php artisan l5:generate
-
-      - name: 🔄 Clear & cache config (production)
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} \
-            php artisan config:clear \
-            php artisan cache:clear \
-            php artisan optimize:clear \
-            php artisan optimize
+        run: railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan optimize
