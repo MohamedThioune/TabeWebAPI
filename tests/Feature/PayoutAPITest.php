@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Tests\ApiTestTrait as ApiTest;
@@ -82,6 +83,9 @@ class PayoutAPITest extends TestCase
     */
     public function test_request_success_payout(): void
     {
+        //Mock notification
+        Notification::fake();
+
         //Acting as a partner
         $user = ApiTest::actingAsPartner();
 
@@ -121,6 +125,13 @@ class PayoutAPITest extends TestCase
 
         //Assert success 
         $this->assertApiSuccess();
+
+        // Assert that a notification was sent to the admin...
+        $admin = User::role('admin')->first();
+        Notification::assertSentTo(
+            [$user],
+            \App\Notifications\SharedCardNotification::class
+        );
 
         //Assert the structure of the response
         $this->response->assertJsonStructure([
