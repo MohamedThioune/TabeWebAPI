@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             DesignsTableSeeder::class,
             CategoriesTableSeeder::class,
             BeneficiariesTableSeeder::class,
+            GiftCardSeeder::class,
             // UserCategoriesTableSeeder::class,
             OptionsTableSeeder::class,
         ]);
