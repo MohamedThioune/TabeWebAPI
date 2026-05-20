@@ -180,21 +180,3 @@ jobs:
               "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ secrets.RAILWAY_WORKER_SERVICE_ID }}\", environmentId: \"${{ secrets.RAILWAY_ENVIRONMENT_ID }}\") }"
             }' \
             https://backboard.railway.app/graphql/v2
-
-      - name: 🚀 Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: 🗄️ Run migrations
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan migrate --force
-
-      - name: 📄 Generate Swagger
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan l5-swagger:generate
-
-      - name: 🔄 Optimize
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan optimize
