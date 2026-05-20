@@ -167,7 +167,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ secrets.RAILWAY_SERVICE_ID }}\") }"
+              "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ secrets.RAILWAY_SERVICE_ID }}\", environmentId: \"${{ secrets.RAILWAY_ENVIRONMENT_ID }}\") }"
             }' \
             https://backboard.railway.app/graphql/v2
 
@@ -177,7 +177,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ secrets.RAILWAY_WORKER_SERVICE_ID }}\") }"
+              "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ secrets.RAILWAY_WORKER_SERVICE_ID }}\", environmentId: \"${{ secrets.RAILWAY_ENVIRONMENT_ID }}\") }"
             }' \
             https://backboard.railway.app/graphql/v2
 
