@@ -160,12 +160,6 @@ jobs:
       - name: 📦 Install dependencies (prod)
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader 
 
-      - name: 📄 Generate Swagger docs
-        run: |
-          cp .env.example .env
-          php artisan key:generate
-          php artisan l5:generate
-
       - name: 🚀 Install Railway CLI
         run: npm install -g @railway/cli
 

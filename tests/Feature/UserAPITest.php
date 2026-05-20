@@ -121,7 +121,7 @@ class UserAPITest extends TestCase
             $data
         );
 
-        var_dump($this->response->getContent());
+        // var_dump($this->response->getContent());
 
         $this->response->assertStatus(200);
 
