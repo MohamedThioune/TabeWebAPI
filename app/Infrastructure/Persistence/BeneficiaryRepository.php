@@ -10,7 +10,7 @@ class BeneficiaryRepository extends BaseRepository
     protected $fieldSearchable = [
         'fullname',
         'phone',
-        'email'
+        'email',
     ];
 
     public function getFieldsSearchable(): array

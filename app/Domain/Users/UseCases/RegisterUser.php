@@ -5,9 +5,6 @@ namespace App\Domain\Users\UseCases;
 use App\Domain\Users\Entities\User;
 use App\Domain\Users\ValueObjects\Phone;
 use App\Domain\Users\ValueObjects\Type;
-use App\Http\Resources\CustomerResource;
-use App\Http\Resources\EnterpriseResource;
-use App\Http\Resources\PartnerResource;
 use App\Infrastructure\Persistence\CustomerRepository;
 use App\Infrastructure\Persistence\EnterpriseRepository;
 use App\Infrastructure\Persistence\PartnerRepository;
@@ -15,39 +12,38 @@ use App\Infrastructure\Persistence\UserRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Models\User as ModelUser;
+
 use function Laravel\Prompts\error;
 
 class RegisterUser
 {
-
-    public function __construct(private UserRepository $userRepository, private CustomerRepository $customerRepository, private PartnerRepository $partnerRepository, private EnterpriseRepository $enterpriseRepository){}
+    public function __construct(private UserRepository $userRepository, private CustomerRepository $customerRepository, private PartnerRepository $partnerRepository, private EnterpriseRepository $enterpriseRepository) {}
 
     public function execute(array $dto)
     {
         DB::beginTransaction();
         try {
-            //Instance of the entity user
+            // Instance of the entity user
             $user = new User(
                 id: Str::uuid()->toString(),
                 type: $dto['type'],
-                firstName: !isset($dto['first_name']) ? null : $dto['first_name'],
-                lastName: !isset($dto['last_name']) ? null : $dto['last_name'],
+                firstName: ! isset($dto['first_name']) ? null : $dto['first_name'],
+                lastName: ! isset($dto['last_name']) ? null : $dto['last_name'],
                 gender: null,
                 phone: new Phone($dto['phone']),
                 whatsApp: new Phone($dto['whatsApp']),
                 email: $dto['email'],
                 passwordHash: Hash::make($dto['password']),
-                name: !isset($dto['name']) ? null : $dto['name'],
-                sector: !isset($dto['sector']) ? null : $dto['sector'],
+                name: ! isset($dto['name']) ? null : $dto['name'],
+                sector: ! isset($dto['sector']) ? null : $dto['sector'],
                 customerId: Str::uuid()->toString(),
                 partnerId: Str::uuid()->toString(),
                 enterpriseId: Str::uuid()->toString()
             );
 
-            //Create the model user
+            // Create the model user
             $modelUser = $this->userRepository->save($user);
-            //Assign the role of the user
+            // Assign the role of the user
             $modelUser->assignRole($dto['type']);
             /** Now create the child model between('customer', 'partner', 'enterprise')*/
             match ($dto['type']) {
@@ -57,12 +53,13 @@ class RegisterUser
             };
 
             DB::commit();
+
             return $modelUser;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
             Log:error($e->getMessage());
-            return (Object)$e->getMessage();
+
+            return (object) $e->getMessage();
         }
     }
 }

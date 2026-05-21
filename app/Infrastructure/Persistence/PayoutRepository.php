@@ -16,7 +16,7 @@ class PayoutRepository extends BaseRepository
         'status',
         'user_id',
         'reference_number',
-        'transaction_id'
+        'transaction_id',
     ];
 
     public function getFieldsSearchable(): array
@@ -30,43 +30,47 @@ class PayoutRepository extends BaseRepository
     }
 
     /*
-    * @Override allQuery method 
+    * @Override allQuery method
     */
-    public function allQuery(array $search = [], int $skip = null, int $limit = null): Builder
+    public function allQuery(array $search = [], ?int $skip = null, ?int $limit = null): Builder
     {
-        $query = Parent::allQuery($search, $skip, $limit);
+        $query = parent::allQuery($search, $skip, $limit);
         $query->whereNull('next_payout_id');
 
         return $query;
     }
 
-    public function getPayoutInProgressByUser(string $userId = null): ?Builder
+    public function getPayoutInProgressByUser(?string $userId = null): ?Builder
     {
         $query = $this->model::query();
+
         return $query->when($userId, function (Builder $q) use ($userId) {
             $q->where('user_id', $userId);
         })->where('status', 'authorized');
     }
 
-    public function getPayoutCompletedByUser(string $userId = null): ?Builder
+    public function getPayoutCompletedByUser(?string $userId = null): ?Builder
     {
         $query = $this->model::query();
+
         return $query->when($userId, function (Builder $q) use ($userId) {
             $q->where('user_id', $userId);
         })->where('status', 'completed');
     }
 
-    public function getPayoutCancelledByUser(string $userId = null): ?Builder
+    public function getPayoutCancelledByUser(?string $userId = null): ?Builder
     {
         $query = $this->model::query();
+
         return $query->when($userId, function (Builder $q) use ($userId) {
             $q->where('user_id', $userId);
         })->where('status', 'cancelled');
     }
 
-    public function getPayoutFailedByUser(string $userId = null): ?Builder
+    public function getPayoutFailedByUser(?string $userId = null): ?Builder
     {
         $query = $this->model::query();
+
         return $query->when($userId, function (Builder $q) use ($userId) {
             $q->where('user_id', $userId);
         })->where('status', 'failed');
@@ -75,6 +79,7 @@ class PayoutRepository extends BaseRepository
     public function getTimeline(string $payoutId): ?Builder
     {
         $payout = $this->find($payoutId);
+
         return $payout->timeline();
     }
 }

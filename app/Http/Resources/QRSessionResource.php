@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class QRSessionResource extends JsonResource
@@ -9,7 +10,7 @@ class QRSessionResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
@@ -21,7 +22,7 @@ class QRSessionResource extends JsonResource
             'url' => $this->url,
             'expired_at' => $this->expired_at,
             'created_at' => $this->created_at,
-             // 'updated_at' => $this->updated_at
+            // 'updated_at' => $this->updated_at
         ];
     }
 }

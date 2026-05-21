@@ -9,19 +9,19 @@ use Illuminate\Support\Facades\Log;
 
 class GenerateCardEvents
 {
-    public function __construct(private CardEventRepository $cardEventRepository){}
+    public function __construct(private CardEventRepository $cardEventRepository) {}
+
     /**
      * Handle the event.
      */
     public function handle(CardOperated $event)
     {
-        if(!$event->cardEvent){
+        if (! $event->cardEvent) {
             return;
         }
         try {
             $this->cardEventRepository->create($event->cardEvent->toArray());
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             $event->errorMessage['event'] = $e->getMessage();
             Log::error($event->errorMessage['event']);

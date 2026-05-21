@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class CustomerFactory extends Factory
 {
@@ -23,6 +23,7 @@ class CustomerFactory extends Factory
         $user = User::factory()->create();
         $user->assignRole('customer');
         $gender = fake()->randomElement(['male', 'female']);
+
         return [
             'first_name' => fake()->firstName($gender),
             'last_name' => fake()->lastName(),

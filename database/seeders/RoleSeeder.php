@@ -1,11 +1,10 @@
 <?php
 
 namespace Database\Seeders;
-use App\Domain\Users\ValueObjects\Type;
-use Spatie\Permission\Models\Role;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Domain\Users\ValueObjects\Type;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {

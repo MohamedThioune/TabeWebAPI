@@ -1,26 +1,26 @@
 <?php
 
 namespace Tests;
-use Illuminate\Support\Collection;
-use App\Models\User;
+
 use App\Models\Customer;
 use App\Models\Partner;
-use Laravel\Sanctum\Sanctum;
+use Illuminate\Support\Collection;
 use Laravel\Passport\Passport;
 
 trait ApiTestTrait
 {
     private $response;
+
     public static array $pagination = [
-            'previous_page',
-            'current_page',
-            'next_page',
-            'total_pages',
-            'per_page',
-            'total_items'
+        'previous_page',
+        'current_page',
+        'next_page',
+        'total_pages',
+        'per_page',
+        'total_items',
     ];
 
-    // public function assertApiResponse(Collection $actualData): void 
+    // public function assertApiResponse(Collection $actualData): void
     // {
     //     $this->assertApiSuccess();
 
@@ -31,17 +31,21 @@ trait ApiTestTrait
     //     $this->assertModelData($actualData, $responseData);
     // }
 
-    public static function actingAsCustomer(){
+    public static function actingAsCustomer()
+    {
         $customer = Customer::factory()->create();
         $user = $customer->user;
         Passport::actingAs($user);
+
         return $user;
     }
 
-    public static function actingAsPartner(){
+    public static function actingAsPartner()
+    {
         $partner = Partner::factory()->create();
         $user = $partner->user;
         Passport::actingAs($user);
+
         return $user;
     }
 
@@ -90,9 +94,9 @@ trait ApiTestTrait
     //         $this->assertEquals($actualData[$key], $expectedData[$key]);
     //     }
     // }
-    
+
     // Assert model data
-    protected function assertModelData(Collection $expected, Collection $actual): void 
+    protected function assertModelData(Collection $expected, Collection $actual): void
     {
         $expected->each(function ($value, $key) use ($actual) {
             $this->assertEquals(
@@ -102,6 +106,4 @@ trait ApiTestTrait
             );
         });
     }
-
 }
- 

@@ -2,13 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Domain\Users\ValueObjects\Type;
 use App\Models\Beneficiary;
-use App\Models\Category;
 use App\Models\Design;
 use App\Models\GiftCard;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Domain\Users\ValueObjects\Type;
 
 class GiftCardFactory extends Factory
 {
@@ -29,8 +28,8 @@ class GiftCardFactory extends Factory
 
         return [
             'code' => $this->faker->regexify('#[A-Z]{4}-\d{4}-[A-Z]#'),
-            'status' => "active",
-            'type' => $this->faker->randomElement(['physical', 'digital']),  
+            'status' => 'active',
+            'type' => $this->faker->randomElement(['physical', 'digital']),
             'belonging_type' => $this->faker->randomElement(['myself', 'others']),
             'face_amount' => $this->faker->numberBetween(config('parameter.card.min_amount'), config('parameter.card.max_amount')),
             'expired_at' => $this->faker->dateTimeBetween('+3 week', '+3 months'),
@@ -39,7 +38,7 @@ class GiftCardFactory extends Factory
             'beneficiary_id' => $this->faker->randomElement(Beneficiary::pluck('id')),
             'design_id' => $this->faker->randomElement(Design::pluck('id')),
             'created_at' => $this->faker->date('Y-m-d H:i:s'),
-            'updated_at' => $this->faker->date('Y-m-d H:i:s')
+            'updated_at' => $this->faker->date('Y-m-d H:i:s'),
         ];
     }
 }

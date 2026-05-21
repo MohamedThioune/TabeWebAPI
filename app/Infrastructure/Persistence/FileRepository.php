@@ -11,7 +11,7 @@ class FileRepository extends BaseRepository
         'type',
         'path',
         'meaning',
-        'description'
+        'description',
     ];
 
     public function getFieldsSearchable(): array

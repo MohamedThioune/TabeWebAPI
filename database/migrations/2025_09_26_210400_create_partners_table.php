@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('country')->nullable();
 
             $table->enum('payout_method', ['bank_transfer', 'mobile_money'])->default('mobile_money');
-            $table->string('payout_account')->nullable(); //Number(OM,WAVE)
+            $table->string('payout_account')->nullable(); // Number(OM,WAVE)
 
             $table->enum('kyc_status', ['pending', 'verified', 'rejected', 'not_submitted'])->default('not_submitted');
 

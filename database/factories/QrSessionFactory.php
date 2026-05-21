@@ -2,14 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\QrSession;
-use App\Models\GiftCard;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Domain\GiftCards\UseCases\CardFullyGenerated;
+use App\Models\GiftCard;
+use App\Models\QrSession;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-
-
-class QrSessionFactory extends Factory 
+class QrSessionFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
@@ -27,6 +25,7 @@ class QrSessionFactory extends Factory
     {
         $qr_id = $this->faker->uuid();
         $qr = CardFullyGenerated::qr_url($qr_id);
+
         return [
             'id' => $qr_id,
             'status' => 'pending',
@@ -35,7 +34,7 @@ class QrSessionFactory extends Factory
             'gift_card_id' => $this->faker->randomElement(GiftCard::pluck('id')),
             'expired_at' => $this->faker->dateTimeBetween('+1 week', '+3 months'),
             'created_at' => $this->faker->date('Y-m-d H:i:s'),
-            'updated_at' => $this->faker->date('Y-m-d H:i:s')
+            'updated_at' => $this->faker->date('Y-m-d H:i:s'),
         ];
     }
 }

@@ -2,19 +2,15 @@
 
 namespace Database\Seeders;
 
-use App\Domain\Users\ValueObjects\Type;
 use App\Models\Category;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class CategoriesTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run() : void
+    public function run(): void
     {
         Category::firstOrCreate(['name' => 'Vêtements']);
         Category::firstOrCreate(['name' => 'Accessoires']);

@@ -2,11 +2,10 @@
 
 namespace App\Events;
 
-use App\Models\User;
 use App\Models\GiftCard;
+use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -30,21 +29,21 @@ class PurchaseMerchantProcessed implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): Channel
     {
-        return 
-            new PrivateChannel('notifs.client.' . $this->userCustomer->id);
+        return new PrivateChannel('notifs.client.'.$this->userCustomer->id);
     }
 
     public function broadcastWith(): array
     {
-        $shop_name = $this->userMerchant->partner->first()->name ?? "votre marchand";
+        $shop_name = $this->userMerchant->partner->first()->name ?? 'votre marchand';
+
         return [
-            "title" => "Achat effectué 🎊 !",
-            "message" => "Votre achat d'un montant de " . $this->amount . " a été effectué avec succès chez " . $shop_name . " ! Merci pour votre confiance .",
-            "gift_card" => [
+            'title' => 'Achat effectué 🎊 !',
+            'message' => "Votre achat d'un montant de ".$this->amount.' a été effectué avec succès chez '.$shop_name.' ! Merci pour votre confiance .',
+            'gift_card' => [
                 'id' => $this->giftCard?->id,
                 'code' => $this->giftCard?->code,
                 'face_amount' => $this->giftCard?->face_amount,
@@ -52,7 +51,7 @@ class PurchaseMerchantProcessed implements ShouldBroadcast
                 'expired_at' => $this->giftCard?->expired_at,
                 'beneficiary' => $this->giftCard?->beneficiary?->only('id', 'full_name', 'phone'),
             ],
-            "notification_count" => $this->userCustomer->unreadNotifications()->count()
+            'notification_count' => $this->userCustomer->unreadNotifications()->count(),
         ];
     }
 }

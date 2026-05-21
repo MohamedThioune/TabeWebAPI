@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Requests\API\CreateOptionAPIRequest;
+use App\Helpers\Parameter;
+use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\UpdateOptionAPIRequest;
-use App\Models\Option;
+use App\Http\Resources\OptionResource;
 use App\Infrastructure\Persistence\OptionRepository;
+use App\Models\Option;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AppBaseController;
-use App\Http\Resources\OptionResource;
-use App\Helpers\Parameter;
 
 /**
  * Class OptionController
  */
-
 class OptionAPIController extends AppBaseController
 {
-    /** @var  OptionRepository */
+    /** @var OptionRepository */
     private $optionRepository;
 
     public function __construct(OptionRepository $optionRepo)
@@ -32,11 +30,14 @@ class OptionAPIController extends AppBaseController
      *      summary="getOptionList",
      *      tags={"Option"},
      *      description="Get all the app options",
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -78,15 +79,20 @@ class OptionAPIController extends AppBaseController
      *      summary="updateOption",
      *      tags={"Option"},
      *      description="Update Options",
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Option")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -102,17 +108,17 @@ class OptionAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
+     */
     public function update(UpdateOptionAPIRequest $request): JsonResponse
     {
         $input = $request->all();
         $input = [
             'min_amount_card' => $input['min_amount_card'] ?? Parameter::minAmountCard(),
             'max_amount_card' => $input['max_amount_card'] ?? Parameter::maxAmountCard(),
-            'period_validity_card' => $input['period_validity_card'] ?? Parameter::periodValidityCard()
+            'period_validity_card' => $input['period_validity_card'] ?? Parameter::periodValidityCard(),
         ];
 
-        /** @var Option $option */        
+        /** @var Option $option */
         $option = $this->optionRepository->create($input);
 
         return $this->sendResponse(new OptionResource($option), 'App Option updated successfully');
@@ -124,11 +130,14 @@ class OptionAPIController extends AppBaseController
      *      summary="deleteOption",
      *      tags={"Option"},
      *      description="Delete Option",
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"

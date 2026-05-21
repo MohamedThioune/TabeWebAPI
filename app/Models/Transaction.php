@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\SoftDeletes; 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Helpers\Parameter;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @OA\Schema(
  *      schema="Transaction",
  *      required={"status", "amount", "gift_card_id", "user_id"},
+ *
  *      @OA\Property(
  *          property="currency",
  *          description="",
@@ -44,7 +45,7 @@ use App\Helpers\Parameter;
  *      @OA\Property(
  *        property="user_id",
  *        description="",
- *        readOnly=false,        
+ *        readOnly=false,
  *        nullable=false,
  *        type="string",
  *      ),
@@ -65,12 +66,11 @@ use App\Helpers\Parameter;
  *          format="date-time"
  *      )
  * )
-*/
-
+ */
 class Transaction extends Model
 {
-    use SoftDeletes, HasFactory, HasUuids;    
-    
+    use HasFactory, HasUuids, SoftDeletes;
+
     public $table = 'transactions';
 
     public $fillable = [
@@ -80,7 +80,7 @@ class Transaction extends Model
         'user_id',
         'gift_card_id',
         'parent_transaction_id',
-        'next_transaction_id'
+        'next_transaction_id',
     ];
 
     protected $casts = [
@@ -91,14 +91,14 @@ class Transaction extends Model
     {
         return [
             'status' => 'string|in:authorized,captured,cancelled,refunded,failed',
-            'amount' => 'required|integer|between:' . Parameter::minAmountCard() . ',' . Parameter::maxAmountCard(),
+            'amount' => 'required|integer|between:'.Parameter::minAmountCard().','.Parameter::maxAmountCard(),
             'gift_card_id' => 'required|string|exists:gift_cards,id',
         ];
     }
 
     public static array $rules_confirm = [
         'otp_code' => 'string|min:6|max:6',
-        'action' => 'required|string|in:cancel,confirm'
+        'action' => 'required|string|in:cancel,confirm',
     ];
 
     public static array $rules_listed = [
@@ -110,7 +110,7 @@ class Transaction extends Model
     {
         return $this->belongsTo(GiftCard::class);
     }
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);

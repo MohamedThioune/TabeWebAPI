@@ -9,10 +9,8 @@ class DesignsTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run() : void
+    public function run(): void
     {
         Design::firstOrCreate(['name' => 'Classic']);
         Design::firstOrCreate(['name' => 'Moderne']);

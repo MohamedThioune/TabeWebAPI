@@ -10,6 +10,7 @@ class OTPRequest extends Model
     use HasUuids;
 
     public $table = 'otp_requests';
+
     protected $fillable = [
         'id',
         'user_id',
@@ -34,7 +35,8 @@ class OTPRequest extends Model
         'otp_code' => 'required|string|min:6|max:6',
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

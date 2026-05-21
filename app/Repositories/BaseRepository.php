@@ -2,7 +2,6 @@
 
 namespace App\Repositories;
 
-use Illuminate\Container\Container as Application;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -37,15 +36,16 @@ abstract class BaseRepository
     /**
      * Make Model instance
      *
-     * @throws \Exception
      *
      * @return Model
+     *
+     * @throws \Exception
      */
     public function makeModel()
     {
         $model = app($this->model());
 
-        if (!$model instanceof Model) {
+        if (! $model instanceof Model) {
             throw new \Exception("Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model");
         }
 
@@ -55,7 +55,7 @@ abstract class BaseRepository
     /**
      * Build a query for retrieving all records.
      */
-    public function allQuery(array $search = [], int $skip = null, int $limit = null): Builder
+    public function allQuery(array $search = [], ?int $skip = null, ?int $limit = null): Builder
     {
         $searchable = $this->getFieldsSearchable();
         $query = $this->model->newQuery();
@@ -71,9 +71,9 @@ abstract class BaseRepository
         $query->when($filter_by_date, function ($query, $filter_by_date) {
             $ranges = [
                 'today' => [Carbon::now()->startOfDay(),   Carbon::now()->endOfDay()],
-                'week'  => [Carbon::now()->startOfWeek(),  Carbon::now()->endOfWeek()],
+                'week' => [Carbon::now()->startOfWeek(),  Carbon::now()->endOfWeek()],
                 'month' => [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()],
-                'year'  => [Carbon::now()->startOfYear(),  Carbon::now()->endOfYear()],
+                'year' => [Carbon::now()->startOfYear(),  Carbon::now()->endOfYear()],
             ];
 
             if (isset($ranges[$filter_by_date])) {
@@ -81,9 +81,9 @@ abstract class BaseRepository
             }
         });
 
-        $query->when(!is_null($skip), fn ($query) => $query->skip($skip));
+        $query->when(! is_null($skip), fn ($query) => $query->skip($skip));
 
-        $query->when(!is_null($limit), fn ($query) => $query->limit($limit));
+        $query->when(! is_null($limit), fn ($query) => $query->limit($limit));
 
         $query->orderBy('created_at', 'desc');
 
@@ -110,20 +110,19 @@ abstract class BaseRepository
     /**
      * Retrieve all records with given filter criteria
      */
-    public function all(array $search = [], int $skip = null, int $limit = null, array $columns = ['*']): Collection
+    public function all(array $search = [], ?int $skip = null, ?int $limit = null, array $columns = ['*']): Collection
     {
         $query = $this->allQuery($search, $skip, $limit);
 
         return $query->get($columns);
     }
 
-
     /**
      * find first record with given filter criteria
      */
     public function findByFields(array $search = [], array $columns = ['*']): ?Model
     {
-        $query = $this->allQuery($search,null, null);
+        $query = $this->allQuery($search, null, null);
 
         return $query->first($columns);
     }
@@ -143,7 +142,7 @@ abstract class BaseRepository
     /**
      * Find model record for given id
      *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
+     * @return Builder|Builder[]|Collection|Model|null
      */
     public function find(string $id, array $columns = ['*'])
     {
@@ -155,7 +154,7 @@ abstract class BaseRepository
     /**
      * Update model record for given id
      *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model
+     * @return Builder|Builder[]|Collection|Model
      */
     public function update(array $input, string $id)
     {
@@ -171,9 +170,9 @@ abstract class BaseRepository
     }
 
     /**
-     * @throws \Exception
-     *
      * @return bool|mixed|null
+     *
+     * @throws \Exception
      */
     public function delete(string $id)
     {

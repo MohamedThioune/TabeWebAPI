@@ -2,15 +2,15 @@
 
 namespace Tests\APIs;
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
-use Tests\ApiTestTrait;
 use App\Models\QrSession;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class QRSessionApiTest extends TestCase
 {
-    use ApiTestTrait, WithoutMiddleware, DatabaseTransactions;
+    use ApiTestTrait, DatabaseTransactions, WithoutMiddleware;
 
     /**
      * @test
@@ -68,8 +68,8 @@ class QRSessionApiTest extends TestCase
 
         $this->response = $this->json(
             'DELETE',
-             '/api/q-r-sessions/'.$qRSession->id
-         );
+            '/api/q-r-sessions/'.$qRSession->id
+        );
 
         $this->assertApiSuccess();
         $this->response = $this->json(

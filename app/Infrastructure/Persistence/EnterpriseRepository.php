@@ -12,7 +12,7 @@ class EnterpriseRepository extends BaseRepository
         'phone',
         'size',
         'sector',
-        'address'
+        'address',
     ];
 
     public function getFieldsSearchable(): array

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('gift_cards', function (Blueprint $table) {
-            $table->enum('issued_via', ['B2C', 'B2B', 'Admin'])->default("B2C")->after('expired_at');
+            $table->enum('issued_via', ['B2C', 'B2B', 'Admin'])->default('B2C')->after('expired_at');
         });
     }
 

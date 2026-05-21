@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Domain\Users\DTO\Node;
 use App\Domain\Users\ValueObjects\Type;
+use App\Helpers\CarbonRange;
 use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\GetUsersAPIRequest;
 use App\Http\Requests\API\ModifyPasswordAPIRequest;
@@ -11,31 +12,29 @@ use App\Http\Requests\API\UpdateCustomerAPIRequest;
 use App\Http\Requests\API\UpdateEnterpriseAPIRequest;
 use App\Http\Requests\API\UpdatePartnerAPIRequest;
 use App\Http\Requests\API\UserRequest;
-use App\Http\Resources\UserResource;
 use App\Http\Resources\FileResource;
+use App\Http\Resources\UserResource;
+use App\Infrastructure\Persistence\CardEventRepository;
 use App\Infrastructure\Persistence\CustomerRepository;
 use App\Infrastructure\Persistence\EnterpriseRepository;
-use App\Infrastructure\Persistence\PartnerRepository;
-use App\Infrastructure\Persistence\UserRepository;
 use App\Infrastructure\Persistence\GiftCardRepository;
-use App\Infrastructure\Persistence\TransactionRepository;
+use App\Infrastructure\Persistence\PartnerRepository;
 use App\Infrastructure\Persistence\PayoutRepository;
-use App\Infrastructure\Persistence\CardEventRepository;
-use App\Models\User;
+use App\Infrastructure\Persistence\TransactionRepository;
+use App\Infrastructure\Persistence\UserRepository;
 use App\Models\GiftCard;
+use App\Models\User;
 use App\Notifications\ProfileUpdateNotification;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
 use Illuminate\Support\Fluent;
-use App\Helpers\CarbonRange;
-
 
 class UserAPIController extends AppBaseController
 {
-    public function __construct(private UserRepository $userRepository, private EnterpriseRepository $enterpriseRepository, private PartnerRepository $partnerRepository, private CustomerRepository $customerRepository, private GiftCardRepository $giftCardRepository, private TransactionRepository $transactionRepository, private PayoutRepository $payoutRepository, private CardEventRepository $cardEventRepository ){}
+    public function __construct(private UserRepository $userRepository, private EnterpriseRepository $enterpriseRepository, private PartnerRepository $partnerRepository, private CustomerRepository $customerRepository, private GiftCardRepository $giftCardRepository, private TransactionRepository $transactionRepository, private PayoutRepository $payoutRepository, private CardEventRepository $cardEventRepository) {}
 
     public function detached_index(array $search, Request $request, int $perPage = 8): array
     {
@@ -58,9 +57,10 @@ class UserAPIController extends AppBaseController
                 'total_pages' => $users->lastPage(),
                 'per_page' => $users->perPage(),
                 'total_items' => $users->total(),
-            ]
+            ],
         ];
     }
+
     /**
      * @OA\Get(
      *      path="/users",
@@ -68,59 +68,72 @@ class UserAPIController extends AppBaseController
      *      tags={"Admin"},
      *      description="List the users | Only for admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="type",
      *          in="query",
      *          description="Filter users by role (customer, partner)",
      *          required=false,
+     *
      *          @OA\Schema(
      *              type="string",
      *              enum={"customer", "partner"}
      *          )
      *      ),
+     *
      *     @OA\Parameter(
      *          name="is_active",
      *          in="query",
      *          description="Filter users by status (0:inactive, 1:active)",
      *          required=false,
+     *
      *          @OA\Schema(
      *              type="boolean",
      *              enum={"0","1"}
      *          )
      *      ),
+     *
      *      @OA\Parameter(
      *           name="is_phone_verified",
      *           in="query",
      *           description="Filter users by status (0:not_verified, 1:verified)",
      *           required=false,
+     *
      *           @OA\Schema(
      *               type="boolean",
      *               enum={"0","1"}
      *           )
      *       ),
+     *
      *      @OA\Parameter(
      *          name="skip",
      *          in="query",
      *          description="Skip",
      *          required=false,
+     *
      *          @OA\Schema(
      *              type="integer"
      *          )
      *      ),
+     *
      *      @OA\Parameter(
      *           name="limit",
      *           in="query",
      *           description="Limit",
      *           required=false,
+     *
      *           @OA\Schema(
      *               type="integer"
      *           )
      *       ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -146,35 +159,43 @@ class UserAPIController extends AppBaseController
 
         return $this->sendResponse($infos, 'Users retrieved successfully.');
     }
+
     /**
      * @OA\Get(
      *      path="/partners",
      *      summary="listPartners",
      *      tags={"Partner"},
      *      description="List the partners",
+     *
      *      @OA\Parameter(
      *          name="per_page",
      *          in="query",
      *          description="number items per page",
      *          required=false,
+     *
      *          @OA\Schema(
      *              type="integer"
      *          )
      *      ),
+     *
      *      @OA\Parameter(
      *           name="page",
      *           in="query",
      *           description="page number",
      *           required=false,
+     *
      *           @OA\Schema(
      *               type="integer"
      *           )
      *       ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -206,24 +227,25 @@ class UserAPIController extends AppBaseController
     {
         $input = [];
         $id = null;
-        if ($role == Type::Customer->value):
+        if ($role == Type::Customer->value) {
             $input = app(UpdateCustomerAPIRequest::class)->validated();
             $id = $user->customer()->first() ? $user->customer()->first()->id : null;
-        elseif ($role == Type::Enterprise->value):
+        } elseif ($role == Type::Enterprise->value) {
             $input = app(UpdateEnterpriseAPIRequest::class)->validated();
             $id = $user->enterprise()->first() ? $user->enterprise()->first()->id : null;
-        elseif ($role == Type::Partner->value):
+        } elseif ($role == Type::Partner->value) {
             $input = app(UpdatePartnerAPIRequest::class)->validated();
             $id = $user->partner()->first() ? $user->partner()->first()->id : null;
-        endif;
+        }
 
         return match ($role) {
             Type::Customer->value => $this->customerRepository->update($input, $id),
             Type::Enterprise->value => $this->enterpriseRepository->update($input, $id),
-            Type::Partner->value  => $this->partnerRepository->update($input, $id),
+            Type::Partner->value => $this->partnerRepository->update($input, $id),
         };
 
     }
+
     public function update(User $user, UserRequest $request): JsonResponse
     {
         $input = $request->all();
@@ -240,6 +262,7 @@ class UserAPIController extends AppBaseController
 
         return $this->sendResponse(new UserResource($user), 'Users retrieved successfully.');
     }
+
     /**
      * @OA\Patch(
      *      path="/users",
@@ -247,10 +270,14 @@ class UserAPIController extends AppBaseController
      *      tags={"User"},
      *      description="Update the user",
      *      security={{"passport":{}}},
+     *
      *      @OA\RequestBody(
+     *
      *        @OA\MediaType(
      *          mediaType="multipart/form-data",
+     *
      *           @OA\Schema(
+     *
      *             @OA\Property(
      *                 property="first_name",
      *                 type="string",
@@ -304,11 +331,14 @@ class UserAPIController extends AppBaseController
      *           ),
      *        ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation !",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -339,10 +369,10 @@ class UserAPIController extends AppBaseController
         $node = new Node(
             content: null,
             contentVariables: null,
-            level: "Info",
-            model: "profile", //
-            title: "Profil mis à jour",
-            body: "Votre fichier de profil a été traité avec succès et votre profil a été mis à jour en conséquence."
+            level: 'Info',
+            model: 'profile', //
+            title: 'Profil mis à jour',
+            body: 'Votre fichier de profil a été traité avec succès et votre profil a été mis à jour en conséquence.'
         );
         $user->notify(new ProfileUpdateNotification($node));
 
@@ -356,11 +386,14 @@ class UserAPIController extends AppBaseController
      *      tags={"User"},
      *      description="Delete permanently account user",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="status",
      *                  type="boolean"
@@ -372,9 +405,11 @@ class UserAPIController extends AppBaseController
      *          )
      *      )
      * )
+     *
      * @throws \Throwable
      */
-    public function destroy(Request $request): JsonResponse{
+    public function destroy(Request $request): JsonResponse
+    {
         $user = $request->user();
 
         if (empty($user)) {
@@ -384,32 +419,32 @@ class UserAPIController extends AppBaseController
         $role = $user->roles->pluck('name')->toArray()[0] ?? Type::Customer->value;
 
         DB::beginTransaction();
-        try{
-            //Delete entity depending on the user roles
+        try {
+            // Delete entity depending on the user roles
             match ($role) {
-                Type::Customer->value   => $user->customer()->delete(),
+                Type::Customer->value => $user->customer()->delete(),
                 Type::Enterprise->value => $user->enterprise()->delete(),
-                Type::Partner->value    => $user->partner()->delete(),
+                Type::Partner->value => $user->partner()->delete(),
 
                 default => null,
             };
 
-            $user->files()?->delete(); //delete user files
-            $user->user_categories()?->delete(); //delete user categories
-            $user->qr_sessions()?->delete(); //delete user qr_sessions
-            $user->gift_cards()?->delete();  //delete user gift cards
+            $user->files()?->delete(); // delete user files
+            $user->user_categories()?->delete(); // delete user categories
+            $user->qr_sessions()?->delete(); // delete user qr_sessions
+            $user->gift_cards()?->delete();  // delete user gift cards
 
-            $user->token()->revoke(); //disconnect
-            $user->roles()->detach(); //detach all roles of the user
+            $user->token()->revoke(); // disconnect
+            $user->roles()->detach(); // detach all roles of the user
 
-            //Finally delete the user
+            // Finally delete the user
             $user->delete();
             DB::commit();
-        }
-        catch(\Throwable $e){
+        } catch (\Throwable $e) {
             DB::rollBack();
             throw $e;
         }
+
         return $this->sendSuccess('Account deleted successfully.');
 
     }
@@ -421,10 +456,14 @@ class UserAPIController extends AppBaseController
      *      tags={"User"},
      *      description="Update password",
      *      security={{"passport":{}}},
+     *
      *      @OA\RequestBody(
+     *
      *         @OA\MediaType(
      *           mediaType="multipart/form-data",
+     *
      *           @OA\Schema(
+     *
      *               @OA\Property(
      *                    property="password",
      *                    type="string",
@@ -443,11 +482,14 @@ class UserAPIController extends AppBaseController
      *           ),
      *         ),
      *      ),
+     *
      *     @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="status",
      *                  type="boolean"
@@ -459,19 +501,19 @@ class UserAPIController extends AppBaseController
      *         )
      *     )
      * )
-    */
+     */
     public function update_password(ModifyPasswordAPIRequest $request): JsonResponse
     {
 
         $user = $request->user();
         $input = $request->only('password', 'new_password', 'new_password_confirmation');
 
-        //Check password
-        if (!Hash::check($input['password'], $user->password)) {
-            return $this->sendError("Password does not match !", 401);
+        // Check password
+        if (! Hash::check($input['password'], $user->password)) {
+            return $this->sendError('Password does not match !', 401);
         }
 
-        //Change the password
+        // Change the password
         $user->password = bcrypt($input['new_password']);
         $user->save();
 
@@ -485,11 +527,14 @@ class UserAPIController extends AppBaseController
      *      tags={"Customer"},
      *      description="Get the stats of the authenticated customer",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -504,7 +549,7 @@ class UserAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
+     */
     public function statsCustomer(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -532,11 +577,14 @@ class UserAPIController extends AppBaseController
      *      tags={"Partner"},
      *      description="Get the stats of the authenticated partner",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -551,23 +599,24 @@ class UserAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
-    public function statsPartner(Request $request): JsonResponse{
+     */
+    public function statsPartner(Request $request): JsonResponse
+    {
         $user = $request->user();
         $count_authorized_transactions = $user->transactions()->where('status', 'authorized')->count();
         $month_range = [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()];
 
-        //Payout stats
+        // Payout stats
         $count_authorized_payouts = $this->payoutRepository->getPayoutInProgressByUser($user->id)->count();
         $count_completed_payouts = $this->payoutRepository->getPayoutCompletedByUser($user->id)->count();
-        $sum_month_completed_payouts_amount = (int)$this->payoutRepository->getPayoutCompletedByUser($user->id)->whereBetween('created_at', $month_range)->sum('net_amount');
-        //Transaction stats
+        $sum_month_completed_payouts_amount = (int) $this->payoutRepository->getPayoutCompletedByUser($user->id)->whereBetween('created_at', $month_range)->sum('net_amount');
+        // Transaction stats
         $count_month_captured_transaction = $this->transactionRepository->getCapturedTransactionsByUser($user->id)->whereBetween('created_at', $month_range)->count();
         $sum_month_captured_transaction_amount = $this->transactionRepository->getCapturedTransactionsByUser($user->id)->whereBetween('created_at', $month_range)->sum('amount');
         $count_captured_transactions = $this->transactionRepository->getCapturedTransactionsByUser($user->id)->count();
         $count_refunded_transactions = $this->transactionRepository->getRefundedTransactionsByUser($user->id)->count();
         $count_remaining_transactions = $this->transactionRepository->getAuthorizedTransactionsByUser($user->id)->count();
-        
+
         $infos =
             [
                 'total_month_granted_transaction' => $count_month_captured_transaction,
@@ -577,7 +626,7 @@ class UserAPIController extends AppBaseController
                 'total_remaining_transaction' => $count_remaining_transactions,
                 'total_remaining_payouts' => $count_authorized_payouts,
                 'total_completed_payouts' => $count_completed_payouts,
-                'total_month_completed_payouts_amount' => $sum_month_completed_payouts_amount
+                'total_month_completed_payouts_amount' => $sum_month_completed_payouts_amount,
             ];
 
         return $this->sendResponse($infos, 'Partner retrieved stats successfully !');
@@ -590,11 +639,14 @@ class UserAPIController extends AppBaseController
      *      tags={"Admin"},
      *      description="Get the stats of all partners and customers",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -609,9 +661,10 @@ class UserAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
-    public function statsAdmin(Request $request): JsonResponse{
-        
+     */
+    public function statsAdmin(Request $request): JsonResponse
+    {
+
         $actived_search = ['status' => 'active'];
         $authorized_search = ['status' => 'authorized'];
         $last_month_range = [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->subMonth()->endOfMonth()];
@@ -621,8 +674,8 @@ class UserAPIController extends AppBaseController
 
         $activated_this_month = $this->cardEventRepository->findEvents($month_range, 'activated')->get();
         $activated_last_month = $this->cardEventRepository->findEvents($last_month_range, 'activated')->get();
-        $sum_month_amount = $activated_this_month->sum(fn($event) => GiftCard::find($event->gift_card_id)?->face_amount); 
-        $sum_last_month_amount = $activated_last_month->sum(fn($event) => GiftCard::find($event->gift_card_id)?->face_amount); 
+        $sum_month_amount = $activated_this_month->sum(fn ($event) => GiftCard::find($event->gift_card_id)?->face_amount);
+        $sum_last_month_amount = $activated_last_month->sum(fn ($event) => GiftCard::find($event->gift_card_id)?->face_amount);
         $sum_today_amount = $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->sum('amount');
         $sum_yesterday_amount = $this->transactionRepository->allQuery()->whereBetween('created_at', $yesterday_range)->sum('amount');
         $sum_month_tr_amount = $this->transactionRepository->allQuery($authorized_search)->whereBetween('created_at', $month_range)->sum('amount');
@@ -631,30 +684,30 @@ class UserAPIController extends AppBaseController
             [
                 'total_actived_cards' => new Fluent([
                     'current' => $this->giftCardRepository->allQuery($actived_search)->count(),
-                    'amount' => (int)$this->giftCardRepository->allQuery($actived_search)->sum('face_amount'),
-                    ]),
-                'total_month_activated_cards' => new Fluent([ 
-                    'current' => !empty($activated_this_month) ? count($activated_this_month) : 0,
+                    'amount' => (int) $this->giftCardRepository->allQuery($actived_search)->sum('face_amount'),
+                ]),
+                'total_month_activated_cards' => new Fluent([
+                    'current' => ! empty($activated_this_month) ? count($activated_this_month) : 0,
                     'amount' => $sum_month_amount,
-                    'percentage' => $sum_last_month_amount > 0 ? round(($sum_month_amount - $sum_last_month_amount) / $sum_last_month_amount * 100, 1) : 0 
-                    ]),
+                    'percentage' => $sum_last_month_amount > 0 ? round(($sum_month_amount - $sum_last_month_amount) / $sum_last_month_amount * 100, 1) : 0,
+                ]),
                 'total_today_transactions' => new Fluent([
                     'current' => $this->transactionRepository->allQuery()->whereBetween('created_at', $today_range)->count(),
                     'amount' => $sum_today_amount,
-                    'percentage' => $sum_yesterday_amount > 0 ? round(($sum_today_amount - $sum_yesterday_amount) / $sum_yesterday_amount * 100, 1) : 0 
-                    ]),
-                'total_amount_month_transactions' => new Fluent([ 
+                    'percentage' => $sum_yesterday_amount > 0 ? round(($sum_today_amount - $sum_yesterday_amount) / $sum_yesterday_amount * 100, 1) : 0,
+                ]),
+                'total_amount_month_transactions' => new Fluent([
                     'current' => $sum_month_tr_amount,
-                    'percentage' => $sum_last_month_tr_amount > 0 ? round(($sum_month_tr_amount - $sum_last_month_tr_amount) / $sum_last_month_tr_amount * 100, 1) : 0 
-                    ]),
+                    'percentage' => $sum_last_month_tr_amount > 0 ? round(($sum_month_tr_amount - $sum_last_month_tr_amount) / $sum_last_month_tr_amount * 100, 1) : 0,
+                ]),
                 'total_payouts_captured' => new Fluent([
                     'current' => $this->payoutRepository->getPayoutCompletedByUser()->count(),
-                    'amount' => (int)$this->payoutRepository->getPayoutCompletedByUser()->sum('net_amount'),
-                    ]),
+                    'amount' => (int) $this->payoutRepository->getPayoutCompletedByUser()->sum('net_amount'),
+                ]),
                 'total_payouts_authorized' => new Fluent([
                     'current' => $this->payoutRepository->getPayoutInProgressByUser()->count(),
-                    'amount' => (int)$this->payoutRepository->getPayoutInProgressByUser()->sum('net_amount'),
-                    ]),
+                    'amount' => (int) $this->payoutRepository->getPayoutInProgressByUser()->sum('net_amount'),
+                ]),
             ];
 
         return $this->sendResponse($infos, 'Admin retrieved stats successfully !');
@@ -667,11 +720,14 @@ class UserAPIController extends AppBaseController
      *      tags={"Admin"},
      *      description="Get the stats of weekly transaction",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -686,8 +742,9 @@ class UserAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
-    public function weeklyTransactionStats(Request $request): JsonResponse{
+     */
+    public function weeklyTransactionStats(Request $request): JsonResponse
+    {
 
         $actual_week = [Carbon::now()->startOfWeek(), Carbon::now()];
         $past_week = [Carbon::now()->subWeek()->startOfWeek(), Carbon::now()->subWeek()->endOfWeek()];
@@ -712,7 +769,7 @@ class UserAPIController extends AppBaseController
 
         $infos = [
             'current_week_transactions' => $current_week_transactions_count,
-            'past_week_transactions' =>  $past_week_transactions_count,
+            'past_week_transactions' => $past_week_transactions_count,
             'progression' => $sum_past > 0 ? round(($sum_current - $sum_past) / $sum_past * 100, 1) : 0,
         ];
 
@@ -726,11 +783,14 @@ class UserAPIController extends AppBaseController
      *      tags={"Admin"},
      *      description="Get the stats about distributions of cards",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -745,17 +805,18 @@ class UserAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
-    public function statsAdminCards(Request $request): JsonResponse{
-        
+     */
+    public function statsAdminCards(Request $request): JsonResponse
+    {
+
         $actived_search = ['status' => 'active'];
         $used_search = ['status' => 'used'];
         $expired_search = ['status' => 'expired'];
         $infos = [
-                'total_active_cards' => $this->giftCardRepository->allQuery($actived_search)->count(),
-                'total_used_cards' => $this->giftCardRepository->allQuery($used_search)->count(),
-                'total_expired_cards' => $this->giftCardRepository->allQuery($expired_search)->count()
-            ];
+            'total_active_cards' => $this->giftCardRepository->allQuery($actived_search)->count(),
+            'total_used_cards' => $this->giftCardRepository->allQuery($used_search)->count(),
+            'total_expired_cards' => $this->giftCardRepository->allQuery($expired_search)->count(),
+        ];
 
         return $this->sendResponse($infos, 'Admin retrieved cards stats successfully !');
     }
@@ -767,11 +828,14 @@ class UserAPIController extends AppBaseController
      *      tags={"Admin"},
      *      description="Get quick stats about activity",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -786,30 +850,32 @@ class UserAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
-    public function statsActivityPartners(Request $request): JsonResponse{
-        
-        $activities = $this->transactionRepository->getAmountTransactions()->get()
-        ->filter(fn($item) => !empty(User::find($item->user_id)->partner()?->first()))
-        ->take(5)
-        ->map(function($item){
-            $partner = User::find($item->user_id)->partner()?->first();
-            // $partner = $this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first();
-            $avatar = $this->userRepository->find($item->user_id)->files()->where('meaning', 'avatar')->latest('created_at')?->first();
-            // var_dump($partner);
+     */
+    public function statsActivityPartners(Request $request): JsonResponse
+    {
 
-            return [
-                'id' => $item->user_id,
-                'name' => $partner->name ?? 'N/A',
-                'avatar' => $avatar ? new FileResource($avatar) : null,
-                'total_transactions' => $item->total_transactions,
-                'total_amount' => $item->total_amount,
-            ];
-        });
+        $activities = $this->transactionRepository->getAmountTransactions()->get()
+            ->filter(fn ($item) => ! empty(User::find($item->user_id)->partner()?->first()))
+            ->take(5)
+            ->map(function ($item) {
+                $partner = User::find($item->user_id)->partner()?->first();
+                // $partner = $this->partnerRepository->findByFields(['user_id' => $item->user_id])?->first();
+                $avatar = $this->userRepository->find($item->user_id)->files()->where('meaning', 'avatar')->latest('created_at')?->first();
+                // var_dump($partner);
+
+                return [
+                    'id' => $item->user_id,
+                    'name' => $partner->name ?? 'N/A',
+                    'avatar' => $avatar ? new FileResource($avatar) : null,
+                    'total_transactions' => $item->total_transactions,
+                    'total_amount' => $item->total_amount,
+                ];
+            });
 
         $infos = [
-                'activities' => $activities
-            ];
+            'activities' => $activities,
+        ];
+
         return $this->sendResponse($infos, 'Admin retrieved activity transaction partners stats successfully !');
     }
 
@@ -820,11 +886,14 @@ class UserAPIController extends AppBaseController
      *      tags={"Admin"},
      *      description="Get quick stats about partners",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -839,19 +908,19 @@ class UserAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
-    public function statsAdminPartners(Request $request): JsonResponse {
-        
+     */
+    public function statsAdminPartners(Request $request): JsonResponse
+    {
+
         $search_active = ['type' => 'partner', 'is_active' => 1];
         $search_not_verified = ['type' => 'partner', 'phone_verified_at' => null];
         $search_inactive = ['type' => 'partner', 'is_active' => 0];
         $infos = [
-                'total_active_partners' => $this->userRepository->allQuery($search_active)->count(),
-                'total_not_verified_partners' => $this->userRepository->allQuery($search_not_verified)->count(),
-                'total_inactive_partners' => $this->userRepository->allQuery($search_inactive)->count()
-            ];
+            'total_active_partners' => $this->userRepository->allQuery($search_active)->count(),
+            'total_not_verified_partners' => $this->userRepository->allQuery($search_not_verified)->count(),
+            'total_inactive_partners' => $this->userRepository->allQuery($search_inactive)->count(),
+        ];
 
         return $this->sendResponse($infos, 'Admin retrieved partners stats successfully !');
     }
-
 }

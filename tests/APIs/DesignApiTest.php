@@ -2,15 +2,15 @@
 
 namespace Tests\APIs;
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
-use Tests\ApiTestTrait;
 use App\Models\Design;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class DesignApiTest extends TestCase
 {
-    use ApiTestTrait, WithoutMiddleware, DatabaseTransactions;
+    use ApiTestTrait, DatabaseTransactions, WithoutMiddleware;
 
     /**
      * @test
@@ -68,8 +68,8 @@ class DesignApiTest extends TestCase
 
         $this->response = $this->json(
             'DELETE',
-             '/api/designs/'.$design->id
-         );
+            '/api/designs/'.$design->id
+        );
 
         $this->assertApiSuccess();
         $this->response = $this->json(

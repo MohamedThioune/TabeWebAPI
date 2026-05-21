@@ -2,29 +2,24 @@
 
 namespace App\Domain\GiftCards\Entities;
 
-use App\Domain\GiftCards\ValueObjects\CardEvent;
-use App\Domain\GiftCards\ValueObjects\QrSession;
-
 class Card
 {
     private string $id;
+
     private string $belonging_type;
+
     private string $type;
+
     private int $face_amount;
+
     private string $expired_at;
+
     private string $owner_user_id;
+
     private ?string $beneficiary_id;
+
     private string $design_id;
 
-    /**
-     * @param string $id
-     * @param string $belonging_type
-     * @param int $face_amount
-     * @param string $expired_at
-     * @param string $owner_user_id
-     * @param string|null $beneficiary_id
-     * @param string $design_id
-    */
     public function __construct(string $id, string $belonging_type, string $type, int $face_amount, string $expired_at, string $owner_user_id, ?string $beneficiary_id, string $design_id)
     {
         $this->id = $id;
@@ -55,6 +50,4 @@ class Card
             'design_id' => $this->design_id,
         ];
     }
-
 }
-

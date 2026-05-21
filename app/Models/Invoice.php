@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Helpers\Parameter;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 /**
  * @OA\Schema(
  *      schema="Invoice",
  *      required={"type", "reference_number", "amount", "status", "gift_card_id"},
+ *
  *      @OA\Property(
  *          property="type",
  *          description="",
@@ -84,11 +86,13 @@ use App\Helpers\Parameter;
  *          format="date-time"
  *      )
  * )
+ *
  * @method static where(string $string, string $reference_number)
  */
 class Invoice extends Model
 {
-    use SoftDeletes, HasFactory;
+    use HasFactory, SoftDeletes;
+
     public $table = 'invoices';
 
     public $fillable = [
@@ -100,7 +104,7 @@ class Invoice extends Model
         'endpoint',
         'receipt_url',
         'user_id',
-        'gift_card_id'
+        'gift_card_id',
     ];
 
     protected $casts = [
@@ -111,25 +115,26 @@ class Invoice extends Model
         'endpoint' => 'string',
     ];
 
-    public static function rules(): array {
+    public static function rules(): array
+    {
 
         return [
             'type' => 'required|string|in:Achat de carte,Paiement en boutique',
             'status' => 'required|string|in:pending,completed,failed',
-            'amount' => 'required|integer|min:' . Parameter::minAmountCard(),
+            'amount' => 'required|integer|min:'.Parameter::minAmountCard(),
             'receipt_url' => 'nullable|url',
             'user_id' => 'nullable|exists:users,id',
             'gift_card_id' => 'required|exists:gift_cards,id',
         ];
     }
 
-    public function gift_card(){
+    public function gift_card()
+    {
         return $this->belongsTo(GiftCard::class);
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
-
-
 }

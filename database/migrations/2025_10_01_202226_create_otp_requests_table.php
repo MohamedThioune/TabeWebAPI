@@ -32,5 +32,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('otp_requests');
     }
-
 };

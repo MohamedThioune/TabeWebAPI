@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreatePayoutLineAPIRequest;
 use App\Http\Requests\API\UpdatePayoutLineAPIRequest;
-use App\Models\PayoutLine;
+use App\Http\Resources\PayoutLineResource;
 use App\Infrastructure\Persistence\PayoutLineRepository;
+use App\Models\PayoutLine;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AppBaseController;
-use App\Http\Resources\PayoutLineResource;
 
 /**
  * Class PayoutLineController
  */
-
 class PayoutLineAPIController extends AppBaseController
 {
-    /** @var  PayoutLineRepository */
+    /** @var PayoutLineRepository */
     private $payoutLineRepository;
 
     public function __construct(PayoutLineRepository $payoutLineRepo)
@@ -31,11 +30,14 @@ class PayoutLineAPIController extends AppBaseController
      *      summary="getPayoutLineList",
      *      tags={"PayoutLine"},
      *      description="Get all PayoutLines",
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -43,8 +45,10 @@ class PayoutLineAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/PayoutLine")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -70,15 +74,20 @@ class PayoutLineAPIController extends AppBaseController
      *      summary="createPayoutLine",
      *      tags={"PayoutLine"},
      *      description="Create PayoutLine",
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/PayoutLine")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -110,20 +119,25 @@ class PayoutLineAPIController extends AppBaseController
      *      summary="getPayoutLineItem",
      *      tags={"PayoutLine"},
      *      description="Get PayoutLine",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of PayoutLine",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -158,24 +172,31 @@ class PayoutLineAPIController extends AppBaseController
      *      summary="updatePayoutLine",
      *      tags={"PayoutLine"},
      *      description="Update PayoutLine",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of PayoutLine",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/PayoutLine")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -214,20 +235,25 @@ class PayoutLineAPIController extends AppBaseController
      *      summary="deletePayoutLine",
      *      tags={"PayoutLine"},
      *      description="Delete PayoutLine",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of PayoutLine",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"

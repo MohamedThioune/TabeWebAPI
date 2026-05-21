@@ -15,6 +15,7 @@ class NotificationResource extends JsonResource
     public function toArray(Request $request): array
     {
         $data = json_decode($this->data);
+
         return [
             'id' => $this->id,
             'title' => $data->title ?? null,
@@ -24,7 +25,7 @@ class NotificationResource extends JsonResource
             'is_read' => $this->is_read ?? null,
             'read_at' => $this->read_at ?? null,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at,
         ];
     }
 }

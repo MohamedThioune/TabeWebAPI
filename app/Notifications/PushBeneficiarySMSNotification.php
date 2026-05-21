@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Domain\Users\DTO\Node;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -15,7 +14,7 @@ class PushBeneficiarySMSNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(private Node $node, public string $beneficiary_phone, public string $channel = "sms")
+    public function __construct(private Node $node, public string $beneficiary_phone, public string $channel = 'sms')
     {
         $this->channel = $channel;
         $this->$beneficiary_phone = $beneficiary_phone;
@@ -29,13 +28,15 @@ class PushBeneficiarySMSNotification extends Notification
     public function via(object $notifiable): array
     {
         $notifiable->phone = $this->beneficiary_phone;
+
         return ['twilio'];
     }
 
-    public function toTwilio(object $notifiable): array{
+    public function toTwilio(object $notifiable): array
+    {
         return [
-            "from" => config("services.twilio.phone"),
-            "body" => $this->node->content
+            'from' => config('services.twilio.phone'),
+            'body' => $this->node->content,
         ];
     }
 
@@ -45,9 +46,9 @@ class PushBeneficiarySMSNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**

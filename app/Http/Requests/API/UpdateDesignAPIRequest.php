@@ -25,7 +25,7 @@ class UpdateDesignAPIRequest extends APIRequest
     public function rules()
     {
         $rules = Design::$rules;
-        
+
         return $rules;
     }
 }

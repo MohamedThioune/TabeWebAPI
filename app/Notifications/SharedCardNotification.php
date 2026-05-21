@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Domain\Users\DTO\Node;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -29,16 +28,18 @@ class SharedCardNotification extends Notification
     public function via(object $notifiable): array
     {
         $notifiable->phone = $this->beneficiary_phone;
-        $notifiable->whatsApp = 'whatsapp:' . $this->beneficiary_phone;
+        $notifiable->whatsApp = 'whatsapp:'.$this->beneficiary_phone;
+
         return ['twilio'];
     }
 
-    public function toTwilio(object $notifiable): array{
+    public function toTwilio(object $notifiable): array
+    {
         return [
-            "from" => config("services.twilio.whatsapp"),
-            "contentSid" => "HX54e1abe2a9b140947d4e6d50fa43c773",
-            "contentVariables" => $this->node->contentVariables,
-            "body" => $this->node->body
+            'from' => config('services.twilio.whatsapp'),
+            'contentSid' => 'HX54e1abe2a9b140947d4e6d50fa43c773',
+            'contentVariables' => $this->node->contentVariables,
+            'body' => $this->node->body,
         ];
     }
 
@@ -48,9 +49,9 @@ class SharedCardNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**
@@ -64,8 +65,8 @@ class SharedCardNotification extends Notification
             'content' => $this->node->content,
             'title' => $this->node->title,
             'body' => $this->node->body,
-            'level' => $this->node->level, //Important, Urgent, Info
-            'model' => $this->node->model, //transaction, card, profile, maintenance
+            'level' => $this->node->level, // Important, Urgent, Info
+            'model' => $this->node->model, // transaction, card, profile, maintenance
         ];
     }
 }

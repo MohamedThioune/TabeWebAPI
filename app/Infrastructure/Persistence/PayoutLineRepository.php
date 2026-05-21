@@ -9,7 +9,7 @@ class PayoutLineRepository extends BaseRepository
 {
     protected $fieldSearchable = [
         'transaction_id',
-        'payout_id'
+        'payout_id',
     ];
 
     public function getFieldsSearchable(): array

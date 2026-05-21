@@ -27,7 +27,7 @@ class UserRepository extends BaseRepository
     /**
      * @Override All Query method
      */
-    public function allQuery(array $search = [], int $skip = null, int $limit = null): Builder
+    public function allQuery(array $search = [], ?int $skip = null, ?int $limit = null): Builder
     {
         $query = $this->model->newQuery();
 
@@ -37,26 +37,30 @@ class UserRepository extends BaseRepository
         $sector = $search['sector'] ?? null;
         $q = $search['q'] ?? null;
 
-        if($role == "partner")
+        if ($role == 'partner') {
             $query->whereHas('partner', function ($partner_query) use ($search, $sector, $q) {
-                //sector is defined
-                if($sector)
+                // sector is defined
+                if ($sector) {
                     $partner_query->where('sector', $search['sector']);
+                }
 
-                //q is defined for the name partner
-                if($q)
-                    $partner_query->where('name', 'LIKE', '%' . trim($q) .'%');
+                // q is defined for the name partner
+                if ($q) {
+                    $partner_query->where('name', 'LIKE', '%'.trim($q).'%');
+                }
             });
+        }
 
         // q(name of the categories belonged to the user) query
-        if($q)
-            $query->orWhereHas('categories', function ($category_query) use ($search, $q, $query) {
-                $category_query->where('name', 'LIKE', '%' . trim($q) .'%');
+        if ($q) {
+            $query->orWhereHas('categories', function ($category_query) use ($q) {
+                $category_query->where('name', 'LIKE', '%'.trim($q).'%');
             });
+        }
 
-        //research (active user state, ...) queries
+        // research (active user state, ...) queries
         if (count($search)) {
-            foreach($search as $key => $value) {
+            foreach ($search as $key => $value) {
                 if (in_array($key, $this->getFieldsSearchable())) {
                     $query->where($key, $value);
                 }
@@ -64,24 +68,27 @@ class UserRepository extends BaseRepository
         }
 
         // phone verified query
-        if(isset($search['is_phone_verified']))
+        if (isset($search['is_phone_verified'])) {
             ($search['is_phone_verified'])
-                ? $query->whereNotNull('phone_verified_at')
-                : $query->whereNull('phone_verified_at');
+                    ? $query->whereNotNull('phone_verified_at')
+                    : $query->whereNull('phone_verified_at');
+        }
 
         // role user (customer, partner, enterprise) query
-        if($role)
+        if ($role) {
             $query->role($role);
+        }
 
-        if (!is_null($skip)) {
+        if (! is_null($skip)) {
             $query->skip($skip);
         }
 
-        if (!is_null($limit)) {
+        if (! is_null($limit)) {
             $query->limit($limit);
         }
 
         $query->orderBy('created_at', 'desc');
+
         return $query;
     }
 
@@ -96,8 +103,9 @@ class UserRepository extends BaseRepository
 
         $model->fill($input);
 
-        if(isset($input['categories']))
+        if (isset($input['categories'])) {
             $model->categories()->syncWithoutDetaching($input['categories']);
+        }
 
         $model->save();
 
@@ -109,15 +117,14 @@ class UserRepository extends BaseRepository
         $model = ModelUser::create([
             'id' => $user->getId(),
             'email' => $user->getEmail(),
-            'phone' => (String)$user->getPhone(),
-            'whatsApp' => "whatsapp:" . (String)$user->getwhatsApp(),
+            'phone' => (string) $user->getPhone(),
+            'whatsApp' => 'whatsapp:'.(string) $user->getwhatsApp(),
             'password' => $user->getPasswordHash(),
         ]);
 
-        //Assign role
+        // Assign role
         $model->assignRole($user->getType());
 
         return $model->load($user->getType());
     }
-
 }

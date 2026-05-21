@@ -2,11 +2,11 @@
 
 namespace Tests\Repositories;
 
-use App\Models\Transaction;
 use App\Infrastructure\Persistence\TransactionRepository;
+use App\Models\Transaction;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
 use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class TransactionRepositoryTest extends TestCase
 {
@@ -14,7 +14,7 @@ class TransactionRepositoryTest extends TestCase
 
     protected TransactionRepository $transactionRepo;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->transactionRepo = app(TransactionRepository::class);

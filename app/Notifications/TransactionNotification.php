@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Domain\Users\DTO\Node;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -19,7 +18,7 @@ class TransactionNotification extends Notification
     {
         $this->channel = $channel;
     }
-    
+
     /**
      * Get the notification's delivery channels.
      *
@@ -36,17 +35,18 @@ class TransactionNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
-    public function toTwilio(object $notifiable): array{
+    public function toTwilio(object $notifiable): array
+    {
         return [
-            "from" => config("services.twilio.whatsapp"),
-            "contentSid" => "HX6f3cea733bef5b6e6f1e3d44395476a9",
-            "contentVariables" => $this->node->contentVariables,
-            "body" => $this->node->body
+            'from' => config('services.twilio.whatsapp'),
+            'contentSid' => 'HX6f3cea733bef5b6e6f1e3d44395476a9',
+            'contentVariables' => $this->node->contentVariables,
+            'body' => $this->node->body,
         ];
     }
 
@@ -61,8 +61,8 @@ class TransactionNotification extends Notification
             'content' => $this->node->content,
             'title' => $this->node->title,
             'body' => $this->node->body,
-            'level' => $this->node->level, //Important, Urgent, Info
-            'model' => $this->node->model, //transaction, card, profile, maintenance
+            'level' => $this->node->level, // Important, Urgent, Info
+            'model' => $this->node->model, // transaction, card, profile, maintenance
         ];
     }
 }

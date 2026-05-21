@@ -2,11 +2,11 @@
 
 namespace Tests\Repositories;
 
-use App\Models\Category;
 use App\Infrastructure\Persistence\CategoryRepository;
+use App\Models\Category;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
 use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class CategoryRepositoryTest extends TestCase
 {
@@ -14,7 +14,7 @@ class CategoryRepositoryTest extends TestCase
 
     protected CategoryRepository $categoryRepo;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->categoryRepo = app(CategoryRepository::class);

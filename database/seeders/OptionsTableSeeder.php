@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Option;
+use Illuminate\Database\Seeder;
 
 class OptionsTableSeeder extends Seeder
 {
@@ -17,7 +17,7 @@ class OptionsTableSeeder extends Seeder
         Option::firstOrCreate([
             'min_amount_card' => config('parameter.card.min_amount'),
             'max_amount_card' => config('parameter.card.max_amount'),
-            'period_validity_card' => config('parameter.card.period_validity')
+            'period_validity_card' => config('parameter.card.period_validity'),
         ]);
 
     }

@@ -9,20 +9,20 @@ use Illuminate\Support\Str;
 
 class BuyCard
 {
+    public function __construct(private PaymentGateway $gateway) {}
 
-    public function __construct(private PaymentGateway $gateway){}
-
-    public function execute(GiftCard $gift_card) : ?object
+    public function execute(GiftCard $gift_card): ?object
     {
-        $amount = (int)$gift_card->face_amount;
+        $amount = (int) $gift_card->face_amount;
         $user = $gift_card->user ?? null;
-        if(!$user)
+        if (! $user) {
             return null;
+        }
 
         $description = "Achat d'une carte d'un montant de {$amount}";
         $response = tap($this->gateway->charge($amount, $description, $gift_card),
             function ($response) {
-                Log::info('Response DTO', (array)$response);
+                Log::info('Response DTO', (array) $response);
             });
         // $response = tap($this->gateway->quick_pay($amount, $user->email, $gift_card),
         //         function ($response) {
@@ -30,27 +30,28 @@ class BuyCard
         //     });
 
         // if(!$response?->url)
-        if(!$response?->response_text)
+        if (! $response?->response_text) {
             return null;
+        }
 
         $reference = $response->reference_number ?: $response->token;
         try {
             // Register the invoice
             $user->invoices()->create([
-                'id' => Str::uuid()->toString(), 
+                'id' => Str::uuid()->toString(),
                 'type' => 'Achat de carte',
                 'amount' => $amount,
                 'reference_number' => $reference,
                 'status' => $response->status ?: 'pending',
                 'endpoint' => 'checkout',
-                'gift_card_id' => $gift_card->id
+                'gift_card_id' => $gift_card->id,
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error logging payment response: ' . $e->getMessage());
+            Log::error('Error logging payment response: '.$e->getMessage());
         }
-       
-        return (Object)['reference' => $reference, 'url' => $response->response_text];
+
+        return (object) ['reference' => $reference, 'url' => $response->response_text];
         // return (Object)['reference' => $reference, 'url' => $response->url];
     }
 }

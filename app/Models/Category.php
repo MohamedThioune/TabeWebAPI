@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @OA\Schema(
  *      schema="Category",
  *      required={"name"},
+ *
  *      @OA\Property(
  *          property="name",
  *          description="",
@@ -35,23 +36,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *          format="date-time"
  *      )
  * )
+ *
  * @method static pluck(string $string)
  * @method static firstOrCreate(string[] $array)
  */
 class Category extends Model
 {
-    use HasUuids, SoftDeletes, HasFactory;
+    use HasFactory, HasUuids, SoftDeletes;
+
     public $table = 'categories';
 
     public $fillable = [
-        'name'
+        'name',
     ];
 
     protected $casts = [
     ];
 
     public static array $rules = [
-        'name' => 'required|string|max:255'
+        'name' => 'required|string|max:255',
     ];
 
     public function users()
@@ -59,6 +62,4 @@ class Category extends Model
         return $this->belongsToMany(User::class, 'user_categories')
             ->withTimestamps();
     }
-
-
 }

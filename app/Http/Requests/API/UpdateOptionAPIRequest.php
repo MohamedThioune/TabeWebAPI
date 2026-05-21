@@ -25,7 +25,7 @@ class UpdateOptionAPIRequest extends APIRequest
     public function rules()
     {
         $rules = Option::$rules;
-        
+
         return $rules;
     }
 }

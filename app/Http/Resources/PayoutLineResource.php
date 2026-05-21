@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PayoutLineResource extends JsonResource
@@ -9,7 +10,7 @@ class PayoutLineResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
@@ -20,7 +21,7 @@ class PayoutLineResource extends JsonResource
             'transaction_id' => $this->transaction_id,
             'payout_id' => $this->payout_id,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at,
         ];
     }
 }

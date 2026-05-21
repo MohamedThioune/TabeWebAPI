@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Domain\Users\DTO\Node;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +15,7 @@ class ProfileUpdateNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public Node $node) { }
+    public function __construct(public Node $node) {}
 
     /**
      * Get the notification's delivery channels.
@@ -34,9 +33,9 @@ class ProfileUpdateNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**
@@ -50,11 +49,12 @@ class ProfileUpdateNotification extends Notification
             'content' => $this->node->content,
             'title' => $this->node->title,
             'body' => $this->node->body,
-            'level' => $this->node->level, //Important, Urgent, Info
-            'model' => $this->node->model, //transaction, card, profile, maintenance
+            'level' => $this->node->level, // Important, Urgent, Info
+            'model' => $this->node->model, // transaction, card, profile, maintenance
         ];
 
-        Log::info('Data to be stored in database notification: ' . json_encode($data));
+        Log::info('Data to be stored in database notification: '.json_encode($data));
+
         return $data;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\API;
 
 use App\Models\User;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class GetUsersAPIRequest extends FormRequest
@@ -15,16 +16,16 @@ class GetUsersAPIRequest extends FormRequest
         return true;
     }
 
-    protected function prepareForValidation() : void
+    protected function prepareForValidation(): void
     {
-       //Keep only the fields wanted
+        // Keep only the fields wanted
         $this->replace($this->only(['type', 'sector', 'q', 'is_active', 'is_phone_verified', 'city', 'country', 'address', 'skip', 'limit', 'per_page', 'page']));
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

@@ -8,15 +8,15 @@ use App\Domain\Users\DTO\Node;
 use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreateBeneficiaryAPIRequest;
 use App\Http\Requests\API\CreateGiftCardAPIRequest;
-use App\Http\Requests\API\UpdateGiftCardAPIRequest;
 use App\Http\Requests\API\GetGiftCardsAPIRequest;
+use App\Http\Requests\API\UpdateGiftCardAPIRequest;
 use App\Http\Requests\API\VerifyCodeAPIRequest;
 use App\Http\Resources\GiftCardResource;
 use App\Infrastructure\Persistence\BeneficiaryRepository;
 use App\Infrastructure\Persistence\GiftCardRepository;
+use App\Models\Beneficiary;
 use App\Models\GiftCard;
 use App\Models\User;
-use App\Models\Beneficiary;
 use App\Notifications\SharedCardNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,10 +27,9 @@ use Illuminate\Support\Str;
 /**
  * Class GiftCardController
  */
-
 class GiftCardAPIController extends AppBaseController
 {
-    /** @var  GiftCardRepository */
+    /** @var GiftCardRepository */
     private $giftCardRepository;
 
     public function __construct(GiftCardRepository $giftCardRepo, private BeneficiaryRepository $beneficiaryRepository, private CardFullyGenerated $cardFullyGenerated, private BuyCard $payment)
@@ -39,7 +38,7 @@ class GiftCardAPIController extends AppBaseController
         $this->cardFullyGenerated = $cardFullyGenerated;
     }
 
-    public function detached_index(array $search, Request $request, int $perPage = 6) : array
+    public function detached_index(array $search, Request $request, int $perPage = 6): array
     {
         $query_cards = $this->giftCardRepository->allQuery(
             $search,
@@ -58,11 +57,11 @@ class GiftCardAPIController extends AppBaseController
                 'total_pages' => $gift_cards->lastPage(),
                 'per_page' => $gift_cards->perPage(),
                 'total_items' => $gift_cards->total(),
-            ]
+            ],
         ];
 
-        if($request->get('with_summary')){
-            $infos['total_amount_user'] = $this->giftCardRepository->all($search,null, null)->sum('face_amount');
+        if ($request->get('with_summary')) {
+            $infos['total_amount_user'] = $this->giftCardRepository->all($search, null, null)->sum('face_amount');
         }
 
         return $infos;
@@ -75,87 +74,106 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Get all GiftCards per user",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *            name="status",
      *            in="query",
      *            description="Filter users by status ('active', 'inactive', 'used', 'expired')",
      *            required=false,
+     *
      *            @OA\Schema(
      *                type="string",
      *                enum={"active", "inactive", "used", "expired"}
      *            )
      *       ),
+     *
      *       @OA\Parameter(
      *            name="belonging_type",
      *            in="query",
      *            description="Filter users by belonging type (myself, others)",
      *            required=false,
+     *
      *            @OA\Schema(
      *                type="string",
      *                enum={"myself", "others"}
      *            )
      *        ),
+     *
      *        @OA\Parameter(
      *             name="type",
      *             in="query",
      *             description="Filter users by type (physical, digital)",
      *             required=false,
+     *
      *             @OA\Schema(
      *                 type="string",
      *                 enum={"physical", "digital"}
      *             )
      *        ),
+     *
      *        @OA\Parameter(
      *             name="with_summary",
      *             in="query",
      *             description="Get the total amounts of the user (0:inactive, 1:active)",
      *             required=false,
+     *
      *             @OA\Schema(
      *                  type="integer",
      *                 enum={0,1}
      *             )
      *       ),
+     *
      *       @OA\Parameter(
      *            name="page",
      *            in="query",
      *            description="Page",
      *            required=false,
+     *
      *            @OA\Schema(
      *                type="integer"
      *            )
      *       ),
+     *
      *       @OA\Parameter(
      *            name="per_page",
      *            in="query",
      *            description="Per Page",
      *            required=false,
+     *
      *            @OA\Schema(
      *                type="integer"
      *            )
      *       ),
+     *
      *       @OA\Parameter(
      *            name="skip",
      *            in="query",
      *            description="Skip",
      *            required=false,
+     *
      *            @OA\Schema(
      *                type="integer"
      *            )
      *       ),
+     *
      *       @OA\Parameter(
      *             name="limit",
      *             in="query",
      *             description="Limit",
      *             required=false,
+     *
      *             @OA\Schema(
      *                 type="integer"
      *             )
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -163,8 +181,10 @@ class GiftCardAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/GiftCard")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -176,7 +196,7 @@ class GiftCardAPIController extends AppBaseController
     public function index(GetGiftCardsAPIRequest $request): JsonResponse
     {
         $user = $request->user();
-        //Test user instance of model user
+        // Test user instance of model user
         $search = $request->except(['skip', 'limit', 'page', 'per_page']);
         $search['owner_user_id'] = $user->id;
         $perPage = $request->get('per_page', 6);
@@ -185,6 +205,7 @@ class GiftCardAPIController extends AppBaseController
 
         return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
     }
+
     /**
      * @OA\Get(
      *      path="/gift-cards/all",
@@ -192,69 +213,84 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Get all GiftCards | Only for admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *           name="status",
      *           in="query",
      *           description="Filter users by status ('active', 'inactive', 'used', 'expired')",
      *           required=false,
+     *
      *           @OA\Schema(
      *               type="string",
      *               enum={"inactive","active", "used", "expired"}
      *           )
      *      ),
+     *
      *      @OA\Parameter(
      *           name="belonging_type",
      *           in="query",
      *           description="Filter users by belonging type (myself, others)",
      *           required=false,
+     *
      *           @OA\Schema(
      *               type="string",
      *               enum={"myself", "others"}
      *           )
      *       ),
+     *
      *       @OA\Parameter(
      *            name="type",
      *            in="query",
      *            description="Filter users by type (physical, digital)",
      *            required=false,
+     *
      *            @OA\Schema(
      *                type="string",
      *                enum={"physical", "digital"}
      *            )
      *       ),
+     *
      *       @OA\Parameter(
      *            name="with_summary",
      *            in="query",
      *            description="Get the total amounts of the user (0:inactive, 1:active)",
      *            required=false,
+     *
      *            @OA\Schema(
      *               type="integer",
      *               enum={0,1}
      *            )
      *      ),
+     *
      *      @OA\Parameter(
      *           name="skip",
      *           in="query",
      *           description="Skip",
      *           required=false,
+     *
      *           @OA\Schema(
      *               type="integer"
      *           )
      *       ),
+     *
      *       @OA\Parameter(
      *            name="limit",
      *            in="query",
      *            description="Limit",
      *            required=false,
+     *
      *            @OA\Schema(
      *                type="integer"
      *            )
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -262,8 +298,10 @@ class GiftCardAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/GiftCard")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -274,7 +312,7 @@ class GiftCardAPIController extends AppBaseController
      */
     public function indexAdmin(GetGiftCardsAPIRequest $request): JsonResponse
     {
-        //Test user instance of model user
+        // Test user instance of model user
         $search = $request->except(['skip', 'limit', 'page', 'per_page']);
         $perPage = $request->get('per_page', 6);
 
@@ -282,7 +320,7 @@ class GiftCardAPIController extends AppBaseController
 
         return $this->sendResponse($infos, 'Gift Cards retrieved successfully');
     }
-   
+
     public function detached_store(string $belonging_type, User $user, Request $request, ?Beneficiary $beneficiary): mixed
     {
         $dto = [
@@ -294,18 +332,19 @@ class GiftCardAPIController extends AppBaseController
             'design_id' => $request->design_id,
         ];
 
-        //Make all the process here
+        // Make all the process here
         $event = $this->cardFullyGenerated->execute($dto);
 
-        //Processing error
-        if(!$event):
-            return ["error" => "Something went wrong on the process !"];
-        endif;
+        // Processing error
+        if (! $event) {
+            return ['error' => 'Something went wrong on the process !'];
+        }
 
-        if(!empty($event->errorMessage)):
+        if (! empty($event->errorMessage)) {
             Log::info('DB Process error :', $event->errorMessage);
-            return ["error" => "Error on persisting requests on database"];
-        endif;
+
+            return ['error' => 'Error on persisting requests on database'];
+        }
 
         $giftCard = GiftCard::findOrFail($event->card->getId());
 
@@ -314,22 +353,24 @@ class GiftCardAPIController extends AppBaseController
 
     public function store(User $user, CreateGiftCardAPIRequest $request): JsonResponse
     {
-        $belonging_type = $request->get("belonging_type");
+        $belonging_type = $request->get('belonging_type');
         $beneficiary = null;
-        if($belonging_type == 'others'):
+        if ($belonging_type == 'others') {
             $dto_beneficiary = app(CreateBeneficiaryAPIRequest::class)->validated();
             $beneficiary = $this->beneficiaryRepository->create($dto_beneficiary);
-        endif;
+        }
 
         $giftCard = $this->detached_store($belonging_type, $user, $request, $beneficiary);
 
-        //Catch errors
-        if(isset($giftCard['error']))
+        // Catch errors
+        if (isset($giftCard['error'])) {
             return $this->sendError($giftCard['error'], 401);
+        }
 
         $checkout = $this->payment->execute($giftCard);
-        if(!$checkout)
-            return $this->sendError("Something went wrong with the provider, please try again later !", 401);
+        if (! $checkout) {
+            return $this->sendError('Something went wrong with the provider, please try again later !', 401);
+        }
 
         $infos = [
             'gift_card' => new GiftCardResource($giftCard),
@@ -338,7 +379,7 @@ class GiftCardAPIController extends AppBaseController
 
         return $this->sendResponse($infos, 'Gift Card saved successfully !');
     }
-    
+
     /**
      * @OA\Post(
      *      path="/gift-cards",
@@ -346,19 +387,25 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Create GiftCard",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *            name="Idempotency-Key",
      *            description="Idempotency Key",
+     *
      *             @OA\Schema(
      *               type="string"
      *            ),
      *            required=true,
      *            in="header"
      *        ),
+     *
      *      @OA\RequestBody(
+     *
      *         @OA\MediaType(
      *           mediaType="multipart/form-data",
+     *
      *            @OA\Schema(
+     *
      *              @OA\Property(
      *                  property="belonging_type",
      *                  type="string",
@@ -389,11 +436,14 @@ class GiftCardAPIController extends AppBaseController
      *            ),
      *         ),
      *       ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -413,23 +463,25 @@ class GiftCardAPIController extends AppBaseController
     public function storeAuth(CreateGiftCardAPIRequest $request): JsonResponse
     {
         $user = $request->user();
-        $type = $request->get("belonging_type");
+        $type = $request->get('belonging_type');
         $beneficiary = null;
-        if($type == 'others'):
+        if ($type == 'others') {
             $dto_beneficiary = app(CreateBeneficiaryAPIRequest::class)->validated();
             $beneficiary = $this->beneficiaryRepository->create($dto_beneficiary);
             // $beneficiary = ( Beneficiary::where('phone', $dto_beneficiary['phone'])->first()) ?: $this->beneficiaryRepository->create($dto_beneficiary);
-        endif;
+        }
 
         $giftCard = $this->detached_store($type, $user, $request, $beneficiary);
 
-        //Catch errors
-        if(isset($giftCard['error']))
+        // Catch errors
+        if (isset($giftCard['error'])) {
             return $this->sendError($giftCard['error'], 401);
+        }
 
         $checkout = $this->payment->execute($giftCard);
-        if(!$checkout)
-            return $this->sendError("Something went wrong with the provider, please try again later !", 401);
+        if (! $checkout) {
+            return $this->sendError('Something went wrong with the provider, please try again later !', 401);
+        }
 
         $infos = [
             'gift_card' => new GiftCardResource($giftCard),
@@ -446,20 +498,25 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Get GiftCard",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of GiftCard",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -495,24 +552,31 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Update GiftCard | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of GiftCard",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/GiftCard")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -536,14 +600,15 @@ class GiftCardAPIController extends AppBaseController
         /** @var GiftCard $giftCard */
         $giftCard = GiftCard::findOrFail($id);
 
-        if (empty($giftCard)) 
+        if (empty($giftCard)) {
             return $this->sendError('Gift Card not found !');
-
-        try{
-            $giftCard = $this->giftCardRepository->update($input, $id);
         }
-        catch(\Exception $e){
-            Log::error("Error updating gift card : " . $e->getMessage());
+
+        try {
+            $giftCard = $this->giftCardRepository->update($input, $id);
+        } catch (\Exception $e) {
+            Log::error('Error updating gift card : '.$e->getMessage());
+
             return $this->sendError('Error occured, Please note that it is impossible to update the expiration date of an used gift card.', 403);
         }
 
@@ -557,20 +622,25 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Deactivate GiftCard | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of GiftCard",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -586,23 +656,24 @@ class GiftCardAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
-    public function deactivate(Giftcard $giftCard): JsonResponse
+     */
+    public function deactivate(GiftCard $giftCard): JsonResponse
     {
         /** @var GiftCard $giftCard */
         $exception_deactivate = [
             'used',
-            'pending'
+            'pending',
         ];
 
-        if (in_array($giftCard->status, $exception_deactivate)) 
+        if (in_array($giftCard->status, $exception_deactivate)) {
             return $this->sendError('Gift Card used or pending cannot be deactivated !');
-        
-        try{
-            $this->giftCardRepository->update(['status' => 'inactive'], $giftCard->id);
         }
-        catch(\Exception $e){
-            Log::error("Error updating gift card : " . $e->getMessage());
+
+        try {
+            $this->giftCardRepository->update(['status' => 'inactive'], $giftCard->id);
+        } catch (\Exception $e) {
+            Log::error('Error updating gift card : '.$e->getMessage());
+
             return $this->sendError('Error occured', 403);
         }
 
@@ -616,25 +687,31 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Delete GiftCard | Only for admin",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
      *          description="UUID of GiftCard",
      *          required=true,
+     *
      *          @OA\Schema(
      *              type="string",
      *              format="uuid"
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(property="success", type="boolean", example=true),
      *              @OA\Property(property="message", type="string", example="Gift card deleted successfully")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Gift Card not found or already expired !"
@@ -644,22 +721,24 @@ class GiftCardAPIController extends AppBaseController
      *          description="Unauthorized"
      *      )
      * )
-    */
+     */
     public function destroy($id): JsonResponse
     {
         /** @var GiftCard $giftCard */
         $giftCard = $this->giftCardRepository->find($id);
         $exception_delete = [
             'used',
-            'pending'
+            'pending',
         ];
 
-        if (empty($giftCard)) 
+        if (empty($giftCard)) {
             return $this->sendError('Gift Card not found or already expired !');
+        }
 
-        if (in_array($giftCard->status, $exception_delete)) 
+        if (in_array($giftCard->status, $exception_delete)) {
             return $this->sendError('Gift Card used or pending cannot be deleted !');
-        
+        }
+
         $giftCard->delete();
 
         return $this->sendSuccess('Gift Card deleted successfully');
@@ -672,20 +751,25 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Share GiftCard",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="giftCard",
      *          description="id of GiftCard",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -700,39 +784,41 @@ class GiftCardAPIController extends AppBaseController
      */
     public function share(GiftCard $giftCard): JsonResponse
     {
-        //Gift card expired at (Policy check)
-        if($giftCard->expired_at < now()){
+        // Gift card expired at (Policy check)
+        if ($giftCard->expired_at < now()) {
             return $this->sendError('Gift Card is expired and cannot be shared', 401);
-        } 
+        }
 
-        //Check card status (Policy check)
-        if($giftCard->status != 'active'){
+        // Check card status (Policy check)
+        if ($giftCard->status != 'active') {
             return $this->sendError('Gift Card is not active and cannot be shared', 401);
         }
 
         // Get beneficiary (Policy check)
         $beneficiary = $giftCard->beneficiary;
-        if(!$beneficiary){
+        if (! $beneficiary) {
             return $this->sendError('Gift Card has no beneficiary to share with', 401);
         }
 
-        // Get the owner and amount 
+        // Get the owner and amount
         $user = $giftCard->user;
         $customer_owner = $user?->customer()->first();
-        $owner_full_name = $customer_owner->first_name . ' ' . $customer_owner->last_name;
+        $owner_full_name = $customer_owner->first_name.' '.$customer_owner->last_name;
         $amount = $giftCard->face_amount;
 
         // Generate token and store in cache
         $nonce = Str::random(4);
         $token = CardFullyGenerated::encoding_payload($giftCard->id, $nonce);
         $is_stored = Cache::put("token:{$nonce}", $token, now()->addHours(24));
-        if(!$is_stored) return $this->sendError('Unable to generate shareable link, please try again later', 403);
-        $url = config('app.client_url') . '/download/?token=' . $token . '&nonce=' . $nonce;
+        if (! $is_stored) {
+            return $this->sendError('Unable to generate shareable link, please try again later', 403);
+        }
+        $url = config('app.client_url').'/download/?token='.$token.'&nonce='.$nonce;
 
         // Prepare content variables
-        $content_variables = json_encode(["1" => $beneficiary->full_name, "2" => (string)$amount, "3" => $owner_full_name, "4" => $giftCard->code, "5" => $url], JSON_UNESCAPED_SLASHES);
+        $content_variables = json_encode(['1' => $beneficiary->full_name, '2' => (string) $amount, '3' => $owner_full_name, '4' => $giftCard->code, '5' => $url], JSON_UNESCAPED_SLASHES);
 
-        $content = "";
+        $content = '';
         $node = new Node(
             content : $content,
             contentVariables: $content_variables,
@@ -744,7 +830,7 @@ class GiftCardAPIController extends AppBaseController
         var_dump($token);
         var_dump($nonce);
 
-        //Notify the user
+        // Notify the user
         $user->notify(new SharedCardNotification(
             node: $node,
             beneficiary_phone: $beneficiary->phone,
@@ -760,19 +846,25 @@ class GiftCardAPIController extends AppBaseController
      *      summary="VerifyGiftCard",
      *      tags={"GiftCard"},
      *      description="Verify GiftCard",
+     *
      *      @OA\Parameter(
      *          name="nonce",
      *          description="nonce of the shared token",
+     *
      *           @OA\Schema(
      *             type="string"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
+     *
      *          @OA\MediaType(
      *            mediaType="multipart/form-data",
+     *
      *             @OA\Schema(
+     *
      *               @OA\Property(
      *                   property="payload",
      *                   type="string",
@@ -782,11 +874,14 @@ class GiftCardAPIController extends AppBaseController
      *            ),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -794,8 +889,10 @@ class GiftCardAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/GiftCard")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -803,17 +900,17 @@ class GiftCardAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
+     */
     public function verifyToken(string $nonce, Request $request): JsonResponse
     {
         $payload = $request->get('payload');
         $cache_token = Cache::get("token:{$nonce}");
 
-        if(!$cache_token || $cache_token !== $payload){
+        if (! $cache_token || $cache_token !== $payload) {
             return $this->sendError('Invalid payload', 401);
         }
-        $gift_card_id = CardFullyGenerated::check($payload); //return gift_card_id or null
-        if (!$gift_card_id) {
+        $gift_card_id = CardFullyGenerated::check($payload); // return gift_card_id or null
+        if (! $gift_card_id) {
             return $this->sendError('Invalid or expired token', 401);
         }
         $giftCard = $this->giftCardRepository->find($gift_card_id);
@@ -824,7 +921,7 @@ class GiftCardAPIController extends AppBaseController
 
         // Get beneficiary (Policy check)
         $beneficiary = $giftCard->beneficiary;
-        if(!$beneficiary){
+        if (! $beneficiary) {
             return $this->sendError('Gift Card has no beneficiary to share with', 401);
         }
 
@@ -838,10 +935,14 @@ class GiftCardAPIController extends AppBaseController
      *      tags={"GiftCard"},
      *      description="Partner verify gift card code",
      *      security={{"passport":{}}},
+     *
      *      @OA\RequestBody(
+     *
      *         @OA\MediaType(
      *           mediaType="multipart/form-data",
+     *
      *            @OA\Schema(
+     *
      *              @OA\Property(
      *                  property="code",
      *                  type="string",
@@ -850,11 +951,14 @@ class GiftCardAPIController extends AppBaseController
      *            ),
      *         ),
      *       ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -862,8 +966,10 @@ class GiftCardAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/GiftCard")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -871,7 +977,7 @@ class GiftCardAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
+     */
     public function verifyCode(VerifyCodeAPIRequest $request): JsonResponse
     {
         $user = $request->user();
@@ -888,5 +994,4 @@ class GiftCardAPIController extends AppBaseController
 
         return $this->sendResponse(new GiftCardResource($gift_card), 'Gift card verified successfully !');
     }
-
 }

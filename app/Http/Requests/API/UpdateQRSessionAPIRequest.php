@@ -24,7 +24,7 @@ class UpdateQRSessionAPIRequest extends APIRequest
      */
     public function rules()
     {
-        if($this->isMethod('PATCH')) {
+        if ($this->isMethod('PATCH')) {
             return QrSession::$rules_verify;
         }
 

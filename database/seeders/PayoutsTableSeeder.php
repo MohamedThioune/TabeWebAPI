@@ -11,8 +11,5 @@ class PayoutsTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
-    {
-
-    }
+    public function run() {}
 }

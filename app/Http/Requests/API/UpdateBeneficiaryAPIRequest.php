@@ -25,7 +25,7 @@ class UpdateBeneficiaryAPIRequest extends APIRequest
     public function rules()
     {
         $rules = Beneficiary::$rules;
-        
+
         return $rules;
     }
 }

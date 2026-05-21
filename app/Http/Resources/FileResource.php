@@ -15,14 +15,15 @@ class FileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $key = Storage::disk('s3')->url($this->path . $this->id);
+        $key = Storage::disk('s3')->url($this->path.$this->id);
         $temporaryUrl = Storage::disk('s3')->temporaryUrl(
-            $this->path . $this->id,
+            $this->path.$this->id,
             now()->addHours(2)
         );
-        //Context admin
+        // Context admin
         $context_admin = $request->user()?->can('seeSensitiveData', $this);
         $context_super_admin = $request->user()?->can('seeSensitiveData');
+
         return [
             'id' => $this->when($context_admin, $this->id),
             'type' => $this->type,
@@ -32,7 +33,7 @@ class FileResource extends JsonResource
             'meaning' => $this->when($context_super_admin, $this->meaning),
             'description' => $this->when($context_admin, $this->description),
             'created_at' => $this->when($context_admin, $this->created_at),
-            'updated_at' => $this->when($context_admin, $this->updated_at)
+            'updated_at' => $this->when($context_admin, $this->updated_at),
         ];
     }
 }

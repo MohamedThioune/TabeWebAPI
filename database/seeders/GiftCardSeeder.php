@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\GiftCard;
 use Illuminate\Database\Seeder;
 
 class GiftCardSeeder extends Seeder
@@ -12,7 +12,6 @@ class GiftCardSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\GiftCard::factory(5)->create();
+        GiftCard::factory(5)->create();
     }
 }
- 

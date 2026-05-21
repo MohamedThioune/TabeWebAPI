@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\GiftCard;
+use Illuminate\Console\Command;
 
 class ExpiredGiftCards extends Command
 {

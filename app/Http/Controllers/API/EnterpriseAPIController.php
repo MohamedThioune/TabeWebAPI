@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreateEnterpriseAPIRequest;
 use App\Http\Requests\API\UpdateEnterpriseAPIRequest;
-use App\Models\Enterprise;
+use App\Http\Resources\EnterpriseResource;
 use App\Infrastructure\Persistence\EnterpriseRepository;
+use App\Models\Enterprise;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AppBaseController;
-use App\Http\Resources\EnterpriseResource;
 
 /**
  * Class EnterpriseController
  */
-
 class EnterpriseAPIController extends AppBaseController
 {
-    /** @var  EnterpriseRepository */
+    /** @var EnterpriseRepository */
     private $enterpriseRepository;
 
     public function __construct(EnterpriseRepository $enterpriseRepo)
@@ -25,7 +24,7 @@ class EnterpriseAPIController extends AppBaseController
         $this->enterpriseRepository = $enterpriseRepo;
     }
 
-    public function collect(array $search = [], Request $request, int $perPage = 9): array
+    public function collect(array $search, Request $request, int $perPage = 9): array
     {
         $query_enterprise = $this->enterpriseRepository->allQuery(
             $search,
@@ -45,9 +44,9 @@ class EnterpriseAPIController extends AppBaseController
                 'total_pages' => $enterprises->lastPage(),
                 'per_page' => $enterprises->perPage(),
                 'total_items' => $enterprises->total(),
-            ]
+            ],
         ];
-       
+
     }
 
     /**
@@ -57,47 +56,58 @@ class EnterpriseAPIController extends AppBaseController
      *      tags={"Enterprise"},
      *      description="Get all Enterprises | only for admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *            name="page",
      *            in="query",
      *            description="Page",
      *            required=false,
+     *
      *            @OA\Schema(
      *                type="integer"
      *            )
      *       ),
+     *
      *       @OA\Parameter(
      *            name="per_page",
      *            in="query",
      *            description="Per Page",
      *            required=false,
+     *
      *            @OA\Schema(
      *                type="integer"
      *            )
      *       ),
+     *
      *       @OA\Parameter(
      *            name="skip",
      *            in="query",
      *            description="Skip",
      *            required=false,
+     *
      *            @OA\Schema(
      *                type="integer"
      *            )
      *       ),
+     *
      *       @OA\Parameter(
      *             name="limit",
      *             in="query",
      *             description="Limit",
      *             required=false,
+     *
      *             @OA\Schema(
      *                 type="integer"
      *             )
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -105,8 +115,10 @@ class EnterpriseAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/Enterprise")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -114,7 +126,7 @@ class EnterpriseAPIController extends AppBaseController
      *          )
      *      )
      * )
-    */
+     */
     public function index(Request $request): JsonResponse
     {
         $search = $request->except(['skip', 'limit', 'page', 'per_page']);
@@ -132,15 +144,20 @@ class EnterpriseAPIController extends AppBaseController
      *      tags={"Enterprise"},
      *      description="Create Enterprise | only for admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Enterprise")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -173,20 +190,25 @@ class EnterpriseAPIController extends AppBaseController
      *      tags={"Enterprise"},
      *      description="Get Enterprise",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Enterprise",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -222,24 +244,31 @@ class EnterpriseAPIController extends AppBaseController
      *      tags={"Enterprise"},
      *      description="Update Enterprise",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Enterprise",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Enterprise")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -279,20 +308,25 @@ class EnterpriseAPIController extends AppBaseController
      *      tags={"Enterprise"},
      *      description="Delete Enterprise",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Enterprise",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"

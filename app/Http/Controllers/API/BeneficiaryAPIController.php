@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreateBeneficiaryAPIRequest;
 use App\Http\Requests\API\UpdateBeneficiaryAPIRequest;
-use App\Models\Beneficiary;
+use App\Http\Resources\BeneficiaryResource;
 use App\Infrastructure\Persistence\BeneficiaryRepository;
+use App\Models\Beneficiary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AppBaseController;
-use App\Http\Resources\BeneficiaryResource;
 
 /**
  * Class BeneficiaryController
  */
-
 class BeneficiaryAPIController extends AppBaseController
 {
-    /** @var  BeneficiaryRepository */
+    /** @var BeneficiaryRepository */
     private $beneficiaryRepository;
 
     public function __construct(BeneficiaryRepository $beneficiaryRepo)
@@ -31,11 +30,14 @@ class BeneficiaryAPIController extends AppBaseController
      *      summary="getBeneficiaryList",
      *      tags={"Beneficiary"},
      *      description="Get all Beneficiaries",
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -43,8 +45,10 @@ class BeneficiaryAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/Beneficiary")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -70,15 +74,20 @@ class BeneficiaryAPIController extends AppBaseController
      *      summary="createBeneficiary",
      *      tags={"Beneficiary"},
      *      description="Create Beneficiary",
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Beneficiary")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -110,20 +119,25 @@ class BeneficiaryAPIController extends AppBaseController
      *      summary="getBeneficiaryItem",
      *      tags={"Beneficiary"},
      *      description="Get Beneficiary",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Beneficiary",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -158,24 +172,31 @@ class BeneficiaryAPIController extends AppBaseController
      *      summary="updateBeneficiary",
      *      tags={"Beneficiary"},
      *      description="Update Beneficiary",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Beneficiary",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Beneficiary")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -214,20 +235,25 @@ class BeneficiaryAPIController extends AppBaseController
      *      summary="deleteBeneficiary",
      *      tags={"Beneficiary"},
      *      description="Delete Beneficiary",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Beneficiary",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"

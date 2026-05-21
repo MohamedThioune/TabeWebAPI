@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreatePartnerCategoryAPIRequest;
 use App\Http\Requests\API\UpdatePartnerCategoryAPIRequest;
-use App\Models\UserCategory;
+use App\Http\Resources\UserCategoryResource;
 use App\Infrastructure\Persistence\PartnerCategoryRepository;
+use App\Models\UserCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AppBaseController;
-use App\Http\Resources\UserCategoryResource;
 
 /**
  * Class PartnerCategoryController
  */
-
 class UserCategoryAPIController extends AppBaseController
 {
-    /** @var  PartnerCategoryRepository */
+    /** @var PartnerCategoryRepository */
     private $partnerCategoryRepository;
 
     public function __construct(PartnerCategoryRepository $partnerCategoryRepo)
@@ -31,11 +30,14 @@ class UserCategoryAPIController extends AppBaseController
      *      summary="getPartnerCategoryList",
      *      tags={"UserCategory"},
      *      description="Get all PartnerCategories",
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -43,8 +45,10 @@ class UserCategoryAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/UserCategory")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -70,15 +74,20 @@ class UserCategoryAPIController extends AppBaseController
      *      summary="createPartnerCategory",
      *      tags={"UserCategory"},
      *      description="Create UserCategory",
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/UserCategory")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -110,20 +119,25 @@ class UserCategoryAPIController extends AppBaseController
      *      summary="getPartnerCategoryItem",
      *      tags={"UserCategory"},
      *      description="Get UserCategory",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of UserCategory",
+     *
      *           @OA\Schema(
      *             type="string"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -158,24 +172,31 @@ class UserCategoryAPIController extends AppBaseController
      *      summary="updatePartnerCategory",
      *      tags={"UserCategory"},
      *      description="Update UserCategory",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of UserCategory",
+     *
      *           @OA\Schema(
      *             type="string"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/UserCategory")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -214,20 +235,25 @@ class UserCategoryAPIController extends AppBaseController
      *      summary="deletePartnerCategory",
      *      tags={"UserCategory"},
      *      description="Delete UserCategory",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of UserCategory",
+     *
      *           @OA\Schema(
      *             type="string"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"

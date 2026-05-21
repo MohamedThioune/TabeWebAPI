@@ -9,8 +9,8 @@ class Phone
     public function __construct(string $number)
     {
         // Basic validation for phone number format (you can enhance this as needed)
-        if (!preg_match('/^\+?[1-9]\d{1,14}$/', $number)) {
-            throw new \InvalidArgumentException("Invalid phone number format.");
+        if (! preg_match('/^\+?[1-9]\d{1,14}$/', $number)) {
+            throw new \InvalidArgumentException('Invalid phone number format.');
         }
         $this->number = $number;
     }
@@ -24,5 +24,4 @@ class Phone
     {
         return $this->number;
     }
-
 }

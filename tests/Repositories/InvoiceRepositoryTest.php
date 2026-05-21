@@ -2,11 +2,11 @@
 
 namespace Tests\Repositories;
 
-use App\Models\Invoice;
 use App\Infrastructure\Persistence\InvoiceRepository;
+use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
 use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class InvoiceRepositoryTest extends TestCase
 {
@@ -14,7 +14,7 @@ class InvoiceRepositoryTest extends TestCase
 
     protected InvoiceRepository $invoiceRepo;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->invoiceRepo = app(InvoiceRepository::class);

@@ -2,20 +2,20 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class InvoiceResource extends JsonResource
 {
-    
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
     {
-        //Load the relations
+        // Load the relations
         $this->load('gift_card');
 
         return [
@@ -28,7 +28,7 @@ class InvoiceResource extends JsonResource
             'endpoint' => $this->endpoint,
             'gift_card' => new GiftCardResource($this->whenLoaded('gift_card')),
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at,
         ];
     }
 }

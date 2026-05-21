@@ -2,15 +2,15 @@
 
 namespace Tests\APIs;
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
-use Tests\ApiTestTrait;
 use App\Models\Beneficiary;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class BeneficiaryApiTest extends TestCase
 {
-    use ApiTestTrait, WithoutMiddleware, DatabaseTransactions;
+    use ApiTestTrait, DatabaseTransactions, WithoutMiddleware;
 
     /**
      * @test
@@ -68,8 +68,8 @@ class BeneficiaryApiTest extends TestCase
 
         $this->response = $this->json(
             'DELETE',
-             '/api/beneficiaries/'.$beneficiary->id
-         );
+            '/api/beneficiaries/'.$beneficiary->id
+        );
 
         $this->assertApiSuccess();
         $this->response = $this->json(

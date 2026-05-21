@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('qr_sessions', function (Blueprint $table) {
-            $table->enum("status", ['pending', 'expired', 'used'])->default('pending')->change();
+            $table->enum('status', ['pending', 'expired', 'used'])->default('pending')->change();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('qr_sessions', function (Blueprint $table) {
-            $table->enum("status", ['pending', 'expired', 'used'])->default('expired')->change();
+            $table->enum('status', ['pending', 'expired', 'used'])->default('expired')->change();
         });
     }
 };

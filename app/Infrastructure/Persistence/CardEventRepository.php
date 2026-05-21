@@ -3,8 +3,8 @@
 namespace App\Infrastructure\Persistence;
 
 use App\Models\CardEvent;
-use App\Repositories\BaseRepository;
 use App\Models\User;
+use App\Repositories\BaseRepository;
 
 class CardEventRepository extends BaseRepository
 {
@@ -23,7 +23,7 @@ class CardEventRepository extends BaseRepository
         return CardEvent::class;
     }
 
-    //monthly stats(used card)
+    // monthly stats(used card)
     // public function usedMonthly(User $user) : int
     // {
     //     $query = $user->gift_cards();
@@ -36,12 +36,13 @@ class CardEventRepository extends BaseRepository
     //     return $query->count();
     // }
 
-    // find events 
-    public function findEvents(array $range, string $status){
+    // find events
+    public function findEvents(array $range, string $status)
+    {
         $query = $this->model()::query();
 
         return $query->select('gift_card_id', 'card_events.type')
-                ->where('card_events.type', $status)->whereBetween('card_events.created_at', $range)
-                ->groupBy('gift_card_id', 'card_events.type');
+            ->where('card_events.type', $status)->whereBetween('card_events.created_at', $range)
+            ->groupBy('gift_card_id', 'card_events.type');
     }
 }

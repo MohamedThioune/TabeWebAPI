@@ -25,7 +25,7 @@ class UpdateQRSessionRequest extends FormRequest
     public function rules()
     {
         $rules = QrSession::$rules;
-        
+
         return $rules;
     }
 }

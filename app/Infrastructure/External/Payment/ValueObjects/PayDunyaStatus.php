@@ -2,9 +2,9 @@
 
 namespace App\Infrastructure\External\Payment\ValueObjects;
 
-enum PayDunyaStatus: String
+enum PayDunyaStatus: string
 {
-    case Pending = "pending";
-    case Completed = "completed";
-    case Failed = "failed";
+    case Pending = 'pending';
+    case Completed = 'completed';
+    case Failed = 'failed';
 }

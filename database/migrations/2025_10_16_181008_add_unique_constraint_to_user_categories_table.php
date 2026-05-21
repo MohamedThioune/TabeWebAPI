@@ -21,8 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('user_categories', function (Blueprint $table) {
-
-        });
+        Schema::table('user_categories', function (Blueprint $table) {});
     }
 };

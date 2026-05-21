@@ -12,7 +12,7 @@ class CustomerRepository extends BaseRepository
         'id',
         'first_name',
         'last_name',
-        'gender'
+        'gender',
     ];
 
     public function getFieldsSearchable(): array

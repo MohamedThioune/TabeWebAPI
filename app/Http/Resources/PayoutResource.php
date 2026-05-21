@@ -2,30 +2,31 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\UserResource;
 
 class PayoutResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
     {
-        //Transactions
-        $show_transactions = (bool)$request->get('show_transactions');
+        // Transactions
+        $show_transactions = (bool) $request->get('show_transactions');
         $transactions = TransactionResource::collection($this->whenLoaded('transactions'));
         $total_transactions = ($this->resource->transactions()) ? $this->resource->transactions()->count() : 0;
 
-        //Timeline
-        $show_timeline = (bool)$request->get('show_timeline');
+        // Timeline
+        $show_timeline = (bool) $request->get('show_timeline');
         $timeline = $this->resource->timeline();
 
-        //Context admin
+        // Context admin
         $context_admin = $request->user()?->can('seeSensitiveData');
+
         return [
             'id' => $this->id,
             'gross_amount' => $this->gross_amount,
@@ -39,7 +40,7 @@ class PayoutResource extends JsonResource
             'user' => $this->when($context_admin, new UserResource($this->resource->user)),
             'timeline' => $this->when($show_timeline && $context_admin, $timeline),
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at,
         ];
     }
 }

@@ -2,11 +2,11 @@
 
 namespace Tests\Repositories;
 
-use App\Models\PayoutLine;
 use App\Infrastructure\Persistence\PayoutLineRepository;
+use App\Models\PayoutLine;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
 use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class PayoutLineRepositoryTest extends TestCase
 {
@@ -14,7 +14,7 @@ class PayoutLineRepositoryTest extends TestCase
 
     protected PayoutLineRepository $payoutLineRepo;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->payoutLineRepo = app(PayoutLineRepository::class);

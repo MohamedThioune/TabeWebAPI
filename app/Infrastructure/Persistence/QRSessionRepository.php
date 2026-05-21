@@ -3,14 +3,12 @@
 namespace App\Infrastructure\Persistence;
 
 use App\Models\QrSession;
-use App\Models\User as ModelUser;
 use App\Repositories\BaseRepository;
-use Carbon\Carbon;
 
 class QRSessionRepository extends BaseRepository
 {
     protected $fieldSearchable = [
-        'expired_at'
+        'expired_at',
     ];
 
     public function getFieldsSearchable(): array
@@ -30,7 +28,7 @@ class QRSessionRepository extends BaseRepository
     {
         $query = $this->model->newQuery();
         $query->where('status', 'pending')
-              ->where('expired_at', '>', now());
+            ->where('expired_at', '>', now());
 
         return $query->find($id, $columns);
     }

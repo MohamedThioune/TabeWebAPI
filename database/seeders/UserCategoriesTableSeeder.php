@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\UserCategory;
 use Illuminate\Database\Seeder;
 
 class UserCategoriesTableSeeder extends Seeder
@@ -13,6 +14,6 @@ class UserCategoriesTableSeeder extends Seeder
      */
     public function run()
     {
-        \App\Models\UserCategory::factory(5)->create();
+        UserCategory::factory(5)->create();
     }
 }

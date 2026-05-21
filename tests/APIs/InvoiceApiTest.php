@@ -2,15 +2,15 @@
 
 namespace Tests\APIs;
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
-use Tests\ApiTestTrait;
 use App\Models\Invoice;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class InvoiceApiTest extends TestCase
 {
-    use ApiTestTrait, WithoutMiddleware, DatabaseTransactions;
+    use ApiTestTrait, DatabaseTransactions, WithoutMiddleware;
 
     /**
      * @test
@@ -68,8 +68,8 @@ class InvoiceApiTest extends TestCase
 
         $this->response = $this->json(
             'DELETE',
-             '/api/invoices/'.$invoice->id
-         );
+            '/api/invoices/'.$invoice->id
+        );
 
         $this->assertApiSuccess();
         $this->response = $this->json(

@@ -12,11 +12,11 @@ class PartnerRepository extends BaseRepository
         'id',
         'name',
         'legal_name',
-        'sector', //ex: mode, beauté, gastronomie
+        'sector', // ex: mode, beauté, gastronomie
         'office_phone',
-        'payout_method', //bank_transfer, mobile_money, wallet
-        'kyc_status', //active, suspended, pending_approval
-        'user_id'
+        'payout_method', // bank_transfer, mobile_money, wallet
+        'kyc_status', // active, suspended, pending_approval
+        'user_id',
     ];
 
     public function getFieldsSearchable(): array

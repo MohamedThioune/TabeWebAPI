@@ -2,32 +2,27 @@
 
 namespace App\Domain\GiftCards\Services;
 
-use App\Models\GiftCard as ModelCard;
 use App\Domain\GiftCards\Events\CardOperated;
 use App\Infrastructure\Persistence\GiftCardRepository;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Number;
-use Illuminate\Support\Str;
 
 class CreateCard
 {
+    public function __construct(private GiftCardRepository $giftCardRepository) {}
 
-    public function __construct(private GiftCardRepository $giftCardRepository){}
     /**
      * Handle the event.
      */
     public function handle(CardOperated $event)
     {
-        if(!$event->card){
+        if (! $event->card) {
             return;
         }
         DB::beginTransaction();
         try {
-            //card creation
+            // card creation
             $card = $this->giftCardRepository->create($event->card->toArray());
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             $event->errorMessage['card'] = $e->getMessage();
             DB::rollBack();
         }

@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Domain\Users\ValueObjects\Type;
 use App\Models\GiftCard;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class GiftCardPolicy
 {
@@ -23,7 +22,7 @@ class GiftCardPolicy
     public function view(User $user, GiftCard $gift_card): bool
     {
         return $user->hasRole(Type::Admin->value)
-            || ( $user->hasRole(Type::Customer->value) && $user->id === $gift_card->owner_user_id) ;
+            || ($user->hasRole(Type::Customer->value) && $user->id === $gift_card->owner_user_id);
     }
 
     /**

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Partner extends Model
 {
-    use HasUuids, HasFactory, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes;
 
     protected $table = 'partners';
 
@@ -20,15 +20,15 @@ class Partner extends Model
         'id',
         'name',
         'legal_name',
-        'sector', //ex: mode, beauté, gastronomie
+        'sector', // ex: mode, beauté, gastronomie
         'office_phone',
 
-        'payout_method', //bank_transfer, mobile_money, wallet
-        'payout_account',  //ex: RIB, numéro OM/Wave
+        'payout_method', // bank_transfer, mobile_money, wallet
+        'payout_account',  // ex: RIB, numéro OM/Wave
 
-        'kyc_status', //active, suspended, pending_approval
-         // 'tax_id', //NINEA, registre commerce
-        'user_id'
+        'kyc_status', // active, suspended, pending_approval
+        // 'tax_id', //NINEA, registre commerce
+        'user_id',
     ];
 
     public static array $ruleCreated = [
@@ -45,8 +45,8 @@ class Partner extends Model
         'kyc_status' => 'string|in:pending,verified,rejected,not_submitted',
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
-
 }

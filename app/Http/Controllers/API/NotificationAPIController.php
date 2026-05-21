@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\AppBaseController;
-use App\Http\Requests\API\GetGiftCardsAPIRequest;
 use App\Http\Resources\NotificationResource;
 use App\Infrastructure\Persistence\NotificationRepository;
 use App\Models\Notification;
@@ -20,7 +19,7 @@ class NotificationAPIController extends AppBaseController
         $this->notificationRepository = $notifRepo;
     }
 
-    public function detached_index(User $user, array $search, Request $request) : array
+    public function detached_index(User $user, array $search, Request $request): array
     {
         $notifs = $this->notificationRepository->all(
             $search,
@@ -36,6 +35,7 @@ class NotificationAPIController extends AppBaseController
 
         return $infos;
     }
+
     /**
      * @OA\Get(
      *      path="/notifications/me",
@@ -43,39 +43,48 @@ class NotificationAPIController extends AppBaseController
      *      tags={"Notification"},
      *      description="List the notifications",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="type",
      *          in="query",
      *          description="Filter users by read (read, not_read)",
      *          required=false,
+     *
      *          @OA\Schema(
      *              type="integer",
      *              enum={0,1}
      *          )
      *      ),
+     *
      *      @OA\Parameter(
      *          name="skip",
      *          in="query",
      *          description="Skip",
      *          required=false,
+     *
      *          @OA\Schema(
      *              type="integer"
      *          )
      *      ),
+     *
      *      @OA\Parameter(
      *           name="limit",
      *           in="query",
      *           description="Limit",
      *           required=false,
+     *
      *           @OA\Schema(
      *               type="integer"
      *           )
      *       ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -95,7 +104,7 @@ class NotificationAPIController extends AppBaseController
     public function indexAuth(Request $request): JsonResponse
     {
         $user = $request->user();
-        //Test user instance of model user
+        // Test user instance of model user
         $search = $request->except(['skip', 'limit']);
         $search['notifiable_id'] = $user->id;
 
@@ -103,12 +112,13 @@ class NotificationAPIController extends AppBaseController
 
         return $this->sendResponse($infos, 'Your Notifications retrieved successfully');
     }
+
     /**
      * Display a listing of the resource.
      */
     public function index(User $user, Request $request): JsonResponse
     {
-        //Test user instance of model user
+        // Test user instance of model user
         $search = $request->except(['skip', 'limit']);
         $search['notifiable_id'] = $user->id;
 
@@ -117,28 +127,29 @@ class NotificationAPIController extends AppBaseController
         return $this->sendResponse($infos, 'Notifications retrieved successfully');
     }
 
-    public function sample_read(Request $request, string $user_id,  string $id): Mixed
+    public function sample_read(Request $request, string $user_id, string $id): mixed
     {
         $search = [
             'id' => $id,
             'notifiable_id' => $user_id,
-            'is_read' => 0
+            'is_read' => 0,
         ];
 
         $notifs = $this->notificationRepository->all(
-                $search
+            $search
         );
 
         $notif = isset($notifs[0]) ? $notifs[0] : null;
 
         if (empty($notif)) {
-            return ['error' => "No notification found matching your search terms."];
+            return ['error' => 'No notification found matching your search terms.'];
         }
 
         $input = ['is_read' => 1, 'read_at' => now()];
 
         return $this->notificationRepository->update($input, $id);
     }
+
     /**
      * @OA\Patch(
      *      path="/notifications/me/{id}",
@@ -146,20 +157,25 @@ class NotificationAPIController extends AppBaseController
      *      tags={"Notification"},
      *      description="Read a notification",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *           name="id",
      *           description="id of Notification",
+     *
      *            @OA\Schema(
      *              type="string"
      *           ),
      *           required=true,
      *           in="path"
      *       ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation !",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="status",
      *                  type="boolean"
@@ -180,11 +196,13 @@ class NotificationAPIController extends AppBaseController
     {
         $user = $request->user();
         $notif = $this->sample_read($request, $user->id, $id);
-        if (isset($notif['error']))
+        if (isset($notif['error'])) {
             return $this->sendError($notif['error']);
+        }
 
-        return $this->sendResponse(new NotificationResource($notif),  'Notification read successfully !');
+        return $this->sendResponse(new NotificationResource($notif), 'Notification read successfully !');
     }
+
     /**
      * @OA\Patch(
      *      path="/notifications/read/all",
@@ -192,11 +210,14 @@ class NotificationAPIController extends AppBaseController
      *      tags={"Notification"},
      *      description="Read all notifications",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation !",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="status",
      *                  type="boolean"
@@ -213,17 +234,17 @@ class NotificationAPIController extends AppBaseController
     {
         $user = $request->user();
 
-        //Update all matching queries
+        // Update all matching queries
         $affectedRows = Notification::where('notifiable_id', $user->id)->where('is_read', 0)->update(['is_read' => 1]);
         $message = ($affectedRows > 0) ? 'All notifications read successfully !' : 'No changes were made.';
 
-//        $notifs = $this->notificationRepository->all(
-//            ['notifiable_id' => $user->id],
-//            $request->get('skip'),
-//            $request->get('limit')
-//        );
-//
-//        $notif = isset($notifs[0]) ? $notifs[0] : null;
+        //        $notifs = $this->notificationRepository->all(
+        //            ['notifiable_id' => $user->id],
+        //            $request->get('skip'),
+        //            $request->get('limit')
+        //        );
+        //
+        //        $notif = isset($notifs[0]) ? $notifs[0] : null;
 
         return $this->sendSuccess($message);
     }
@@ -235,20 +256,25 @@ class NotificationAPIController extends AppBaseController
      *      tags={"Notification"},
      *      description="Delete Notification",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Notification",
+     *
      *           @OA\Schema(
      *             type="string"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="status",
      *                  type="boolean"

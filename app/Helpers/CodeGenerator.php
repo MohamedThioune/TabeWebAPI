@@ -13,7 +13,7 @@ class CodeGenerator
         $numbers = self::randomNumbers(4);
 
         // Base du code sans checksum
-        $raw = $letters . $numbers;
+        $raw = $letters.$numbers;
 
         // Lettre de contrôle
         $checksum = self::checksumLetter($raw);
@@ -27,9 +27,10 @@ class CodeGenerator
     private static function randomLetters(int $length): string
     {
         $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
         return collect(range(1, $length))
             ->map(fn () => $alphabet[random_int(0, 25)])
-            ->join('');    
+            ->join('');
     }
 
     /**
@@ -41,6 +42,7 @@ class CodeGenerator
         for ($i = 0; $i < $length; $i++) {
             $digits .= random_int(0, 9);
         }
+
         return $digits;
     }
 
@@ -52,16 +54,17 @@ class CodeGenerator
     {
         $hash = crc32($input);       // fast hash
         $index = $hash % 26;         // 0-25
+
         return chr(65 + $index);     // converts to A-Z
     }
 
     /**
-    * Verify that a code has not been tampered with by validating the checksum.
-    */
+     * Verify that a code has not been tampered with by validating the checksum.
+     */
     public static function isValid(string $fullCode): bool
     {
         // Expected format: AAAA-1234-K
-        if (!preg_match('#^([A-Z]{4})-([0-9]{4})-([A-Z])$#', $fullCode, $matches)) {
+        if (! preg_match('#^([A-Z]{4})-([0-9]{4})-([A-Z])$#', $fullCode, $matches)) {
             return false; // invalid format
         }
 
@@ -70,7 +73,7 @@ class CodeGenerator
         $checksumProvided = $matches[3];
 
         // Recreate the raw part
-        $raw = $letters . $numbers;
+        $raw = $letters.$numbers;
 
         // Recalculate checksum
         $expectedChecksum = self::checksumLetter($raw);
@@ -78,5 +81,4 @@ class CodeGenerator
         // Secure comparison (avoids timing attacks)
         return hash_equals($expectedChecksum, $checksumProvided);
     }
-
 }

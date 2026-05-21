@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @OA\Schema(
  *      schema="QRSession",
  *      required={"gift_card_id"},
+ *
  *      @OA\Property(
  *           property="status",
  *           description="",
@@ -69,7 +70,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class QrSession extends Model
 {
-    use HasUuids, SoftDeletes, HasFactory;
+    use HasFactory, HasUuids, SoftDeletes;
+
     public $table = 'qr_sessions';
 
     public $fillable = [
@@ -78,7 +80,7 @@ class QrSession extends Model
         'token',
         'url',
         'expired_at',
-        'gift_card_id'
+        'gift_card_id',
     ];
 
     protected $casts = [
@@ -88,15 +90,15 @@ class QrSession extends Model
     ];
 
     public static array $rules = [
-        'gift_card_id' => 'required|string|exists:gift_cards,id'
+        'gift_card_id' => 'required|string|exists:gift_cards,id',
     ];
 
     public static array $rules_verify = [
-        'payload' => 'required|string|exists:qr_sessions,token'
+        'payload' => 'required|string|exists:qr_sessions,token',
     ];
 
-    public function giftCard(){
-        return $this->belongsTo(GiftCard::class , 'gift_card_id');
+    public function giftCard()
+    {
+        return $this->belongsTo(GiftCard::class, 'gift_card_id');
     }
-
 }

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE gift_cards CHANGE is_active status TINYINT(1) NOT NULL DEFAULT 0");
+        DB::statement('ALTER TABLE gift_cards CHANGE is_active status TINYINT(1) NOT NULL DEFAULT 0');
         Schema::table('gift_cards', function (Blueprint $table) {
             $table->enum('status', ['active', 'inactive', 'used', 'expired'])->default('inactive')->change();
         });

@@ -10,7 +10,7 @@ class OptionRepository extends BaseRepository
     protected $fieldSearchable = [
         'min_amount_card',
         'max_amount_card',
-        'period_validity_card'
+        'period_validity_card',
     ];
 
     public function getFieldsSearchable(): array

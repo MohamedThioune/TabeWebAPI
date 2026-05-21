@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Domain\Users\DTO\Node;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -14,7 +13,7 @@ class PushBeneficiaryWhatsAppNotification extends Notification
 
     /**
      * Create a new notification instance.
-    */
+     */
     public function __construct(private Node $node, public string $beneficiary_phone, public string $channel)
     {
         $this->channel = $channel;
@@ -29,27 +28,30 @@ class PushBeneficiaryWhatsAppNotification extends Notification
     public function via(object $notifiable): array
     {
         $notifiable->phone = $this->beneficiary_phone;
-        $notifiable->whatsApp = 'whatsapp:' . $this->beneficiary_phone;
+        $notifiable->whatsApp = 'whatsapp:'.$this->beneficiary_phone;
+
         return ['twilio'];
     }
 
-    public function toTwilio(object $notifiable): array{
+    public function toTwilio(object $notifiable): array
+    {
         return [
-            "from" => config("services.twilio.whatsapp"),
-            "contentSid" => "HXbbebca7f51105e6cf050e326069350fc",
-            "contentVariables" => $this->node->contentVariables,
-            "body" => $this->node->body
+            'from' => config('services.twilio.whatsapp'),
+            'contentSid' => 'HXbbebca7f51105e6cf050e326069350fc',
+            'contentVariables' => $this->node->contentVariables,
+            'body' => $this->node->body,
         ];
     }
+
     /**
      * Get the mail representation of the notification.
      */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**

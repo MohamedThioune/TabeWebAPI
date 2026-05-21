@@ -2,11 +2,11 @@
 
 namespace Tests\Repositories;
 
-use App\Models\Option;
 use App\Infrastructure\Persistence\OptionRepository;
+use App\Models\Option;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
 use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class OptionRepositoryTest extends TestCase
 {
@@ -14,7 +14,7 @@ class OptionRepositoryTest extends TestCase
 
     protected OptionRepository $optionRepo;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->optionRepo = app(OptionRepository::class);

@@ -2,17 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Models\Beneficiary;
 use Illuminate\Database\Seeder;
 
 class BeneficiariesTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run() : void
+    public function run(): void
     {
-        \App\Models\Beneficiary::factory(10)->create();
+        Beneficiary::factory(10)->create();
     }
 }

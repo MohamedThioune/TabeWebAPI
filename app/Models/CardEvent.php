@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @OA\Schema(
  *      schema="CardEvent",
  *      required={"type"},
+ *
  *      @OA\Property(
  *          property="type",
  *          description="",
@@ -35,20 +36,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *          format="date-time"
  *      )
  * )
- */class CardEvent extends Model
+ */ class CardEvent extends Model
 {
-    use HasUuids, SoftDeletes, HasFactory;
+    use HasFactory, HasUuids, SoftDeletes;
+
     public $table = 'card_events';
 
     public $fillable = [
         'type',
         'gift_card_id',
-        'meta_json'
+        'meta_json',
     ];
 
     protected $casts = [
         'type' => 'string',
-        'meta_json' => 'array'
+        'meta_json' => 'array',
     ];
 
     public static array $rules = [
@@ -56,8 +58,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
         'gift_card_id' => 'required|exists:gift_cards,id',
     ];
 
-    public function giftcard(){
+    public function giftcard()
+    {
         return $this->belongsTo(GiftCard::class, 'gift_card_id');
     }
-
 }

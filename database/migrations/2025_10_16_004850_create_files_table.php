@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->string('type'); //Ex : png, mp4, mp3, csv
-            $table->string('path'); //Ex : dev/users/images/
-            $table->string('meaning'); //Ex : license, CIN, etc.
+            $table->string('type'); // Ex : png, mp4, mp3, csv
+            $table->string('path'); // Ex : dev/users/images/
+            $table->string('meaning'); // Ex : license, CIN, etc.
             $table->text('description')->nullable();
             $table->string('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');

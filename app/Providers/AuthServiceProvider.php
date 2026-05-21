@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+use App\Models\Customer;
+use App\Models\Enterprise;
+use App\Models\File;
+use App\Models\Partner;
 use App\Policies\SensitiveDataPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -16,10 +20,10 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        \App\Models\Partner::class => \App\Policies\SensitiveDataPolicy::class,
-        \App\Models\Customer::class => \App\Policies\SensitiveDataPolicy::class,
-        \App\Models\Enterprise::class => \App\Policies\SensitiveDataPolicy::class,
-        \App\Models\File::class => \App\Policies\SensitiveDataPolicy::class,
+        Partner::class => SensitiveDataPolicy::class,
+        Customer::class => SensitiveDataPolicy::class,
+        Enterprise::class => SensitiveDataPolicy::class,
+        File::class => SensitiveDataPolicy::class,
     ];
 
     /**
@@ -29,7 +33,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
         Gate::define('seeSensitiveData', [SensitiveDataPolicy::class, 'seeSensitiveData']);
-//        Gate::define('seeMySensitiveData', [SensitiveDataPolicy::class, 'seeMySensitiveData']);
+        //        Gate::define('seeMySensitiveData', [SensitiveDataPolicy::class, 'seeMySensitiveData']);
 
         // Enable hashed storage of client secrets
         // Passport::hashClientSecrets();

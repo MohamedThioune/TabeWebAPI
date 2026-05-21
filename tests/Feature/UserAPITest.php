@@ -2,45 +2,46 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\PushWhatsAppNotification;
-use Illuminate\Support\Facades\Cache;
-use Tests\TestCase;
-use Tests\ApiTestTrait as ApiTest;
-use App\Models\User;
+use App\Domain\Users\ValueObjects\Type;
 use App\Models\Customer;
 use App\Models\Partner;
-use App\Domain\Users\ValueObjects\Type;
+use App\Models\User;
+use App\Notifications\PushWhatsAppNotification;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
+use Tests\ApiTestTrait as ApiTest;
+use Tests\TestCase;
 
 class UserAPITest extends TestCase
 {
     use ApiTest, DatabaseTransactions;
+
     private static array $pattern_customer = [
-            'customer' => [
-                'first_name',
-                'last_name',
-            ],
-            'sigla',
-            'phone',
-            'country',
-        ];
+        'customer' => [
+            'first_name',
+            'last_name',
+        ],
+        'sigla',
+        'phone',
+        'country',
+    ];
 
     private static array $pattern_partner = [
-            'partner' => [
-                'name',
-                'sector',
-            ],
-            'sigla',
-            'avatar',
-            'banner',
-            'phone',
-            'country',
-        ];
-        
+        'partner' => [
+            'name',
+            'sector',
+        ],
+        'sigla',
+        'avatar',
+        'banner',
+        'phone',
+        'country',
+    ];
+
     /**
      * test register user
-    */
+     */
     public function test_register_user(): void
     {
         Notification::fake();
@@ -52,10 +53,10 @@ class UserAPITest extends TestCase
             'last_name' => fake()->lastName(),
             'gender' => $gender,
             'email' => fake()->unique()->safeEmail(),
-            'phone' => "+221770000000",
-            'whatsApp' => "+221770000000",
-            'password' => "password123",
-            'password_confirmation' => "password123",
+            'phone' => '+221770000000',
+            'whatsApp' => '+221770000000',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
         ];
 
         $this->response = $this->json(
@@ -72,13 +73,13 @@ class UserAPITest extends TestCase
         $this->response->assertJsonStructure([
             'data' => [
                 'user' => self::$pattern_customer,
-            ]
+            ],
         ]);
 
         // assert database insertion
         $this->assertDatabaseHas('users', [
             'phone' => $data['phone'],
-            'whatsapp' => 'whatsapp:' . $data['whatsApp'],
+            'whatsapp' => 'whatsapp:'.$data['whatsApp'],
         ]);
         $this->assertDatabaseHas('customers', [
             'first_name' => $data['first_name'],
@@ -89,20 +90,20 @@ class UserAPITest extends TestCase
         $user = User::where('phone', $data['phone'])->first();
         Notification::assertSentTo(
             [$user],
-            \App\Notifications\PushWhatsAppNotification::class
+            PushWhatsAppNotification::class
         );
     }
 
-    /** 
-     * test verify OTP code 
-    */
+    /**
+     * test verify OTP code
+     */
     public function test_verify_otp_code(): void
     {
-        $data =  [
-                'otp_code' => '123456',
-                'purpose' => 'login',
-            ];
-        //Create user
+        $data = [
+            'otp_code' => '123456',
+            'purpose' => 'login',
+        ];
+        // Create user
         $user = User::factory()->create([
             'phone' => '+221770000001',
         ]);
@@ -110,14 +111,14 @@ class UserAPITest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        //Cache store OTP
+        // Cache store OTP
         $otp_code = '123456';
-        Cache::put('otp_code_' . $user->phone, bcrypt($data['otp_code']), now()->addSeconds(120));
+        Cache::put('otp_code_'.$user->phone, bcrypt($data['otp_code']), now()->addSeconds(120));
 
-        //Request OTP
+        // Request OTP
         $this->response = $this->json(
             'PUT',
-            '/api/auth/otp/verify/' . $user->phone,
+            '/api/auth/otp/verify/'.$user->phone,
             $data
         );
 
@@ -139,10 +140,10 @@ class UserAPITest extends TestCase
 
     /**
      * test get authenticated user info
-    */
+     */
     public function test_get_authenticated_user(): void
     {
-        //Acting as : Customer
+        // Acting as : Customer
         $customer = ApiTest::actingAsCustomer();
 
         $this->response = $this->json(
@@ -162,12 +163,12 @@ class UserAPITest extends TestCase
         ]);
     }
 
-    /** 
+    /**
      * test get partner list
-    */
+     */
     public function test_get_partner_list(): void
     {
-        //Create partners
+        // Create partners
         Partner::factory()->count(8)->create();
         $this->response = $this->json(
             'GET',
@@ -185,10 +186,9 @@ class UserAPITest extends TestCase
                 'users' => [
                     '*' => self::$pattern_partner,
                 ],
-                'pagination' => ApiTest::$pagination, 
+                'pagination' => ApiTest::$pagination,
             ],
             'message',
         ]);
     }
-
 }

@@ -1,47 +1,58 @@
 <?php
 
 namespace App\Domain\Users\Entities;
+
 use App\Domain\Users\ValueObjects\Phone;
 
 class User
 {
     private string $id;
+
     private string $type;
+
     private Phone $phone;
+
     private Phone $whatsApp;
+
     private ?string $email;
+
     private string $passwordHash;
 
-    //Customer
+    // Customer
     private string $customerId;
+
     private ?string $firstName;
+
     private ?string $lastName;
+
     private ?string $gender;
 
-    //Partner & Enterprise
+    // Partner & Enterprise
     private string $partnerId;
-    private ?string $name;
-    private ?string $sector;
-    private string $enterpriseId;
 
+    private ?string $name;
+
+    private ?string $sector;
+
+    private string $enterpriseId;
 
     public function __construct(string $id, string $type, ?string $firstName, ?string $lastName, ?string $gender, Phone $phone, Phone $whatsApp, string $email, string $passwordHash, ?string $name, ?string $sector, ?string $customerId, ?string $partnerId, ?string $enterpriseId)
     {
-       $this->firstName = $firstName;
-       $this->lastName = $lastName;
-       $this->gender = $gender;
-       $this->phone = $phone;
-       $this->whatsApp = $whatsApp;
-       $this->email = $email;
-       $this->passwordHash = $passwordHash;
-       $this->type = $type;
-       $this->id = $id;
-       $this->name = $name;
-       $this->sector = $sector;
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->gender = $gender;
+        $this->phone = $phone;
+        $this->whatsApp = $whatsApp;
+        $this->email = $email;
+        $this->passwordHash = $passwordHash;
+        $this->type = $type;
+        $this->id = $id;
+        $this->name = $name;
+        $this->sector = $sector;
 
-       $this->customerId = $customerId;
-       $this->partnerId = $partnerId;
-       $this->enterpriseId = $enterpriseId;
+        $this->customerId = $customerId;
+        $this->partnerId = $partnerId;
+        $this->enterpriseId = $enterpriseId;
     }
 
     public function getId(): string
@@ -51,17 +62,14 @@ class User
 
     public function getFirstName(): string
     {
-       return $this->firstName;
+        return $this->firstName;
     }
 
     public function getLastName(): string
     {
-       return $this->lastName;
+        return $this->lastName;
     }
 
-    /**
-     * @return string|null
-     */
     public function getGender(): ?string
     {
         return $this->gender;
@@ -69,7 +77,7 @@ class User
 
     public function getPhone(): Phone
     {
-       return $this->phone;
+        return $this->phone;
     }
 
     public function getWhatsApp(): Phone
@@ -79,7 +87,7 @@ class User
 
     public function getFullName(): string
     {
-        return $this->firstName . ' ' . $this->lastName;
+        return $this->firstName.' '.$this->lastName;
     }
 
     public function getType(): string
@@ -121,5 +129,4 @@ class User
     {
         return $this->passwordHash;
     }
-
 }

@@ -25,7 +25,7 @@ class UpdateCardEventAPIRequest extends APIRequest
     public function rules()
     {
         $rules = CardEvent::$rules;
-        
+
         return $rules;
     }
 }

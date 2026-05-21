@@ -3,37 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Domain\GiftCards\Services\CheckStatusPaymentCard;
-use App\Infrastructure\External\Payment\ValueObjects\PayDunyaStatus;
+use App\Domain\Users\DTO\Node;
+use App\Events\BuyCardProcessed;
+use App\Http\Resources\GiftCardResource;
 use App\Infrastructure\External\Payment\PaymentGateway;
+use App\Infrastructure\External\Payment\ValueObjects\PayDunyaStatus;
 use App\Infrastructure\Persistence\GiftCardRepository;
 use App\Models\GiftCard;
-use App\Http\Resources\GiftCardResource;
+use App\Notifications\TransactionNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Domain\Users\DTO\Node;
-use App\Notifications\TransactionNotification;
-use App\Events\BuyCardProcessed;
 
 class PaydunyaController extends AppBaseController
 {
-
-    public function __construct(private GiftCardRepository $giftCardRepository, private CheckStatusPaymentCard $checkStatus, private PaymentGateway $gateway){}
+    public function __construct(private GiftCardRepository $giftCardRepository, private CheckStatusPaymentCard $checkStatus, private PaymentGateway $gateway) {}
 
     public function success_pay(mixed $data, string $type_endpoint): void
     {
         // Change the status card to active
-        $gift_card = tap(GiftCard::find($data['custom_data']['gift_card_id']), function($gift_card) {
-            if($gift_card->status !== 'pending')
-                return NULL;
+        $gift_card = tap(GiftCard::find($data['custom_data']['gift_card_id']), function ($gift_card) {
+            if ($gift_card->status !== 'pending') {
+                return null;
+            }
 
-            $gift_card->status = "active";
+            $gift_card->status = 'active';
             $gift_card->save();
 
             // Notify the owner of the card
             $owner = $gift_card->user;
-            $content = "Votre carte tabé a été activée avec succès ! 🎊";
-            $node = new Node(content: $content, contentVariables: null, level: "Important", model: "card", title: "Carte cadeau activée !", body: $content);
+            $content = 'Votre carte tabé a été activée avec succès ! 🎊';
+            $node = new Node(content: $content, contentVariables: null, level: 'Important', model: 'card', title: 'Carte cadeau activée !', body: $content);
             $owner->notify(new TransactionNotification(node: $node, channel: 'whatsapp'));
 
             // Broadcast the event to the client
@@ -41,7 +41,7 @@ class PaydunyaController extends AppBaseController
         });
 
         // Find & update the status invoice to completed
-        $invoice = tap($gift_card->latest_invoice($type_endpoint), function($invoice) use ($data) {
+        $invoice = tap($gift_card->latest_invoice($type_endpoint), function ($invoice) use ($data) {
             $invoice->status = PayDunyaStatus::Completed->value;
             $invoice->receipt_url = $data['receipt_url'];
             $invoice->updated_at = now();
@@ -49,35 +49,36 @@ class PaydunyaController extends AppBaseController
         });
     }
 
-    public function ipn_handle(Request $request){
-        $input = tap($request->all(), function($input) {
+    public function ipn_handle(Request $request)
+    {
+        $input = tap($request->all(), function ($input) {
             // Log::info('PaydunyaIPN::handle', (array)$input);
         });
 
         $data = $input['data'] ?? $input;
-        $data = !is_array($data) ? array($data) : $data;
+        $data = ! is_array($data) ? [$data] : $data;
 
         try {
             DB::beginTransaction();
 
             // Process the PAYMENT if completed and signature is valid
-            if(hash_equals(hash('sha512', config("services.paydunya.masterKey")), $data['hash'])){
-                if($data['status'] === PayDunyaStatus::Completed->value){
+            if (hash_equals(hash('sha512', config('services.paydunya.masterKey')), $data['hash'])) {
+                if ($data['status'] === PayDunyaStatus::Completed->value) {
                     $this->success_pay($data, 'checkout');
                     DB::commit();
                 }
-            }else{
+            } else {
                 Log::error('Invalid signature provider');
                 var_dump('error', $data);
                 DB::rollBack();
             }
 
             // Process the reimbursement if success
-            if($data['status'] === "success"){
+            if ($data['status'] === 'success') {
                 // Add logic function here !
             }
-        } catch (\Exception $exception){
-            Log::error('Failed IPN :', (array)$exception);
+        } catch (\Exception $exception) {
+            Log::error('Failed IPN :', (array) $exception);
             DB::rollBack();
         }
 
@@ -92,19 +93,25 @@ class PaydunyaController extends AppBaseController
      *      tags={"Payment"},
      *      description="Verify status of payment",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *           name="giftCard",
      *           description="Gift card ID",
+     *
      *            @OA\Schema(
      *              type="string"
      *           ),
      *           required=true,
      *           in="path"
      *      ),
+     *
      *      @OA\RequestBody(
+     *
      *         @OA\MediaType(
      *           mediaType="multipart/form-data",
+     *
      *            @OA\Schema(
+     *
      *              @OA\Property(
      *                    property="endpoint",
      *                    type="string",
@@ -112,11 +119,14 @@ class PaydunyaController extends AppBaseController
      *            ),
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -133,10 +143,12 @@ class PaydunyaController extends AppBaseController
      *      )
      * )
      */
-    public function verify(GiftCard $giftCard, Request $request){
+    public function verify(GiftCard $giftCard, Request $request)
+    {
         $user = $request->user();
-        if($giftCard->status != 'pending')
-            return $this->sendError("This gift card is not pending !", 401);
+        if ($giftCard->status != 'pending') {
+            return $this->sendError('This gift card is not pending !', 401);
+        }
         $data = $this->checkStatus->execute($giftCard);
 
         $status = $data->status ?? null;
@@ -144,50 +156,55 @@ class PaydunyaController extends AppBaseController
 
         // Check ownership of the actual card
         $hasCard = $user->gift_cards()->where('id', $giftCard->id)->exists();
-        if(!$hasCard)
+        if (! $hasCard) {
             return $this->sendError('Invalid authorization !', 401);
+        }
 
         DB::beginTransaction();
-        if(!$status || $status !== PayDunyaStatus::Completed->value){
+        if (! $status || $status !== PayDunyaStatus::Completed->value) {
             Log::error($data->fail_reason ?? null);
+
             return $this->sendError($data->fail_reason ?: $message);
         }
         $data->custom_data['gift_card_id'] = $giftCard->id;
-        $this->success_pay((array)$data, 'checkout');
+        $this->success_pay((array) $data, 'checkout');
         DB::commit();
 
         return $this->sendSuccess("{$message}, payment processed successfully !");
     }
 
-    public function return_success(Request $request){
+    public function return_success(Request $request)
+    {
 
         $input = $request->only('token');
         $token = $input['token'] ?? null;
         $response = tap($this->gateway->status_pay($token),
             function ($response) {
-                Log::info('Response DTO', (array)$response);
+                Log::info('Response DTO', (array) $response);
             });
 
         // dd($response);
         $fail_reason = null;
-        if(!hash_equals(hash('sha512', config("services.paydunya.masterKey")), $response->hash))
+        if (! hash_equals(hash('sha512', config('services.paydunya.masterKey')), $response->hash)) {
             return $this->sendError('Invalid signature provider !', 403);
+        }
 
-        if($response?->status !== PayDunyaStatus::Completed->value)
+        if ($response?->status !== PayDunyaStatus::Completed->value) {
             return $this->sendError('Payment not processed completely !', 403);
+        }
 
-        $gift_card = tap(GiftCard::find($response?->custom_data['gift_card_id'] ?? 0), function($gift_card) use ($response, &$fail_reason) {
-            if(!$gift_card || $gift_card->status !== 'active')
+        $gift_card = tap(GiftCard::find($response?->custom_data['gift_card_id'] ?? 0), function ($gift_card) use (&$fail_reason) {
+            if (! $gift_card || $gift_card->status !== 'active') {
                 $fail_reason = 'Gift card is not active till now, something went wrong !';
+            }
 
             return $gift_card;
         });
 
-        if(($fail_reason))
+        if (($fail_reason)) {
             return $this->sendError($fail_reason);
-        
-        return $this->sendResponse(new GiftCardResource($gift_card), 'Payment processed successfully !',);
+        }
+
+        return $this->sendResponse(new GiftCardResource($gift_card), 'Payment processed successfully !');
     }
-
-
 }

@@ -37,11 +37,11 @@ return [
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
-//            'visibility' => 'private',
-//            'throw' => false,
+            //            'visibility' => 'private',
+            //            'throw' => false,
             'endpoint' => env('AWS_ENDPOINT'), // optionnel
             'use_path_style_endpoint' => false, // important si tu n'utilises pas un service compatible S3
-//            'prefix' => env('AWS_PATH_PREFIX', 'dev/'),
+            //            'prefix' => env('AWS_PATH_PREFIX', 'dev/'),
         ],
 
         'temp' => [

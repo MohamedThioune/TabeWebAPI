@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreateCardEventAPIRequest;
 use App\Http\Requests\API\UpdateCardEventAPIRequest;
-use App\Models\CardEvent;
+use App\Http\Resources\CardEventResource;
 use App\Infrastructure\Persistence\CardEventRepository;
+use App\Models\CardEvent;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AppBaseController;
-use App\Http\Resources\CardEventResource;
 
 /**
  * Class CardEventController
  */
-
 class CardEventAPIController extends AppBaseController
 {
-    /** @var  CardEventRepository */
+    /** @var CardEventRepository */
     private $cardEventRepository;
 
     public function __construct(CardEventRepository $cardEventRepo)
@@ -31,11 +30,14 @@ class CardEventAPIController extends AppBaseController
      *      summary="getCardEventList",
      *      tags={"CardEvent"},
      *      description="Get all CardEvents",
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -43,8 +45,10 @@ class CardEventAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/CardEvent")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -70,15 +74,20 @@ class CardEventAPIController extends AppBaseController
      *      summary="createCardEvent",
      *      tags={"CardEvent"},
      *      description="Create CardEvent",
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/CardEvent")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -110,20 +119,25 @@ class CardEventAPIController extends AppBaseController
      *      summary="getCardEventItem",
      *      tags={"CardEvent"},
      *      description="Get CardEvent",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of CardEvent",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -158,24 +172,31 @@ class CardEventAPIController extends AppBaseController
      *      summary="updateCardEvent",
      *      tags={"CardEvent"},
      *      description="Update CardEvent",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of CardEvent",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/CardEvent")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -214,20 +235,25 @@ class CardEventAPIController extends AppBaseController
      *      summary="deleteCardEvent",
      *      tags={"CardEvent"},
      *      description="Delete CardEvent",
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of CardEvent",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"

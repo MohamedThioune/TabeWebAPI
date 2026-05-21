@@ -3,30 +3,31 @@
 namespace App\Domain\GiftCards\Services;
 
 use App\Infrastructure\External\Payment\PaymentGateway;
-use Illuminate\Support\Facades\Log;
-use App\Models\User;
-use App\Models\Transaction;
-use App\Models\PayoutLine;
+use App\Infrastructure\Persistence\PayoutRepository;
 use App\Models\Payout as PayoutModel;
+use App\Models\PayoutLine;
+use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use \Illuminate\Support\Str;
-use App\Infrastructure\External\Payment\DTO\PaymentResponseDTO;
-use App\Infrastructure\Persistence\PayoutRepository;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class Payout
 {
     public const SUCCESS_TEXT = 'Transaction completed successfully';
+
     public const SUCCESS = 'completed';
+
     private const FEES = 0;
 
-    public function __construct(private PaymentGateway $gateway, private PayoutRepository $payoutRepo){}
+    public function __construct(private PaymentGateway $gateway, private PayoutRepository $payoutRepo) {}
 
     public function initiatePayout(string $phone_number, int $gross_amount, string $withdraw_mode, User $user, Collection $transactions): ?PayoutModel
     {
         $gross_amount = 200;
         try {
-            //Initiate payout refund
+            // Initiate payout refund
             $initiateResponse = null;
             $initiateResponse = $this->gateway->initiate_refund(
                 phone_number: $phone_number,
@@ -34,13 +35,14 @@ class Payout
                 withdraw_mode: $withdraw_mode
             );
 
-            if(!$initiateResponse || !$initiateResponse->disburse_token):
-                Log::error('Payout initiation failed in service : ', (array)$initiateResponse);
+            if (! $initiateResponse || ! $initiateResponse->disburse_token) {
+                Log::error('Payout initiation failed in service : ', (array) $initiateResponse);
+
                 return null;
-            endif;
+            }
 
             // Register the payout
-            $fees = self::FEES; //Calculate fees if any
+            $fees = self::FEES; // Calculate fees if any
             $net_amount = $gross_amount - ($gross_amount * $fees);
             $payout = $this->payoutRepo->create([
                 'gross_amount' => $gross_amount,
@@ -48,7 +50,7 @@ class Payout
                 'fees' => $fees,
                 'status' => 'authorized',
                 'reference_number' => $initiateResponse->disburse_token,
-                'user_id' => $user->id
+                'user_id' => $user->id,
             ]);
 
             // Bulk insert payout lines
@@ -56,7 +58,7 @@ class Payout
                 $payoutLines = $transactions->map(fn ($transaction) => [
                     'id' => Str::uuid()->toString(),
                     'transaction_id' => $transaction->id,
-                    'payout_id'  => $payout->id,
+                    'payout_id' => $payout->id,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ])->toArray();
@@ -64,26 +66,28 @@ class Payout
             });
 
         } catch (\Exception $e) {
-            Log::error('Payout initiation failed in service : ', (array)$e->getMessage());
+            Log::error('Payout initiation failed in service : ', (array) $e->getMessage());
+
             return null;
         }
 
         return $payout;
     }
 
-    public function processPayout(PayoutModel $payout, string $disburse_id = null): ?object
-    {  
-        try{
+    public function processPayout(PayoutModel $payout, ?string $disburse_id = null): ?object
+    {
+        try {
             // Submit payout refund
             $submitResponse = $this->gateway->submit_refund(
                 disburse_token: $payout?->reference_number,
                 disburse_id: null
-            );  
+            );
 
-            if(!$submitResponse || !$submitResponse->response_text || $submitResponse->response_text != self::SUCCESS_TEXT):
-                Log::error('Payout submit failed : ', (array)$submitResponse);
+            if (! $submitResponse || ! $submitResponse->response_text || $submitResponse->response_text != self::SUCCESS_TEXT) {
+                Log::error('Payout submit failed : ', (array) $submitResponse);
+
                 return null;
-            endif;
+            }
 
             $transactions = $payout->transactions;
             // Update Transaction & Payout status
@@ -98,13 +102,13 @@ class Payout
                 ]);
                 $new_payout->status = self::SUCCESS;
                 $new_payout->parent_payout_id = $payout->id;
-                $new_payout->reference_number = $payout->reference_number . '-REFUND';
+                $new_payout->reference_number = $payout->reference_number.'-REFUND';
                 $new_payout->save();
 
                 // Update original payout
                 $payout->next_payout_id = $new_payout->id;
                 $payout->save();
-                
+
                 // Bulk create refunded transactions
                 $refundedTransactions = $transactions->map(fn ($transaction) => [
                     'id' => Str::uuid()->toString(),
@@ -124,9 +128,10 @@ class Payout
                         'next_transaction_id' => $refundMap[$transaction->id]['id'],
                     ]);
                 }
-            });    
+            });
         } catch (\Exception $e) {
-            Log::error('Payout submit failed in service', (array)$e->getMessage());
+            Log::error('Payout submit failed in service', (array) $e->getMessage());
+
             return null;
         }
 
@@ -145,7 +150,7 @@ class Payout
         // } catch (\Exception $e) {
         //     Log::error('Error logging payment response: ' . $e->getMessage());
         // }
-    
-        return (Object)['reference' => $payout->reference_number, 'transaction' => $submitResponse->transaction_id, 'status' => $submitResponse->response_text];
+
+        return (object) ['reference' => $payout->reference_number, 'transaction' => $submitResponse->transaction_id, 'status' => $submitResponse->response_text];
     }
 }

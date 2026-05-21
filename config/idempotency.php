@@ -59,7 +59,6 @@ return [
     */
     'size_warning' => env('IDEMPOTENCY_SIZE_WARNING', 1024 * 100),
 
-
     /*
     |--------------------------------------------------------------------------
     | Lock Timeout
@@ -115,7 +114,6 @@ return [
     |
     */
     'header_name' => env('IDEMPOTENCY_HEADER_NAME', 'Idempotency-Key'),
-
 
     /*
     |--------------------------------------------------------------------------

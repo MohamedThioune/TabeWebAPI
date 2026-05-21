@@ -25,7 +25,7 @@ class UpdatePayoutLineAPIRequest extends APIRequest
     public function rules()
     {
         $rules = PayoutLine::$rules;
-        
+
         return $rules;
     }
 }

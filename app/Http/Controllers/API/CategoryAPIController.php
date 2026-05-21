@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreateCategoryAPIRequest;
 use App\Http\Requests\API\UpdateCategoryAPIRequest;
-use App\Models\Category;
+use App\Http\Resources\CategoryResource;
 use App\Infrastructure\Persistence\CategoryRepository;
+use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AppBaseController;
-use App\Http\Resources\CategoryResource;
 
 /**
  * Class CategoryController
  */
-
 class CategoryAPIController extends AppBaseController
 {
-    /** @var  CategoryRepository */
+    /** @var CategoryRepository */
     private $categoryRepository;
 
     public function __construct(CategoryRepository $categoryRepo)
@@ -32,11 +31,14 @@ class CategoryAPIController extends AppBaseController
      *      tags={"Category"},
      *      description="Get all Categories | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -44,8 +46,10 @@ class CategoryAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/Category")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -72,15 +76,20 @@ class CategoryAPIController extends AppBaseController
      *      tags={"Category"},
      *      description="Create Category | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Category")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -113,20 +122,25 @@ class CategoryAPIController extends AppBaseController
      *      tags={"Category"},
      *      description="Get Category | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Category",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -162,24 +176,31 @@ class CategoryAPIController extends AppBaseController
      *      tags={"Category"},
      *      description="Update Category | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Category",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Category")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -219,20 +240,25 @@ class CategoryAPIController extends AppBaseController
      *      tags={"Category"},
      *      description="Delete Category | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Category",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"

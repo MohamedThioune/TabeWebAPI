@@ -2,11 +2,10 @@
 
 namespace App\Notifications;
 
+use App\Domain\Users\DTO\Node;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Domain\Users\DTO\Node;
 
 class PushWhatsAppNotification extends Notification
 {
@@ -30,12 +29,13 @@ class PushWhatsAppNotification extends Notification
         return ['twilio'];
     }
 
-    public function toTwilio(object $notifiable): array{
+    public function toTwilio(object $notifiable): array
+    {
         return [
-            "from" => config("services.twilio.whatsapp"),
-            "contentSid" => "HX229f5a04fd0510ce1b071852155d3e75",
-            "contentVariables" => $this->node->contentVariables,
-            "body" => $this->node->body
+            'from' => config('services.twilio.whatsapp'),
+            'contentSid' => 'HX229f5a04fd0510ce1b071852155d3e75',
+            'contentVariables' => $this->node->contentVariables,
+            'body' => $this->node->body,
         ];
     }
 
@@ -45,9 +45,9 @@ class PushWhatsAppNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**

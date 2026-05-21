@@ -3,26 +3,28 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Domain\Users\ValueObjects\Type;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\ValidationException;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use App\Domain\Users\ValueObjects\Type;
 
 /**
  * @method static find(string $user_id)
  * @method static create(array $user)
  * @method static pluck(string $string)
-*/
+ */
 
 /**
  * @OA\Schema(
  *      schema="User",
  *      required={"email","phone","whatsApp","password"},
+ *
  *      @OA\Property(
  *           property="sigla",
  *           description="",
@@ -139,9 +141,10 @@ use App\Domain\Users\ValueObjects\Type;
  */
 class User extends Authenticatable
 {
-    use HasUuids, HasApiTokens, HasRoles, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasRoles, HasUuids, Notifiable, SoftDeletes;
 
     protected $table = 'users';
+
     protected $guard_name = 'api'; // ou 'api' selon ton auth
 
     /**
@@ -149,7 +152,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = array(
+    protected $fillable = [
         'id',
         'email',
         'phone',
@@ -162,7 +165,7 @@ class User extends Authenticatable
         'address',
         'is_active',
         'phone_verified_at',
-    );
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -180,7 +183,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-//        'phone_verified_at' => 'datetime',
+        //        'phone_verified_at' => 'datetime',
     ];
 
     public function whatsAppTwilio(): string
@@ -191,86 +194,99 @@ class User extends Authenticatable
     public static function ruleCreated(): array
     {
         return [
-            'type' => ["required", "string", new Enum(Type::class)],
-            'email' => ["required", "string", "email", "unique:users,email"],
-            'phone' => ["required", "string", "unique:users,phone"],
-            'whatsApp' => ["required", "string", "unique:users,whatsApp"],
-            'password' => ["required", "string", "min:8", "confirmed"],
-            'is_active' => ["boolean"],
+            'type' => ['required', 'string', new Enum(Type::class)],
+            'email' => ['required', 'string', 'email', 'unique:users,email'],
+            'phone' => ['required', 'string', 'unique:users,phone'],
+            'whatsApp' => ['required', 'string', 'unique:users,whatsApp'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'is_active' => ['boolean'],
         ];
     }
 
     public static function ruleListed(): array
     {
         return [
-            'type' => ["string", new Enum(Type::class)],
-            'sector' => ["string", "in:Mode,Beauté,Gastronomie,Technologie,Bien-être,Décoration,Sport,Librairie"],
-            'q' => ["string", "max:255"],
-            'is_phone_verified' => ["boolean"],
-            'is_active' => ["boolean"],
-            'country' => ["string", "max:255"],
-            'city' => ["string", "max:255"],
-            'address' => ["string", "max:255"]
+            'type' => ['string', new Enum(Type::class)],
+            'sector' => ['string', 'in:Mode,Beauté,Gastronomie,Technologie,Bien-être,Décoration,Sport,Librairie'],
+            'q' => ['string', 'max:255'],
+            'is_phone_verified' => ['boolean'],
+            'is_active' => ['boolean'],
+            'country' => ['string', 'max:255'],
+            'city' => ['string', 'max:255'],
+            'address' => ['string', 'max:255'],
         ];
     }
 
     public static array $ruleUpdated = [
-        'email' => "string|email|unique:users,email",
-        'website' => "string|url",
-        'bio' => "string",
-        'categories' => "array",
-        'country' => "string|max:255",
-        'city' => "string|max:255",
-        'address' => "string|max:255",
+        'email' => 'string|email|unique:users,email',
+        'website' => 'string|url',
+        'bio' => 'string',
+        'categories' => 'array',
+        'country' => 'string|max:255',
+        'city' => 'string|max:255',
+        'address' => 'string|max:255',
     ];
 
     public static array $resetPassword = [
         'otp_code' => 'required|string|min:6|max:6',
-        'new_password' => ["required", "string", "min:8", "confirmed"],
+        'new_password' => ['required', 'string', 'min:8', 'confirmed'],
     ];
 
     public static array $modifyPassword = [
         'password' => 'required|string|min:8',
-        'new_password' => ["required", "string", "min:8", "confirmed"],
+        'new_password' => ['required', 'string', 'min:8', 'confirmed'],
     ];
 
     public function findForPassport(string $username): User
     {
         $user = $this->where('phone', $username)->first();
 
-        if (! $user)
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                "phone" => "Phone number not found on records",
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'phone' => 'Phone number not found on records',
             ]);
+        }
 
         return $user;
     }
 
-    //Relationship query builder
-    public function customer(){
+    // Relationship query builder
+    public function customer()
+    {
         return $this->hasMany(Customer::class);
     }
-    public function enterprise(){
+
+    public function enterprise()
+    {
         return $this->hasMany(Enterprise::class);
     }
-    public function partner(){
+
+    public function partner()
+    {
         return $this->hasMany(Partner::class);
     }
-    public function otp_requests(){
+
+    public function otp_requests()
+    {
         return $this->hasMany(OtpRequest::class);
     }
-    public function files(){
+
+    public function files()
+    {
         return $this->hasMany(File::class);
     }
+
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'user_categories')->withTimestamps();
     }
+
     public function user_categories()
     {
         return $this->hasMany(UserCategory::class);
     }
-    public function qr_sessions() 
+
+    public function qr_sessions()
     {
         return $this->hasManyThrough(
             QrSession::class,    // Final related model
@@ -281,10 +297,13 @@ class User extends Authenticatable
             'id'         //  Local key on gift_cards table
         );
     }
-    public function gift_cards(){
+
+    public function gift_cards()
+    {
         return $this->hasMany(GiftCard::class, 'owner_user_id', 'id');
     }
-    //Relationship filtering (active gift card, pending qr session)
+
+    // Relationship filtering (active gift card, pending qr session)
     public function activeGiftCard(string $giftCardId): ?GiftCard
     {
         return $this->gift_cards()
@@ -292,18 +311,22 @@ class User extends Authenticatable
             ->where('status', 'active')
             ->first();
     }
-    public function invoices(){
+
+    public function invoices()
+    {
         return $this->hasMany(Invoice::class);
     }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
     }
+
     public function payouts()
     {
         return $this->hasMany(Payout::class);
     }
-    
+
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'notifiable_id', 'id');

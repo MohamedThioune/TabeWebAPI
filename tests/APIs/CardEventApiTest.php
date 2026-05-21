@@ -2,15 +2,15 @@
 
 namespace Tests\APIs;
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
-use Tests\ApiTestTrait;
 use App\Models\CardEvent;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class CardEventApiTest extends TestCase
 {
-    use ApiTestTrait, WithoutMiddleware, DatabaseTransactions;
+    use ApiTestTrait, DatabaseTransactions, WithoutMiddleware;
 
     /**
      * @test
@@ -68,8 +68,8 @@ class CardEventApiTest extends TestCase
 
         $this->response = $this->json(
             'DELETE',
-             '/api/card-events/'.$cardEvent->id
-         );
+            '/api/card-events/'.$cardEvent->id
+        );
 
         $this->assertApiSuccess();
         $this->response = $this->json(

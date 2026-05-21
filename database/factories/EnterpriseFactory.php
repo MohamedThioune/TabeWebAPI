@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\Enterprise;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-
 class EnterpriseFactory extends Factory
 {
     /**
@@ -22,14 +21,14 @@ class EnterpriseFactory extends Factory
      */
     public function definition()
     {
-        
+
         return [
             'name' => $this->faker->text($this->faker->numberBetween(5, 4096)),
             'phone' => $this->faker->numerify('0##########'),
             'size' => $this->faker->text($this->faker->numberBetween(5, 255)),
             'address' => $this->faker->text($this->faker->numberBetween(5, 255)),
             'created_at' => $this->faker->date('Y-m-d H:i:s'),
-            'updated_at' => $this->faker->date('Y-m-d H:i:s')
+            'updated_at' => $this->faker->date('Y-m-d H:i:s'),
         ];
     }
 }

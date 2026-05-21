@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @OA\Schema(
  *      schema="Design",
  *      required={"name"},
+ *
  *      @OA\Property(
  *          property="name",
  *          description="",
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *          format="date-time"
  *      )
  * )
+ *
  * @method static firstOrCreate(string[] $array)
  * @method static pluck(string $string)
  */
@@ -43,18 +45,19 @@ class Design extends Model
     public $table = 'designs';
 
     public $fillable = [
-        'name'
+        'name',
     ];
 
     protected $casts = [
-        'name' => 'string'
+        'name' => 'string',
     ];
 
     public static array $rules = [
-        'name' => 'required|string|max:255'
+        'name' => 'required|string|max:255',
     ];
 
-    public function giftcard(){
+    public function giftcard()
+    {
         return $this->belongsTo(GiftCard::class);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Partner;
 use Illuminate\Database\Seeder;
 
 class PartnerSeeder extends Seeder
@@ -12,6 +12,6 @@ class PartnerSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Partner::factory()->create();
+        Partner::factory()->create();
     }
 }

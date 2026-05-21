@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreateInvoiceAPIRequest;
 use App\Http\Requests\API\UpdateInvoiceAPIRequest;
-use App\Models\Invoice;
+use App\Http\Resources\InvoiceResource;
 use App\Infrastructure\Persistence\InvoiceRepository;
+use App\Models\Invoice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AppBaseController;
-use App\Http\Resources\InvoiceResource;
 
 /**
  * Class InvoiceController
  */
-
 class InvoiceAPIController extends AppBaseController
 {
-    /** @var  InvoiceRepository */
+    /** @var InvoiceRepository */
     private $invoiceRepository;
 
     public function __construct(InvoiceRepository $invoiceRepo)
@@ -32,53 +31,66 @@ class InvoiceAPIController extends AppBaseController
      *      tags={"Invoice"},
      *      description="Get all Invoices",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *            name="type",
      *            in="query",
      *            description="Type of invoice",
+     *
      *            @OA\Schema(
      *                enum={"Achat de carte", "Paiement en boutique"},
      *                type="string"
      *            )
      *      ),
+     *
      *      @OA\Parameter(
      *             name="status",
      *             in="query",
      *             description="Status of invoice",
+     *
      *             @OA\Schema(
      *               enum={"pending", "completed", "failed"},
      *               type="string"
      *             ),
      *      ),
+     *
      *      @OA\Parameter(
      *             name="q",
      *             in="query",
      *             description="Search query(amount)",
+     *
      *             @OA\Schema(
      *               type="string"
      *             ),
      *     ),
+     *
      *      @OA\Parameter(
      *            name="skip",
      *            in="query",
      *            description="Skip",
+     *
      *            @OA\Schema(
      *                type="integer"
      *            )
      *        ),
+     *
      *       @OA\Parameter(
      *             name="limit",
      *             in="query",
      *             description="Limit",
+     *
      *             @OA\Schema(
      *                 type="integer"
      *             )
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -86,8 +98,10 @@ class InvoiceAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/Invoice")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -96,7 +110,6 @@ class InvoiceAPIController extends AppBaseController
      *      )
      * )
      */
-
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -120,9 +133,9 @@ class InvoiceAPIController extends AppBaseController
                 'total_pages' => $invoices->lastPage(),
                 'per_page' => $invoices->perPage(),
                 'total_items' => $invoices->total(),
-            ]
+            ],
         ];
- 
+
         return $this->sendResponse($infos, 'Invoices retrieved successfully');
     }
 
@@ -133,15 +146,20 @@ class InvoiceAPIController extends AppBaseController
      *      tags={"Invoice"},
      *      description="Create Invoice",
      *      security={{"passport":{}}},
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Invoice")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -174,20 +192,25 @@ class InvoiceAPIController extends AppBaseController
      *      tags={"Invoice"},
      *      description="Get Invoice",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Invoice",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -223,24 +246,31 @@ class InvoiceAPIController extends AppBaseController
      *      tags={"Invoice"},
      *      description="Update Invoice",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Invoice",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Invoice")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -280,20 +310,25 @@ class InvoiceAPIController extends AppBaseController
      *      tags={"Invoice"},
      *      description="Delete Invoice",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Invoice",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"

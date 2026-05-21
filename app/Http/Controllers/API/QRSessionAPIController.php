@@ -2,28 +2,25 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Domain\GiftCards\UseCases\CardFullyGenerated;
+use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreateQRSessionAPIRequest;
 use App\Http\Requests\API\UpdateQRSessionAPIRequest;
 use App\Http\Resources\GiftCardResource;
-use App\Infrastructure\Persistence\UserRepository;
-use App\Models\QrSession;
+use App\Http\Resources\QRSessionResource;
 use App\Infrastructure\Persistence\QRSessionRepository;
+use App\Infrastructure\Persistence\UserRepository;
+use App\Models\Giftcard;
+use App\Models\QrSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AppBaseController;
-use App\Http\Resources\QRSessionResource;
-use Illuminate\Support\Facades\DB;
-use App\Domain\GiftCards\UseCases\CardFullyGenerated;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use App\Models\Giftcard;
 
 /**
  * Class QRSessionController
  */
 class QRSessionAPIController extends AppBaseController
 {
-    /** @var  QRSessionRepository */
     private QRSessionRepository $qRSessionRepository;
 
     public function __construct(QRSessionRepository $qRSessionRepo, UserRepository $userRepository)
@@ -39,11 +36,14 @@ class QRSessionAPIController extends AppBaseController
      *      tags={"QRSession"},
      *      description="Get all QRSessions | Only for admin",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -51,8 +51,10 @@ class QRSessionAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/QRSession")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -80,17 +82,16 @@ class QRSessionAPIController extends AppBaseController
         $url = $qr_hashed_url['url'] ?? null;
         $dto = [
             'id' => $uuid_qr,
-            'status' => "pending",
+            'status' => 'pending',
             'token' => $payload,
             'url' => $url,
             'expired_at' => $gift_card->expired_at,
-            'gift_card_id' => $gift_card->id
+            'gift_card_id' => $gift_card->id,
         ];
         $qRSession = $this->qRSessionRepository->create($dto);
 
         return $qRSession;
     }
-
 
     /**
      * @OA\Post(
@@ -99,10 +100,14 @@ class QRSessionAPIController extends AppBaseController
      *      tags={"QRSession"},
      *      description="Refresh QR Session",
      *      security={{"passport":{}}},
+     *
      *      @OA\RequestBody(
+     *
      *         @OA\MediaType(
      *           mediaType="multipart/form-data",
+     *
      *            @OA\Schema(
+     *
      *              @OA\Property(
      *                  property="gift_card_id",
      *                  type="string",
@@ -111,11 +116,14 @@ class QRSessionAPIController extends AppBaseController
      *           ),
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -136,18 +144,20 @@ class QRSessionAPIController extends AppBaseController
     {
         $input = $request->only('gift_card_id');
 
-        //check authorization
+        // check authorization
         $user = $request->user();
         $active_gift_card = $user->activeGiftCard($input['gift_card_id']);
-        if (!$active_gift_card) {
+        if (! $active_gift_card) {
             return $this->sendError('Unable to process this request, gift card active not found.');
         }
 
-        //delete the former qr
+        // delete the former qr
         $former_qr = QrSession::where('gift_card_id', $input['gift_card_id'])->first();
-        if ($former_qr) $former_qr->delete(); //safe delete on the last state of this QR
+        if ($former_qr) {
+            $former_qr->delete();
+        } // safe delete on the last state of this QR
 
-        //process the creation of the qr code
+        // process the creation of the qr code
         $qRSession = $this->refresh($active_gift_card);
 
         return $this->sendResponse(new QRSessionResource($qRSession), 'QR Session saved successfully');
@@ -160,20 +170,25 @@ class QRSessionAPIController extends AppBaseController
      *      tags={"QRSession"},
      *      description="Get QR Session | Only for admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of QRSession",
+     *
      *           @OA\Schema(
      *             type="string"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -209,24 +224,31 @@ class QRSessionAPIController extends AppBaseController
      *      tags={"QRSession"},
      *      description="Update QRSession",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of QRSession",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/QRSession")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -266,20 +288,25 @@ class QRSessionAPIController extends AppBaseController
      *      tags={"QRSession"},
      *      description="Delete QRSession | Only for admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of QRSession",
+     *
      *           @OA\Schema(
      *             type="string"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -317,10 +344,14 @@ class QRSessionAPIController extends AppBaseController
      *      tags={"QRSession"},
      *      description="Verify QRSession",
      *      security={{"passport":{}}},
+     *
      *      @OA\RequestBody(
+     *
      *          @OA\MediaType(
      *            mediaType="multipart/form-data",
+     *
      *             @OA\Schema(
+     *
      *               @OA\Property(
      *                   property="payload",
      *                   type="string",
@@ -330,11 +361,14 @@ class QRSessionAPIController extends AppBaseController
      *            ),
      *          ),
      *       ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -354,21 +388,21 @@ class QRSessionAPIController extends AppBaseController
     public function verify(UpdateQRSessionAPIRequest $request): JsonResponse
     {
         /** @var QrSession $qRSession */
-        $uuid = CardFullyGenerated::check($request->payload); //return uuid or null
-        $status = "used";
+        $uuid = CardFullyGenerated::check($request->payload); // return uuid or null
+        $status = 'used';
         $qrSession = $this->qRSessionRepository->find($uuid);
         if (empty($qrSession)) {
             return $this->sendError('QR Session or Payload not found/invalid, Refresh the QR !');
         }
 
-        //Logging the use
+        // Logging the use
         $qrSession->status = $status;
         $qrSession->updated_at = now();
 
-        //Get the gift card
+        // Get the gift card
         $gift_card = $qrSession->giftCard;
 
-        //Update the Qr code session
+        // Update the Qr code session
         $this->refresh($gift_card);
 
         $qrSession->save();
@@ -376,5 +410,4 @@ class QRSessionAPIController extends AppBaseController
 
         return $this->sendResponse(new GiftCardResource($gift_card), 'QR Session verified successfully !');
     }
-
 }

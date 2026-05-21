@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\Beneficiary;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-
 class BeneficiaryFactory extends Factory
 {
     /**
@@ -28,7 +27,7 @@ class BeneficiaryFactory extends Factory
             'phone' => fake()->phoneNumber(),
             'email' => fake()->unique()->safeEmail(),
             'created_at' => fake()->date('Y-m-d H:i:s'),
-            'updated_at' => fake()->date('Y-m-d H:i:s')
+            'updated_at' => fake()->date('Y-m-d H:i:s'),
         ];
     }
 }

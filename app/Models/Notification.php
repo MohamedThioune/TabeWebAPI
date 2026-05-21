@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @OA\Schema(
  *      schema="Notification",
  *      required={},
+ *
  *      @OA\Property(
  *          property="title",
  *          description="title of the notification",
@@ -80,11 +81,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *          format="date-time"
  *      )
  * )
+ *
  * @method static where(string $string, mixed $id)
  */
 
-//transaction, card, profile, maintenance
-//Important, Urgent, Info
+// transaction, card, profile, maintenance
+// Important, Urgent, Info
 class Notification extends Model
 {
     use HasUuids, Softdeletes;

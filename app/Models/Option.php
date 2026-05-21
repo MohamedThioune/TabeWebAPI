@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
  * @OA\Schema(
  *      schema="Option",
  *      required={"min_amount_card","max_amount_card","period_validity_card"},
+ *
  *      @OA\Property(
  *          property="min_amount_card",
  *          description="",
@@ -59,30 +60,30 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  *          type="string",
  *          format="date-time"
  *      ),
- * 
+ *
  * )
  */
 class Option extends Model
 {
-    use SoftDeletes, HasFactory, HasUuids;    
+    use HasFactory, HasUuids, SoftDeletes;
+
     public $table = 'options';
 
     public $fillable = [
         'min_amount_card',
         'max_amount_card',
-        'period_validity_card'
+        'period_validity_card',
     ];
 
     protected $casts = [
         'max_amount_card' => 'integer',
         'max_amount_card' => 'integer',
-        'period_validity_card' => 'integer'
+        'period_validity_card' => 'integer',
     ];
 
     public static array $rules = [
         'min_amount_card' => 'integer|min:200|max:100000',
         'max_amount_card' => 'integer|min:100000|max:1000000',
-        'period_validity_card' => 'integer|min:1|max:12'
+        'period_validity_card' => 'integer|min:1|max:12',
     ];
-    
 }

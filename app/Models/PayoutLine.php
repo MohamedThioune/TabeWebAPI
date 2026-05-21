@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @OA\Schema(
  *      schema="PayoutLine",
  *      required={"transaction_id","payout_id"},
+ *
  *      @OA\Property(
  *          property="transaction_id",
  *          description="",
@@ -45,31 +46,31 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  */
 class PayoutLine extends Model
 {
-    use SoftDeletes, HasFactory, HasUuids;   
+    use HasFactory, HasUuids, SoftDeletes;
+
     public $table = 'payout_lines';
 
     public $fillable = [
         'transaction_id',
-        'payout_id'
+        'payout_id',
     ];
 
     protected $casts = [
         'transaction_id' => 'string',
-        'payout_id' => 'string'
+        'payout_id' => 'string',
     ];
 
     public static array $rules = [
         'transaction_id' => 'required|exists:transactions,id',
-        'payout_id' => 'required|exists:payouts,id'
+        'payout_id' => 'required|exists:payouts,id',
     ];
 
-    
     public function transaction()
     {
         return $this->belongsTo(Transaction::class);
     }
 
-     public function payout()
+    public function payout()
     {
         return $this->belongsTo(Payout::class);
     }

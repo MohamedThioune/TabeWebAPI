@@ -2,11 +2,16 @@
 
 namespace App\Providers;
 
+use App\Channels\TwilioChannel;
+use App\Infrastructure\External\Payment\PaydunyaGateway;
+use App\Infrastructure\External\Payment\PaymentGateway;
 use App\Models\Option;
 use App\Models\Payout;
+use App\Models\User;
 use App\Observers\OptionObserver;
 use App\Observers\PayoutObserver;
-use App\Channels\TwilioChannel;
+use Barryvdh\Debugbar\Facades\Debugbar;
+use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
 use Notification;
 use Route;
@@ -18,12 +23,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-        $loader->alias('Debugbar', \Barryvdh\Debugbar\Facades\Debugbar::class);
+        $loader = AliasLoader::getInstance();
+        $loader->alias('Debugbar', Debugbar::class);
 
         $this->app->bind(
-            \App\Infrastructure\External\Payment\PaymentGateway::class,
-            \App\Infrastructure\External\Payment\PaydunyaGateway::class
+            PaymentGateway::class,
+            PaydunyaGateway::class
         );
     }
 
@@ -32,12 +37,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if ($this->app->environment('production') && !file_exists(storage_path('oauth-private.key'))) {
+        if ($this->app->environment('production') && ! file_exists(storage_path('oauth-private.key'))) {
             \Artisan::call('passport:keys');
         }
         // Alias new channel "Twilio"
         Notification::extend('twilio', function ($app) {
-            return new TwilioChannel();
+            return new TwilioChannel;
         });
 
         // Bind phone for the user request
@@ -45,19 +50,19 @@ class AppServiceProvider extends ServiceProvider
             // Normalize the numbers before searching
             $normalized = $this->normalizePhone($value);
 
-            return \App\Models\User::where('phone', $normalized)->firstOrFail();
+            return User::where('phone', $normalized)->firstOrFail();
         });
 
-        //Avoid destructive commands in production
+        // Avoid destructive commands in production
         // DB::prohibitDestructiveCommands(app()->isProduction());
 
-        //Observer for models
+        // Observer for models
         Option::observe(OptionObserver::class);
         Payout::observe(PayoutObserver::class);
 
     }
 
-    //Normalize the phone number
+    // Normalize the phone number
     public function normalizePhone(string $phone): string
     {
         // Save only the digits and "+" sign

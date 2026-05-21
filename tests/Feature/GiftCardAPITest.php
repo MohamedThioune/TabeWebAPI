@@ -2,89 +2,89 @@
 
 namespace Tests\Feature;
 
+use App\Infrastructure\External\Payment\PaymentGateway;
+use App\Models\Beneficiary;
+use App\Models\Customer;
+use App\Models\Design;
+use App\Models\GiftCard;
+use App\Models\QrSession;
+use App\Notifications\SharedCardNotification;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\SharedCardNotification;
-use App\Infrastructure\External\Payment\PaymentGateway;
-use Tests\TestCase;
 use Tests\ApiTestTrait as ApiTest;
-use App\Models\GiftCard;
-use App\Models\Design;
-use App\Models\QrSession;
-use App\Models\Customer;
-use App\Models\Beneficiary;
-use Illuminate\Support\Facades\Log;
-
+use Tests\TestCase;
 
 class GiftCardAPITest extends TestCase
 {
     use ApiTest, DatabaseTransactions;
+
     public static array $pattern_card = [
+        'id',
+        'code',
+        'belonging_type',
+        'type',
+        'face_amount',
+        'status',
+        'expired_at',
+        'qr' => [
             'id',
-            'code',
-            'belonging_type',
-            'type',
-            'face_amount',
             'status',
+            'payload',
+            'url',
             'expired_at',
-            'qr' => [
-                'id',
-                'status',
-                'payload',
-                'url',
-                'expired_at',
+        ],
+        'owner' => [
+            'customer' => [
+                'first_name',
+                'last_name',
             ],
-            'owner' => [
-                'customer' => [
-                    'first_name',
-                    'last_name',
-                ],
-            ],
-            'beneficiary' => [
-                'full_name',
-                'phone',
-                'email',
-            ],
-            'design' => [
-                'id',
-                'name',
-            ],
-            'created_at',
+        ],
+        'beneficiary' => [
+            'full_name',
+            'phone',
+            'email',
+        ],
+        'design' => [
+            'id',
+            'name',
+        ],
+        'created_at',
     ];
+
     private static array $pattern_card_without_beneficiary = [
+        'id',
+        'code',
+        'belonging_type',
+        'type',
+        'face_amount',
+        'status',
+        'expired_at',
+        'qr' => [
             'id',
-            'code',
-            'belonging_type',
-            'type',
-            'face_amount',
             'status',
+            'payload',
+            'url',
             'expired_at',
-            'qr' => [
-                'id',
-                'status',
-                'payload',
-                'url',
-                'expired_at',
+        ],
+        'owner' => [
+            'customer' => [
+                'first_name',
+                'last_name',
             ],
-            'owner' => [
-                'customer' => [
-                    'first_name',
-                    'last_name',
-                ],
-            ],
-            'design' => [
-                'id',
-                'name',
-            ],
-            'created_at',
+        ],
+        'design' => [
+            'id',
+            'name',
+        ],
+        'created_at',
     ];
-   
+
     /**
      * @test create gift card with/without beneficiary
-    */
+     */
     public function test_create_gift_card_with_beneficiary()
     {
-        //Acting as : Customer
+        // Acting as : Customer
         ApiTest::actingAsCustomer();
 
         $headers = [
@@ -92,24 +92,24 @@ class GiftCardAPITest extends TestCase
         ];
 
         $data = [
-            'belonging_type' => "others",
-            'type' => fake()->randomElement(['physical', 'digital']),  
+            'belonging_type' => 'others',
+            'type' => fake()->randomElement(['physical', 'digital']),
             'face_amount' => fake()->numberBetween(config('parameter.card.min_amount'), config('parameter.card.max_amount')),
             'full_name' => fake()->name(),
             'phone' => fake()->unique()->phoneNumber(),
             'design_id' => fake()->randomElement(Design::pluck('id')),
         ];
 
-        //mock paydunya call
+        // mock paydunya call
         $reference_number = fake()->regexify('^[A-Za-z0-9]{10}$');
         $this->mock(PaymentGateway::class, function ($mock) use ($reference_number) {
             $mock->shouldReceive('charge')
-            ->once()
-            ->andReturn((object)[
-                'reference_number' => $reference_number,
-                'response_text' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
-                'status' => 'completed',
-            ]);
+                ->once()
+                ->andReturn((object) [
+                    'reference_number' => $reference_number,
+                    'response_text' => 'https://paydunya.com/sandbox-checkout/invoice/'.$reference_number,
+                    'status' => 'completed',
+                ]);
         });
 
         $this->response = $this->json(
@@ -117,14 +117,14 @@ class GiftCardAPITest extends TestCase
             '/api/gift-cards', $data, $headers
         );
 
-        //assert database insertion
+        // assert database insertion
         $this->assertDatabaseHas('invoices', [
             'type' => 'Achat de carte',
             // 'reference_number' => $reference_number,
             'reference_number' => $reference_number,
             'amount' => $data['face_amount'],
         ]);
-        //assert status(200) & the response data matches the correct structure
+        // assert status(200) & the response data matches the correct structure
         $this->response
             ->assertStatus(200)
             ->assertJsonStructure([
@@ -140,9 +140,10 @@ class GiftCardAPITest extends TestCase
             ]);
 
     }
+
     public function test_create_gift_card_without_beneficiary()
     {
-        //Acting as : Customer
+        // Acting as : Customer
         ApiTest::actingAsCustomer();
 
         $headers = [
@@ -150,22 +151,22 @@ class GiftCardAPITest extends TestCase
         ];
 
         $data = [
-            'belonging_type' => "myself",
-            'type' => fake()->randomElement(['physical', 'digital']),  
+            'belonging_type' => 'myself',
+            'type' => fake()->randomElement(['physical', 'digital']),
             'face_amount' => fake()->numberBetween(config('parameter.card.min_amount'), config('parameter.card.max_amount')),
             'design_id' => fake()->randomElement(Design::pluck('id')),
         ];
 
-        //mock paydunya call
+        // mock paydunya call
         $reference_number = fake()->regexify('^[A-Za-z0-9]{10}$');
         $this->mock(PaymentGateway::class, function ($mock) use ($reference_number) {
             $mock->shouldReceive('charge')
-            ->once()
-            ->andReturn((object)[
-                'reference_number' => $reference_number,
-                'response_text' => 'https://paydunya.com/sandbox-checkout/invoice/'. $reference_number,
-                'status' => 'completed',
-            ]);
+                ->once()
+                ->andReturn((object) [
+                    'reference_number' => $reference_number,
+                    'response_text' => 'https://paydunya.com/sandbox-checkout/invoice/'.$reference_number,
+                    'status' => 'completed',
+                ]);
             // $mock->shouldReceive('quick_pay')
             //     ->once()
             //     ->andReturn((object)[
@@ -180,7 +181,7 @@ class GiftCardAPITest extends TestCase
             '/api/gift-cards', $data, $headers
         );
 
-        //assert database insertion
+        // assert database insertion
         $this->assertDatabaseHas('invoices', [
             'type' => 'Achat de carte',
             // 'reference_number' => $reference_number,
@@ -188,7 +189,7 @@ class GiftCardAPITest extends TestCase
             'amount' => $data['face_amount'],
         ]);
 
-        //assert status(200) & the response data matches the correct structure
+        // assert status(200) & the response data matches the correct structure
         $this->response
             ->assertStatus(200)
             ->assertJsonStructure([
@@ -207,10 +208,10 @@ class GiftCardAPITest extends TestCase
 
     /**
      * @test list gift card
-    */
+     */
     public function test_list_gift_card()
     {
-        //Acting as : Customer
+        // Acting as : Customer
         $user = ApiTest::actingAsCustomer();
 
         $giftCard = GiftCard::factory()->create([
@@ -230,7 +231,7 @@ class GiftCardAPITest extends TestCase
 
         // var_dump($this->response->getContent());
 
-        //assert status(200) & the response data matches the correct structure
+        // assert status(200) & the response data matches the correct structure
         $this->response
             ->assertStatus(200)
             ->assertJsonStructure([
@@ -239,21 +240,21 @@ class GiftCardAPITest extends TestCase
                     'gift_cards' => [
                         '*' => self::$pattern_card,
                     ],
-                    'pagination' => ApiTest::$pagination, 
+                    'pagination' => ApiTest::$pagination,
                 ],
                 'message',
-            ]);    
+            ]);
     }
 
     /**
      * @test share gift card
-    */
+     */
     public function test_share_gift_card()
     {
-        //Mock notification
+        // Mock notification
         Notification::fake();
 
-        //Acting as : Customer
+        // Acting as : Customer
         $user = ApiTest::actingAsCustomer();
 
         $giftCard = GiftCard::factory()->create([
@@ -264,7 +265,7 @@ class GiftCardAPITest extends TestCase
 
         $this->response = $this->json(
             'PUT',
-            '/api/gift-cards/share/'. $giftCard?->id,
+            '/api/gift-cards/share/'.$giftCard?->id,
         );
 
         // var_dump($this->response->getContent());
@@ -274,19 +275,20 @@ class GiftCardAPITest extends TestCase
         // Assert that a notification was sent to the given user...
         Notification::assertSentTo(
             [$user],
-            \App\Notifications\SharedCardNotification::class
+            SharedCardNotification::class
         );
 
     }
 
     /**
-     * test verify code gift card 
-    */
-    public function test_verify_code_gift_card(){
-        //Customer owner
+     * test verify code gift card
+     */
+    public function test_verify_code_gift_card()
+    {
+        // Customer owner
         $customer = Customer::factory()->create();
 
-        //Acting as : Partner
+        // Acting as : Partner
         ApiTest::actingAsPartner();
 
         $giftCard = GiftCard::factory()->create([
@@ -299,16 +301,16 @@ class GiftCardAPITest extends TestCase
         ]);
 
         $data = [
-            'code' => $giftCard->code
+            'code' => $giftCard->code,
         ];
 
         $this->response = $this->json(
             'POST',
-            '/api/users/verify/card', 
+            '/api/users/verify/card',
             $data
         );
 
-        //assert status(200) & the response data matches the correct structure
+        // assert status(200) & the response data matches the correct structure
         $this->response
             ->assertStatus(200)
             ->assertJsonStructure([
@@ -319,13 +321,14 @@ class GiftCardAPITest extends TestCase
     }
 
     /**
-     * test verify qr gift card 
-    */
-    public function test_verify_qr_gift_card(){
-        //Customer owner
+     * test verify qr gift card
+     */
+    public function test_verify_qr_gift_card()
+    {
+        // Customer owner
         $customer = Customer::factory()->create();
 
-        //Acting as : Partner
+        // Acting as : Partner
         ApiTest::actingAsPartner();
 
         $giftCard = GiftCard::factory()->create([
@@ -339,18 +342,18 @@ class GiftCardAPITest extends TestCase
         ]);
 
         $data = [
-            'payload' => $qr->token
+            'payload' => $qr->token,
         ];
 
         $this->response = $this->json(
             'PATCH',
-            '/api/qr-sessions', 
+            '/api/qr-sessions',
             $data
         );
 
         // var_dump($this->response->getContent());
 
-        //assert status(200) & the response data matches the correct structure
+        // assert status(200) & the response data matches the correct structure
         $this->response
             ->assertStatus(200)
             ->assertJsonStructure([
@@ -360,5 +363,4 @@ class GiftCardAPITest extends TestCase
             ]);
 
     }
-   
 }

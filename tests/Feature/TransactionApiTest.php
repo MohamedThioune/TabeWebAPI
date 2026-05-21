@@ -2,20 +2,20 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\TransactionNotification;
-use Tests\TestCase;
-use Tests\ApiTestTrait as ApiTest;
-use App\Models\Transaction;
 use App\Models\GiftCard;
-use Illuminate\Support\Facades\Log;
+use App\Models\Transaction;
+use App\Notifications\PushBeneficiarySMSNotification;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
+use Tests\ApiTestTrait as ApiTest;
+use Tests\TestCase;
 
 class TransactionApiTest extends TestCase
 {
-    use ApiTest, WithoutMiddleware, DatabaseTransactions;
+    use ApiTest, DatabaseTransactions, WithoutMiddleware;
+
     private static array $pattern_transaction = [
         'id',
         'status',
@@ -29,22 +29,22 @@ class TransactionApiTest extends TestCase
             'face_amount',
             'status',
             'expired_at',
-        ],        
+        ],
         'created_at',
     ];
 
     /**
      * @test start a gift card transaction
-    */
+     */
     public function test_start_transaction()
     {
-        //Mock notification
+        // Mock notification
         Notification::fake();
 
-        //Acting as a partner
+        // Acting as a partner
         $partner = ApiTest::actingAsPartner();
 
-        //Create a gift card  
+        // Create a gift card
         $giftCard = GiftCard::factory()->create();
         $owner = $giftCard->user;
 
@@ -61,10 +61,10 @@ class TransactionApiTest extends TestCase
         // Assert that a notification was sent to the given user...
         Notification::assertSentTo(
             [$owner],
-            \App\Notifications\PushBeneficiarySMSNotification::class
+            PushBeneficiarySMSNotification::class
         );
 
-        // Assert database insertion 
+        // Assert database insertion
         $this->assertDatabaseHas('transactions', [
             'status' => 'authorized',
             'amount' => $data['amount'],
@@ -74,7 +74,7 @@ class TransactionApiTest extends TestCase
         $this->assertDatabaseHas('gift_cards', [
             'status' => 'inactive',
         ]);
-        
+
         // Assert status(200) & the response data matches the correct structure
         $this->response
             ->assertStatus(200)
@@ -84,12 +84,12 @@ class TransactionApiTest extends TestCase
                     'transaction' => self::$pattern_transaction,
                 ],
                 'message',
-            ]);                
+            ]);
     }
 
     /**
      * @test confirm a gift card transaction
-    */
+     */
     // public function test_confirm_transaction()
     // {
     //     //Mock notification
@@ -98,7 +98,7 @@ class TransactionApiTest extends TestCase
     //     //Acting as a partner
     //     $partner = ApiTest::actingAsPartner();
 
-    //     //Create a gift card  
+    //     //Create a gift card
     //     $giftCard = GiftCard::factory()->create();
     //     $owner = $giftCard->user;
 
@@ -125,7 +125,7 @@ class TransactionApiTest extends TestCase
     //         '/api/transactions/confirm/' . $transaction->id, $data
     //     );
 
-    //     // Assert database insertion 
+    //     // Assert database insertion
     //     $this->assertDatabaseHas('transactions', [
     //         'status' => 'captured',
     //         'amount' => $giftCard->face_amount,
@@ -145,7 +145,7 @@ class TransactionApiTest extends TestCase
     //         [$partner],
     //         \App\Notifications\TransactionNotification::class
     //     );
-        
+
     //     // Assert status(200) & the response data matches the correct structure
     //     $this->response
     //         ->assertStatus(200)
@@ -155,15 +155,15 @@ class TransactionApiTest extends TestCase
     //                 'transaction' => self::$pattern_transaction,
     //             ],
     //             'message',
-    //         ]);                
+    //         ]);
     // }
 
     /**
      * @test list transactions
-    */
+     */
     public function test_list_transaction()
     {
-        //Acting as a partner
+        // Acting as a partner
         $partner = ApiTest::actingAsPartner();
 
         $transactions = Transaction::factory()->count(3)->create([
@@ -176,7 +176,7 @@ class TransactionApiTest extends TestCase
             '/api/transactions'
         );
 
-        //assert status(200) & the response data matches the correct structure
+        // assert status(200) & the response data matches the correct structure
         $this->response
             ->assertStatus(200)
             ->assertJsonStructure([
@@ -185,10 +185,9 @@ class TransactionApiTest extends TestCase
                     'transactions' => [
                         '*' => self::$pattern_transaction,
                     ],
-                    'pagination' => ApiTest::$pagination, 
+                    'pagination' => ApiTest::$pagination,
                 ],
                 'message',
-            ]);  
+            ]);
     }
-
 }

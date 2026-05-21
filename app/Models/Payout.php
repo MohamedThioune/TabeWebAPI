@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @OA\Schema(
  *      schema="Payout",
  *      required={"gross_amount","net_amount","status", "withdraw_mode", "user_id"},
+ *
  *      @OA\Property(
  *          property="gross_amount",
  *          description="",
@@ -97,10 +98,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  *          format="date-time"
  *      )
  * )
-*/
+ */
 class Payout extends Model
 {
-    use SoftDeletes, HasFactory, HasUuids;    
+    use HasFactory, HasUuids, SoftDeletes;
+
     public $table = 'payouts';
 
     public $fillable = [
@@ -115,7 +117,7 @@ class Payout extends Model
         'transaction_id',
         'user_id',
         'parent_payout_id',
-        'next_payout_id'
+        'next_payout_id',
     ];
 
     protected $casts = [
@@ -123,7 +125,7 @@ class Payout extends Model
         'net_amount' => 'integer',
         'fees' => 'integer',
         'currency' => 'string',
-        'status' => 'string'
+        'status' => 'string',
     ];
 
     public static array $rules = [
@@ -174,7 +176,4 @@ class Payout extends Model
 
         return $timeline;
     }
-    
-    
 }
-

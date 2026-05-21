@@ -25,7 +25,7 @@ class UpdateEnterpriseAPIRequest extends APIRequest
     public function rules()
     {
         $rules = Enterprise::$rules;
-        
+
         return $rules;
     }
 }

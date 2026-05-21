@@ -9,10 +9,7 @@ class PayoutObserver
     /**
      * Handle the Payout "created" event.
      */
-    public function created(Payout $payout): void
-    {
-
-    }
+    public function created(Payout $payout): void {}
 
     /**
      * Handle the Payout "updated" event.

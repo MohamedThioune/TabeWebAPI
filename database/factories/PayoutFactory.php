@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\Payout;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-
 class PayoutFactory extends Factory
 {
     /**
@@ -22,7 +21,7 @@ class PayoutFactory extends Factory
      */
     public function definition()
     {
-        
+
         return [
             'gross_amount' => $this->faker->numberBetween(0, 999),
             'net_amount' => $this->faker->numberBetween(0, 999),
@@ -31,7 +30,7 @@ class PayoutFactory extends Factory
             'status' => $this->faker->word,
             'partner_id' => $this->faker->numberBetween(0, 999),
             'created_at' => $this->faker->date('Y-m-d H:i:s'),
-            'updated_at' => $this->faker->date('Y-m-d H:i:s')
+            'updated_at' => $this->faker->date('Y-m-d H:i:s'),
         ];
     }
 }

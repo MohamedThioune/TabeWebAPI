@@ -1,6 +1,6 @@
 <?php
 
-if (!function_exists('base64url_encode')) {
+if (! function_exists('base64url_encode')) {
     /**
      * Encode data to Base64 URL-safe format (RFC 4648 §5).
      */
@@ -10,7 +10,7 @@ if (!function_exists('base64url_encode')) {
     }
 }
 
-if (!function_exists('base64url_decode')) {
+if (! function_exists('base64url_decode')) {
     /**
      * Decode Base64 URL-safe string back to binary.
      */
@@ -23,6 +23,7 @@ if (!function_exists('base64url_decode')) {
         if ($padding) {
             $base64 .= str_repeat('=', 4 - $padding);
         }
+
         return base64_decode($base64);
     }
 }

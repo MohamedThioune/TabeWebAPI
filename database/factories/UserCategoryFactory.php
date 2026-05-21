@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\UserCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-
 class UserCategoryFactory extends Factory
 {
     /**
@@ -28,7 +27,7 @@ class UserCategoryFactory extends Factory
             'user_id' => $this->faker->randomElement(User::pluck('id')),
             'category_id' => $this->faker->randomElement(Category::pluck('id')),
             'created_at' => $this->faker->date('Y-m-d H:i:s'),
-            'updated_at' => $this->faker->date('Y-m-d H:i:s')
+            'updated_at' => $this->faker->date('Y-m-d H:i:s'),
         ];
     }
 }

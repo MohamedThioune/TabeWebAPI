@@ -14,7 +14,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class UploadFileToS3 implements ShouldQueue
 {
@@ -23,7 +22,7 @@ class UploadFileToS3 implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public string $temp, public string $type, public string $path, public string $filename, public string $originalName, public string $meaning, public string $description, public string $user_id, private FileRepository $fileRepository){}
+    public function __construct(public string $temp, public string $type, public string $path, public string $filename, public string $originalName, public string $meaning, public string $description, public string $user_id, private FileRepository $fileRepository) {}
 
     /**
      * Execute the job.
@@ -35,8 +34,8 @@ class UploadFileToS3 implements ShouldQueue
             $contents = Storage::disk('local')->get($this->temp);
 
             // Put the temp local file in S3
-            $success = Storage::disk('s3')->put($this->path . $this->filename, $contents);
-            if ($success == false){
+            $success = Storage::disk('s3')->put($this->path.$this->filename, $contents);
+            if ($success == false) {
                 throw new \Exception('Failed to upload file to S3');
             }
 
@@ -44,14 +43,14 @@ class UploadFileToS3 implements ShouldQueue
             Storage::disk('local')->delete($this->temp);
 
             DB::beginTransaction();
-            //Delete former file if exists with the same meaning for the user
+            // Delete former file if exists with the same meaning for the user
             $file = File::whereMeaning($this->meaning)->whereUserId($this->user_id)->first();
-            if ($file):
-                Storage::disk('s3')->delete($this->path . $file->id);
+            if ($file) {
+                Storage::disk('s3')->delete($this->path.$file->id);
                 $file->delete();
-            endif;
+            }
 
-            //Insert new record file on database
+            // Insert new record file on database
             $this->fileRepository->create([
                 'id' => $this->filename,
                 'type' => $this->type,
@@ -61,17 +60,15 @@ class UploadFileToS3 implements ShouldQueue
                 'user_id' => $this->user_id,
             ]);
 
-            //Start the event
+            // Start the event
             $user = User::find($this->user_id);
             event(new FileProcessed($this->meaning, $this->path, $user));
             DB::commit();
-        }
-        catch (\Exception $e){
-            Log::error('Error uploading file to S3: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Error uploading file to S3: '.$e->getMessage());
             event(new FileFailed($this->meaning, User::find($this->user_id)));
             DB::rollBack();
         }
 
     }
- 
 }

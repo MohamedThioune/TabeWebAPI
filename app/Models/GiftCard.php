@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Helpers\CodeGenerator;
+use App\Helpers\Parameter;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Helpers\Parameter;
-use App\Helpers\CodeGenerator;
 
 /**
  * @OA\Schema(
  *      schema="GiftCard",
  *      required={"belonging_type","type","face_amount","is_active","design_id"},
+ *
  *      @OA\Property(
  *          property="code",
  *          description="Unique code of the gift card",
@@ -87,26 +88,25 @@ use App\Helpers\CodeGenerator;
  *          format="date-time"
  *      )
  * )
-*/
-
+ */
 class GiftCard extends Model
 {
-    use HasUuids, SoftDeletes, HasFactory;
+    use HasFactory, HasUuids, SoftDeletes;
 
     public $table = 'gift_cards';
 
     public $fillable = [
         'id',
         'code',
-        'belonging_type', //me or others
-        'type', //physical or digital
+        'belonging_type', // me or others
+        'type', // physical or digital
         'face_amount',
-        'status', //active, inactive, used, expired
+        'status', // active, inactive, used, expired
         'expired_at',
         'issued_via',
         'owner_user_id',
         'beneficiary_id',
-        'design_id'
+        'design_id',
     ];
 
     protected $casts = [
@@ -119,25 +119,25 @@ class GiftCard extends Model
     protected $hidden = [
     ];
 
-    public static function rules() : array
-    { 
+    public static function rules(): array
+    {
         return [
             'belonging_type' => 'required|string|in:myself,others',
             'type' => 'required|string|in:physical,digital',
-            'face_amount' => 'required|integer|between:' . Parameter::minAmountCard() . ',' . Parameter::maxAmountCard(),
-            'design_id' => 'required|integer|exists:designs,id'
+            'face_amount' => 'required|integer|between:'.Parameter::minAmountCard().','.Parameter::maxAmountCard(),
+            'design_id' => 'required|integer|exists:designs,id',
         ];
     }
 
-    public static function rules_updated() : array
-    { 
+    public static function rules_updated(): array
+    {
         return [
             'type' => 'string|in:physical,digital',
             // 'belonging_type' => 'required|string|in:myself,others',
             // 'face_amount' => 'integer|between:' . Parameter::minAmountCard() . ',' . Parameter::maxAmountCard(),
             'design_id' => 'integer|exists:designs,id',
             'expired_at' => 'date|after:today',
-            'issued_via' => 'string|in:B2C,B2B,Admin'
+            'issued_via' => 'string|in:B2C,B2B,Admin',
         ];
     }
 
@@ -159,10 +159,10 @@ class GiftCard extends Model
                 'string',
                 'exists:gift_cards,code',
                 function ($attribute, $value, $fail) {
-                    if(!CodeGenerator::isValid($value)){ 
+                    if (! CodeGenerator::isValid($value)) {
                         $fail('The gift card is not valid or falsified.');
                     }
-                }
+                },
             ],
         ];
     }
@@ -180,41 +180,51 @@ class GiftCard extends Model
         });
     }
 
-    public function getComputedStatus(): String
+    public function getComputedStatus(): string
     {
         return match (true) {
             $this->status === 'active'
-                && $this->expired_at?->isPast()
-                    => 'expired',
+                && $this->expired_at?->isPast() => 'expired',
 
             default => $this->status,
         };
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class, 'owner_user_id', 'id');
     }
-    public function qrSessions(){
+
+    public function qrSessions()
+    {
         return $this->hasMany(QrSession::class);
     }
+
     public function beneficiary()
     {
         return $this->belongsTo(Beneficiary::class);
     }
-    public function design(){
+
+    public function design()
+    {
         return $this->belongsTo(Design::class);
     }
-    public function cardevent(){
+
+    public function cardevent()
+    {
         return $this->hasMany(CardEvent::class);
     }
+
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
     }
-    public function latest_invoice(string $endpoint = "checkout")
+
+    public function latest_invoice(string $endpoint = 'checkout')
     {
         return $this->hasMany(Invoice::class)->where('endpoint', $endpoint)->where('type', 'Achat de carte')->latest('created_at')->first();
     }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);

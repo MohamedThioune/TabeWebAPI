@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use App\Models\Beneficiairy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @OA\Schema(
  *      schema="Enterprise",
  *      required={"name","phone"},
+ *
  *      @OA\Property(
  *          property="name",
  *          description="",
@@ -64,10 +64,11 @@ use App\Models\Beneficiairy;
  *          format="date-time"
  *      )
  * )
-*/
+ */
 class Enterprise extends Model
 {
-    use HasUuids, SoftDeletes, HasFactory;    
+    use HasFactory, HasUuids, SoftDeletes;
+
     public $table = 'enterprises';
 
     public $fillable = [
@@ -75,16 +76,16 @@ class Enterprise extends Model
         'phone',
         'size',
         'sector',
-        'address'
+        'address',
     ];
 
     public static array $rules = [
         'name' => 'required|string',
-        'phone' => 'required|string'
+        'phone' => 'required|string',
     ];
 
-    public function beneficiairies(){
+    public function beneficiairies()
+    {
         return $this->hasMany(Beneficiairy::class);
     }
-
 }

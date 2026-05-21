@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @OA\Schema(
  *      schema="File",
  *      required={"id","type","path","meaning"},
+ *
  *      @OA\Property(
  *          property="id",
  *          description="",
@@ -65,7 +66,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class File extends Model
 {
-    use SoftDeletes, HasUuids;
+    use HasUuids, SoftDeletes;
+
     public $table = 'files';
 
     public $fillable = [
@@ -74,7 +76,7 @@ class File extends Model
         'path', // Directory path of the file
         'meaning', // Meaning of the file (Avatar, CIN, NINEA etc.)
         'description', // Description of the file
-        'user_id' //Attached user
+        'user_id', // Attached user
     ];
 
     protected $casts = [
@@ -82,14 +84,14 @@ class File extends Model
         'type' => 'string',
         'path' => 'string',
         'meaning' => 'string',
-        'description' => 'string'
+        'description' => 'string',
     ];
 
     public static array $rules = [
         'type' => 'required',
         'path' => 'required',
         'meaning' => 'required|string|in:avatar,cin,ninea,others',
-        'user_id' => 'required|exists:users,id'
+        'user_id' => 'required|exists:users,id',
     ];
 
     public static function rulesUpload(): array
@@ -103,14 +105,15 @@ class File extends Model
                     $forbidden = ['exe', 'php', 'sh'];
                     $extension = strtolower($value->getClientOriginalExtension());
 
-                    if (in_array($extension, $forbidden))
-                        $fail("The $attribute must not be of type: " . implode(', ', $forbidden));
+                    if (in_array($extension, $forbidden)) {
+                        $fail("The $attribute must not be of type: ".implode(', ', $forbidden));
+                    }
 
                 },
             ],
             'meaning' => 'required|string|in:avatar,banner,cin,passport,ninea,other',
-            'description' => 'required|string'
-             // 'user_id' => 'required|integer|exists:users,id',
+            'description' => 'required|string',
+            // 'user_id' => 'required|integer|exists:users,id',
         ];
     }
 

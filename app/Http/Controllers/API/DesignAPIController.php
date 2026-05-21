@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\CreateDesignAPIRequest;
 use App\Http\Requests\API\UpdateDesignAPIRequest;
-use App\Models\Design;
+use App\Http\Resources\DesignResource;
 use App\Infrastructure\Persistence\DesignRepository;
+use App\Models\Design;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AppBaseController;
-use App\Http\Resources\DesignResource;
 
 /**
  * Class DesignController
  */
-
 class DesignAPIController extends AppBaseController
 {
-    /** @var  DesignRepository */
+    /** @var DesignRepository */
     private $designRepository;
 
     public function __construct(DesignRepository $designRepo)
@@ -32,11 +31,14 @@ class DesignAPIController extends AppBaseController
      *      tags={"Design"},
      *      description="Get all Designs | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -44,8 +46,10 @@ class DesignAPIController extends AppBaseController
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/Design")
      *              ),
+     *
      *              @OA\Property(
      *                  property="message",
      *                  type="string"
@@ -72,15 +76,20 @@ class DesignAPIController extends AppBaseController
      *      tags={"Design"},
      *      description="Create Design | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Design")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -113,20 +122,25 @@ class DesignAPIController extends AppBaseController
      *      tags={"Design"},
      *      description="Get Design | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Design",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -162,24 +176,31 @@ class DesignAPIController extends AppBaseController
      *      tags={"Design"},
      *      description="Update Design | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Design",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\RequestBody(
      *        required=true,
+     *
      *        @OA\JsonContent(ref="#/components/schemas/Design")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -219,20 +240,25 @@ class DesignAPIController extends AppBaseController
      *      tags={"Design"},
      *      description="Delete Design | Only for a admin !!",
      *      security={{"passport":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="id of Design",
+     *
      *           @OA\Schema(
      *             type="integer"
      *          ),
      *          required=true,
      *          in="path"
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"

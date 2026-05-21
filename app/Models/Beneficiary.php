@@ -3,15 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Enterprise;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @OA\Schema(
  *      schema="Beneficiary",
  *      required={"full_name","phone"},
+ *
  *      @OA\Property(
  *          property="full_name",
  *          description="",
@@ -50,38 +50,41 @@ use App\Models\Enterprise;
  *          format="date-time"
  *      )
  * )
+ *
  * @method static pluck(string $string)
-*/
+ */
 class Beneficiary extends Model
 {
-    use HasUuids, SoftDeletes, HasFactory;
+    use HasFactory, HasUuids, SoftDeletes;
+
     public $table = 'beneficiaries';
 
     public $fillable = [
         'full_name',
         'phone',
         'email',
-        'enterprise_id'
+        'enterprise_id',
     ];
 
     protected $casts = [
         'full_name' => 'string',
         'phone' => 'string',
-        'email' => 'string'
+        'email' => 'string',
     ];
 
     public static array $rules = [
         'full_name' => 'required|string|max:255',
         'phone' => 'required|string|max:255',
-        'email' => 'string|email|max:255'
+        'email' => 'string|email|max:255',
     ];
 
-    public function GiftCards(){
+    public function GiftCards()
+    {
         return $this->hasMany(GiftCard::class);
     }
 
-    public function Enterprise(){
+    public function Enterprise()
+    {
         return $this->belongsTo(Enterprise::class);
     }
-
 }

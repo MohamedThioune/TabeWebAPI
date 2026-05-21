@@ -4,33 +4,31 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\API\StoreFileAPIRequest;
+use App\Infrastructure\Persistence\FileRepository;
 use App\Jobs\UploadFileToS3;
 use App\Models\File;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Infrastructure\Persistence\FileRepository;
-use Illuminate\Support\Facades\DB;
 
 class FileAPIController extends AppBaseController
 {
-
-    public function sample_upload(User $user, Request $request) : String
+    public function sample_upload(User $user, Request $request): string
     {
         $inputs = $request->only('file', 'path', 'meaning', 'description');
         $meaning = $inputs['meaning'];
         $description = $inputs['description'];
-        $fileRepository = new FileRepository();
+        $fileRepository = new FileRepository;
         $path_images = ['avatar', 'banner'];
 
         $file = $request->file('file');
         $type = $file->getClientOriginalExtension();
-        $originalNameWithoutEx = basename($file->getClientOriginalName() , '.'. $type);
+        $originalNameWithoutEx = basename($file->getClientOriginalName(), '.'.$type);
         $originalName = Str::slug(Str::words($originalNameWithoutEx, 15));
-        $filename = Str::uuid()->toString() . '-' . $originalName;
+        $filename = Str::uuid()->toString().'-'.$originalName;
         $prefix = config('app.prefix_aws');
-        $path = (in_array($meaning, $path_images)) ? $prefix . 'users/images/' : $prefix . 'users/documents/';
+        $path = (in_array($meaning, $path_images)) ? $prefix.'users/images/' : $prefix.'users/documents/';
 
         $temp = $file->store('temp');
 
@@ -46,10 +44,14 @@ class FileAPIController extends AppBaseController
      *      tags={"Document"},
      *      description="Upload file",
      *      security={{"passport":{}}},
+     *
      *      @OA\RequestBody(
+     *
      *        @OA\MediaType(
      *          mediaType="multipart/form-data",
+     *
      *           @OA\Schema(
+     *
      *             @OA\Property(
      *                 property="file",
      *                 type="string",
@@ -66,11 +68,14 @@ class FileAPIController extends AppBaseController
      *           ),
      *        ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="successful operation !",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  property="success",
      *                  type="boolean"
@@ -89,5 +94,4 @@ class FileAPIController extends AppBaseController
 
         return $this->sendResponse(['id' => $filename_id], 'File received, being processed...');
     }
-
 }

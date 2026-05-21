@@ -25,7 +25,7 @@ class UpdateGiftCardRequest extends FormRequest
     public function rules()
     {
         $rules = GiftCard::rules();
-        
+
         return $rules;
     }
 }

@@ -2,11 +2,11 @@
 
 namespace Tests\Repositories;
 
-use App\Models\Enterprise;
 use App\Infrastructure\Persistence\EnterpriseRepository;
+use App\Models\Enterprise;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
 use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class EnterpriseRepositoryTest extends TestCase
 {
@@ -14,7 +14,7 @@ class EnterpriseRepositoryTest extends TestCase
 
     protected EnterpriseRepository $enterpriseRepo;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->enterpriseRepo = app(EnterpriseRepository::class);

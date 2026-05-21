@@ -8,8 +8,8 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Psr\Log\LogLevel;
 use Spatie\Permission\Exceptions\UnauthorizedException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -17,7 +17,7 @@ class Handler extends ExceptionHandler
     /**
      * A list of exception types with their corresponding custom log levels.
      *
-     * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
+     * @var array<class-string<Throwable>, LogLevel::*>
      */
     protected $levels = [
         //
@@ -26,7 +26,7 @@ class Handler extends ExceptionHandler
     /**
      * A list of the exception types that are not reported.
      *
-     * @var array<int, class-string<\Throwable>>
+     * @var array<int, class-string<Throwable>>
      */
     protected $dontReport = [
         //
@@ -43,8 +43,6 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
-
-
     /**
      * Register the exception handling callbacks for the application.
      */
@@ -55,7 +53,7 @@ class Handler extends ExceptionHandler
         });
     }
 
-    protected function unauthenticated($request, AuthenticationException $exception) : JsonResponse
+    protected function unauthenticated($request, AuthenticationException $exception): JsonResponse
     {
         if ($request->expectsJson()) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
@@ -80,7 +78,6 @@ class Handler extends ExceptionHandler
             ], Response::HTTP_NOT_FOUND);
         }
 
-
         if ($e instanceof ThrottleRequestsException) {
             return response()->json([
                 'success' => false,
@@ -90,6 +87,4 @@ class Handler extends ExceptionHandler
 
         return parent::render($request, $e);
     }
-
-
 }

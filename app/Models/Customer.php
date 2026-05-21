@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
-    use HasUuids, HasFactory, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes;
 
     protected $table = 'customers';
 
@@ -25,7 +25,7 @@ class Customer extends Model
         'birthdate',
         'gender',
         'preferences',
-        'user_id'
+        'user_id',
     ];
 
     protected $casts = [
@@ -45,8 +45,8 @@ class Customer extends Model
         'preferences' => 'array',
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
-
 }

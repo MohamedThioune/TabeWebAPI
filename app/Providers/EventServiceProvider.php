@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Domain\GiftCards\Events\CardOperated;
-use App\Domain\GiftCards\Services\BuyCard;
 use App\Domain\GiftCards\Services\CreateCard;
 use App\Domain\GiftCards\Services\GenerateCardEvents;
 use App\Domain\GiftCards\Services\GenerateQr;
@@ -26,13 +25,13 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         CardOperated::class => [
-           CreateCard::class,
-           GenerateQr::class,
-           GenerateCardEvents::class,
+            CreateCard::class,
+            GenerateQr::class,
+            GenerateCardEvents::class,
         ],
         FileProcessed::class => [
-            RegisterFileProcessed::class
-        ]
+            RegisterFileProcessed::class,
+        ],
     ];
 
     /**

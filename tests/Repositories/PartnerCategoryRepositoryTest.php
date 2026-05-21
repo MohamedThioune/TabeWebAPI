@@ -2,11 +2,11 @@
 
 namespace Tests\Repositories;
 
-use App\Models\UserCategory;
 use App\Infrastructure\Persistence\PartnerCategoryRepository;
+use App\Models\UserCategory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
 use Tests\ApiTestTrait;
+use Tests\TestCase;
 
 class PartnerCategoryRepositoryTest extends TestCase
 {
@@ -14,7 +14,7 @@ class PartnerCategoryRepositoryTest extends TestCase
 
     protected PartnerCategoryRepository $partnerCategoryRepo;
 
-    public function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->partnerCategoryRepo = app(PartnerCategoryRepository::class);

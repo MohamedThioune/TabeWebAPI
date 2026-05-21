@@ -5,7 +5,6 @@ namespace App\Infrastructure\Persistence;
 use App\Models\GiftCard;
 use App\Models\User;
 use App\Repositories\BaseRepository;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +21,7 @@ class GiftCardRepository extends BaseRepository
         'skip',
         'owner_user_id',
         'beneficiary_id',
-        'design_id'
+        'design_id',
     ];
 
     public array $statuses = [
@@ -30,19 +29,19 @@ class GiftCardRepository extends BaseRepository
         'active',
         'inactive',
         'used',
-        'expired'    
+        'expired',
     ];
 
     public array $right_statuses = [
         'active',
         'used',
-        'expired'    
+        'expired',
     ];
 
     public array $other_statuses = [
-        'used', 
-        'pending', 
-        'inactive'
+        'used',
+        'pending',
+        'inactive',
     ];
 
     public function getFieldsSearchable(): array
@@ -55,17 +54,17 @@ class GiftCardRepository extends BaseRepository
         return GiftCard::class;
     }
 
-    public function allQuery(array $search = [], int $skip = null, int $limit = null): Builder
+    public function allQuery(array $search = [], ?int $skip = null, ?int $limit = null): Builder
     {
-        $status = $search["status"] ?? null;
+        $status = $search['status'] ?? null;
 
-        unset($search["status"]);
+        unset($search['status']);
         $query = parent::allQuery($search, $skip, $limit);
 
-        $query->when(!$status, fn($query) => $query->whereIn('status', $this->statuses));
-        $query->when($status === "active", fn($query) => $query->where('status', $status)->where('expired_at', '>', now()));
-        $query->when($status === "expired", fn($query) => $query->where('status', "active")->orWhere('status', $status)->where('expired_at', '>', now()));
-        $query->when(in_array($status, $this->other_statuses), fn($query) => $query->where('status', $status));
+        $query->when(! $status, fn ($query) => $query->whereIn('status', $this->statuses));
+        $query->when($status === 'active', fn ($query) => $query->where('status', $status)->where('expired_at', '>', now()));
+        $query->when($status === 'expired', fn ($query) => $query->where('status', 'active')->orWhere('status', $status)->where('expired_at', '>', now()));
+        $query->when(in_array($status, $this->other_statuses), fn ($query) => $query->where('status', $status));
 
         // var_dump($query->toSql());
         // die();
@@ -74,14 +73,14 @@ class GiftCardRepository extends BaseRepository
     }
 
     // total available cards, total used cards, total cards
-    public function countQueryTotal(?string $status, User $user): int //status:active or null
+    public function countQueryTotal(?string $status, User $user): int // status:active or null
     {
         $query = $user->gift_cards();
-        $query->when(!$status, fn($query) => $query->whereIn('status', $this->statuses));
-        $query->when($status === "active", fn($query) => $query->where('status', $status)->where('expired_at', '>', now()));
-        $query->when($status === "expired", fn($query) => $query->where('status', "active")->orWhere('status', $status)->where('expired_at', '>', now()));
-        $query->when(in_array($status, $this->other_statuses), fn($query) => $query->where('status', $status));
-        
+        $query->when(! $status, fn ($query) => $query->whereIn('status', $this->statuses));
+        $query->when($status === 'active', fn ($query) => $query->where('status', $status)->where('expired_at', '>', now()));
+        $query->when($status === 'expired', fn ($query) => $query->where('status', 'active')->orWhere('status', $status)->where('expired_at', '>', now()));
+        $query->when(in_array($status, $this->other_statuses), fn ($query) => $query->where('status', $status));
+
         // var_dump($query->toSql());
         // die();
 
@@ -89,17 +88,17 @@ class GiftCardRepository extends BaseRepository
     }
 
     // total cards amount
-    public function countQueryAmount(?string $status, User $user): int //status:active or null
+    public function countQueryAmount(?string $status, User $user): int // status:active or null
     {
         $query = $user->gift_cards();
-        $query->when(!$status, fn($query) => $query->whereIn('status', $this->right_statuses));
-        $query->when($status, fn($query) => $query->where('status', $status));
+        $query->when(! $status, fn ($query) => $query->whereIn('status', $this->right_statuses));
+        $query->when($status, fn ($query) => $query->where('status', $status));
 
         return $query->sum('face_amount');
     }
 
     // monthly stats(used card)
-    public function usedMonthly(User $user) : int
+    public function usedMonthly(User $user): int
     {
         $query = $user->gift_cards();
         $query->where('status', 'used')
@@ -130,7 +129,7 @@ class GiftCardRepository extends BaseRepository
 
     public function update(array $input, string $id)
     {
-        $qrRepository = new QRSessionRepository();
+        $qrRepository = new QRSessionRepository;
         $query = $this->model->newQuery();
 
         $model = $query->findOrFail($id);
@@ -138,29 +137,31 @@ class GiftCardRepository extends BaseRepository
             'used',
             'expired',
             'pending',
-            'inactive'
+            'inactive',
         ];
         $exception_expired_date = [
             'used',
             'pending',
-            'inactive'
+            'inactive',
         ];
-        
-        //exception if the card is used 
-        if (isset($input['face_amount'])) 
+
+        // exception if the card is used
+        if (isset($input['face_amount'])) {
             throw new \Exception('Cannot update face amount due to fraud risk');
-        
-        //exception on expiration date update if the card is active
-        if (isset($input['expired_at']) && in_array($model->status, $exception_expired_date)) 
+        }
+
+        // exception on expiration date update if the card is active
+        if (isset($input['expired_at']) && in_array($model->status, $exception_expired_date)) {
             throw new \Exception('Cannot update expiration date of an used,pending or inactive card');
+        }
 
         DB::beginTransaction();
         // If the expiration date is being updated, we need to update the related QR session as well
-        if (isset($input['expired_at'] )) {
+        if (isset($input['expired_at'])) {
             $qr = $model->qrSessions()->latest('created_at')->first();
             $qrRepository->update(['expired_at' => $input['expired_at']], $qr->id);
         }
-    
+
         $model->fill($input);
         $model->save();
         DB::commit();

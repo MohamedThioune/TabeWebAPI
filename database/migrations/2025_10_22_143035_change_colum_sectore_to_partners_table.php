@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('partners', function (Blueprint $table) {
-            $table->enum('sector', ["Mode", "Beauté", "Gastronomie", "Technologie", "Bien-être", "Décoration", "Sport", "Librairie"])->default('Bien-être')->nullable()->change();
+            $table->enum('sector', ['Mode', 'Beauté', 'Gastronomie', 'Technologie', 'Bien-être', 'Décoration', 'Sport', 'Librairie'])->default('Bien-être')->nullable()->change();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('partners', function (Blueprint $table) {
-            $table->enum('sector', ["Mode", "Beauté", "Gastronomie", "Technologie", "Bien-être", "Décoration" ])->default('Beauté')->nullable()->change();
+            $table->enum('sector', ['Mode', 'Beauté', 'Gastronomie', 'Technologie', 'Bien-être', 'Décoration'])->default('Beauté')->nullable()->change();
         });
     }
 };

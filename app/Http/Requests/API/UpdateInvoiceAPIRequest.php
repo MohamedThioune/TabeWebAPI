@@ -23,7 +23,7 @@ class UpdateInvoiceAPIRequest extends APIRequest
      * @return array
      */
     public function rules()
-    {        
+    {
         return Invoice::rules();
     }
 }
