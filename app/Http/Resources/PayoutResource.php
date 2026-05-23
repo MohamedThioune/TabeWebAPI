@@ -38,7 +38,7 @@ class PayoutResource extends JsonResource
             'transactions' => $this->when($show_transactions, TransactionResource::collection($this->whenLoaded('transactions'))),
             'total_transactions' => $total_transactions,
             'user' => $this->when($context_admin, new UserResource($this->resource->user)),
-            'timeline' => $this->when($show_timeline && $context_admin, $timeline),
+            'timeline' => $this->when($show_timeline, $timeline),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

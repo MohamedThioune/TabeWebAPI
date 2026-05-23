@@ -827,8 +827,8 @@ class GiftCardAPIController extends AppBaseController
             title: null,
             body: null
         );
-        var_dump($token);
-        var_dump($nonce);
+        // var_dump($token);
+        // var_dump($nonce);
 
         // Notify the user
         $user->notify(new SharedCardNotification(
