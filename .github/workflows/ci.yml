@@ -160,3 +160,16 @@ jobs:
 
       - name: 📦 Install dependencies (prod)
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader 
+
+      # - name: 🚀 Install Railway CLI
+        # run: npm install -g @railway/cli
+
+      # - name: 🚀 Deploy App
+        # env:
+          # RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        # run: railway up --service ${{ secrets.RAILWAY_SERVICE_ID }}
+
+      # - name: ⚙️ Deploy Worker
+      #   env:
+      #     RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      #   run: railway up --service ${{ secrets.RAILWAY_WORKER_SERVICE_ID }}
