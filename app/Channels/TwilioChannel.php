@@ -26,13 +26,6 @@ class TwilioChannel
                     $payload
                 );
 
-            // Print details about the last request
-            // echo $twilio->lastRequest->method;
-            // echo $twilio->lastRequest->url;
-            // echo $twilio->lastRequest->auth;
-            // echo $twilio->lastRequest->params;
-            // echo $twilio->lastRequest->headers;
-
             // Print details about the last response
             // echo($twilio->lastResponse->statusCode);
             // Log::info("Sending notification via TwilioChannel to" . $notifiable->phone, (array)$message);
