@@ -160,23 +160,3 @@ jobs:
 
       - name: 📦 Install dependencies (prod)
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader 
-
-      - name: 🚀 Deploy App
-        run: |
-          curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ secrets.RAILWAY_SERVICE_ID }}\", environmentId: \"${{ secrets.RAILWAY_ENVIRONMENT_ID }}\") }"
-            }' \
-            https://backboard.railway.app/graphql/v2
-
-      - name: ⚙️ Deploy Worker
-        run: |
-          curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ secrets.RAILWAY_WORKER_SERVICE_ID }}\", environmentId: \"${{ secrets.RAILWAY_ENVIRONMENT_ID }}\") }"
-            }' \
-            https://backboard.railway.app/graphql/v2
