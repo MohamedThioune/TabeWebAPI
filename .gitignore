@@ -27,3 +27,6 @@ oauth-private.key
 oauth-public.key
 storage/oauth-private.key
 storage/oauth-public.key
+
+# Added by ggshield
+.cache_ggshield
