@@ -397,6 +397,7 @@ Supported assets:
 
 * User documents
 * Gift card media
+* Partner media 
 * Generated exports
 
 The application supports direct cloud storage integration.
