@@ -43,50 +43,7 @@ The objective is to keep business rules independent from infrastructure concerns
 * API-first architecture
 * Secure-by-default implementation
 
-### Project Structure
-
-The codebase follows a pragmatic Domain-Driven Design (DDD) approach while leveraging Laravel's ecosystem.
-
-app/
-├── Domains/
-│   ├── GiftCards/
-│   │   ├── Entities/
-│   │   ├── Events/
-│   │   ├── Services/
-│   │   ├── UseCases/
-│   │   └── ValueObjects/
-│   │
-│   └── Users/
-│       ├── DTO/
-│       ├── Entities/
-│       ├── UseCases/
-│       └── ValueObjects/
-│
-├── Application/
-│   ├── Actions/
-│   ├── DTOs/
-│   ├── Services/
-│   └── UseCases/
-│
-├── Infrastructure/
-│   ├── External
-│   │   └── Payment/
-│   │       ├── DTO/
-│   │       └── ValueObjects/
-│   └── Persistence/
-│
-├── Events/
-├── Listeners/
-├── Jobs/
-├── Policies/
-├── Notifications/
-├── Observers/
-├── Console/
-├── Providers/
-└── Repositories/
-    └── BaseRepository.php
-
-#### Main Domains
+### Main Domains
 
 * Gift Cards
 * Transactions
@@ -166,7 +123,6 @@ Using Pusher and Laravel Broadcasting:
 
 * Transaction updates
 * Payment status changes
-* Wallet events
 * Administrative notifications
 
 ---
@@ -216,8 +172,8 @@ The platform implements safeguards to guarantee operation uniqueness and consist
 ## Clone Repository
 
 ```bash
-git clone <repository-url>
-cd TabeWebAPI
+git clone https://github.com/MohamedThioune/Carte-Tabe-API.git
+cd Carte-Tabe-API
 ```
 
 ## Install Dependencies
@@ -271,7 +227,7 @@ docker compose down
 Services available:
 
 * Laravel Application
-* MySQL
+* Nginx
 * Redis
 
 ---
@@ -441,7 +397,7 @@ Software Developer Consultant
 
 Founder of BIRDs 🇸🇳
 
-*"Maxbird codeur a la casquette"*
+*"Software developer because super hero is not a job title"*
 
 ---
 
