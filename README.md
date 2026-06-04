@@ -1,179 +1,453 @@
-# Carte Tabé – Backend API
+# Carte Tabé API
 
 ## Overview
 
-**Carte Tabé API** is the backend service powering the Carte Tabé ecosystem — a multi-merchant gift card platform.
-This API handles the full lifecycle of gift cards, including issuance, activation, authentication, payments, transactions, payouts, notifications, and fraud-prevention workflows.
+**Carte Tabé API** powers the entire Carte Tabé ecosystem, a multi-merchant gift card platform designed for Africa.
 
-It serves multiple clients:
+The platform enables organizations, businesses, and individuals to issue, distribute, redeem, and manage digital gift cards while providing a secure and scalable payment experience.
 
-* 📱 Mobile applications (wallet for beneficiaries)
-* 🏪 Partner / merchant portals
-* 🧑‍💼 Admin back-office
+The API handles:
 
-The API is designed to be secure, scalable, and ready for financial-grade workflows.
+* Gift card lifecycle management
+* Beneficiary onboarding and authentication
+* Merchant integrations
+* Payments and settlements
+* Transaction tracking
+* Payout processing
+* Notifications
+* Fraud prevention mechanisms
+* Real-time events 
+* ....
 
----
+### Clients
 
-## Architecture & Design
-
-This project follows a **lightweight Domain-Driven Design (DDD)** approach.
-
-The goal is to keep the codebase:
-
-* **Domain-focused**
-* **Readable and maintainable**
-* **Pragmatic**, without over-engineering
-
-### Key principles applied:
-
-* Clear separation between **Domain**, **Application**, and **Infrastructure**
-* Business logic isolated from frameworks when possible
-* Explicit domain concepts (GiftCard, Transaction, Partner, Payout, etc.)
-* Use of Laravel features where they bring real value (Queues, Events, Jobs, Policies)
-
-This is **DDD-inspired**, not a strict or academic implementation.
+* 📱 Mobile Application
+* 🏪 Partner Portal
+* 🧑‍💼 Administration Dashboard
+* 🔌 Third-Party Integrations
 
 ---
 
-## Tech Stack
+# Architecture
 
-* **Framework**: Laravel
-* **Database**: MySQL
-* **Cache / Queues**: Redis
-* **Authentication**: OTP (SMS / WhatsApp), API tokens(Passport)
-* **Documentation**: Swagger / OpenAPI
-* **Payments**: Mobile Money providers (Wave, Orange Money, Free Money, etc.)
+This project follows a light **Domain-Driven Design (DDD)** approach.
+
+The objective is to keep business rules independent from infrastructure concerns while remaining practical and easy to maintain.
+
+## Core Principles
+
+* Separation of Domain, Application and Infrastructure layers
+* Business-first design
+* Event-driven workflows
+* Queue-based background processing
+* API-first architecture
+* Secure-by-default implementation
+
+### Project Structure
+
+The codebase follows a pragmatic Domain-Driven Design (DDD) approach while leveraging Laravel's ecosystem.
+
+app/
+├── Domains/
+│   ├── GiftCards/
+│   │   ├── Entities/
+│   │   ├── Events/
+│   │   ├── Services/
+│   │   ├── UseCases/
+│   │   └── ValueObjects/
+│   │
+│   └── Users/
+│       ├── DTO/
+│       ├── Entities/
+│       ├── UseCases/
+│       └── ValueObjects/
+│
+├── Application/
+│   ├── Actions/
+│   ├── DTOs/
+│   ├── Services/
+│   └── UseCases/
+│
+├── Infrastructure/
+│   ├── External
+│   │   └── Payment/
+│   │       ├── DTO/
+│   │       └── ValueObjects/
+│   └── Persistence/
+│
+├── Events/
+├── Listeners/
+├── Jobs/
+├── Policies/
+├── Notifications/
+├── Observers/
+├── Console/
+├── Providers/
+└── Repositories/
+    └── BaseRepository.php
+
+#### Main Domains
+
+* Gift Cards
+* Transactions
+* Payments
+* Beneficiaries
+* Customers
+* Partners
+* Enterprises
+* Payouts
+* Notifications
+* Authentication
 
 ---
 
-## 🚀 Getting Started
+# Technology Stack
 
-### 1️⃣ Clone the repository
+| Category         | Technology                 |
+| ---------------- | ---------------------------|
+| Framework        | Laravel 10                 |
+| Language         | PHP 8.1                    |
+| Database         | MySQL 8                    |
+| Cache            | Redis                      |
+| Queue System     | Laravel Queues + Redis     |
+| Authentication   | Laravel Passport           |
+| Realtime         | Pusher                     |
+| Documentation    | Swagger(OpenAPI) + Postman |
+| Storage          | Amazon S3                  |
+| Containerization | Docker                     |
+| CI/CD            | GitHub Actions             |
+| Deployment       | Railway                    |
+
+
+# Key Features
+
+## Gift Card Management
+
+* Gift card issuance
+* Activation workflow
+* Balance management
+* Redemption tracking
+* Transaction history
+* Others ...
+
+
+## Authentication
+
+* OTP Verification
+* Access Tokens
+* Role-Based Access Control (RBAC)
+
+Supported roles:
+
+* Super Admin
+* Admin
+* Partner
+* Customer
+
+## Payments
+
+Integration-ready architecture supporting:
+
+* Wave
+* Orange Money
+* Free Money
+* Additional Mobile Money providers
+
+## Notifications
+
+* SMS
+* WhatsApp
+* Push Notifications
+* Email Notifications
+
+## Real-Time Events
+
+Using Pusher and Laravel Broadcasting:
+
+* Transaction updates
+* Payment status changes
+* Wallet events
+* Administrative notifications
+
+---
+
+# Security
+
+Security is a first-class concern throughout the platform.
+
+Implemented protections include:
+
+* OTP rate limiting
+* Request validation
+* Role-based authorization
+* Sensitive data encryption
+* Audit trails
+* Transaction replay protection
+* Idempotent payment workflows
+* Fraud monitoring hooks
+
+## Replay Protection
+
+Financial operations are protected against duplicate execution caused by:
+
+* Network retries
+* Double-click submissions
+* Provider callbacks duplication
+
+The platform implements safeguards to guarantee operation uniqueness and consistency.
+
+---
+
+# Development Environment
+
+## Prerequisites
+
+* PHP 8.4+
+* Composer
+* Docker
+* Docker Compose
+* MySQL
+* Redis
+
+---
+
+# Installation
+
+## Clone Repository
 
 ```bash
-git clone https://github.com/your-organization/carte-tabe-api.git
+git clone <repository-url>
 cd TabeWebAPI
 ```
 
----
-
-### 2️⃣ Install dependencies
+## Install Dependencies
 
 ```bash
 composer install
 ```
 
----
-
-### 3️⃣ Environment configuration
-
-Copy the environment file:
+## Configure Environment
 
 ```bash
 cp .env.example .env
-```
-
-Generate the application key:
-
-```bash
 php artisan key:generate
 ```
 
-Update your `.env` file with the correct values:
+Configure:
 
-* Database credentials
-* Redis configuration
-* Twilio credentials
-* Payment provider keys
-* Storage (S3 or local)
+```env
+DB_*
+REDIS_*
+PASSPORT_*
+AWS_*
+PUSHER_*
+TWILIO_*
+```
 
 ---
 
-### 4️⃣ Database migrations
+# Docker Setup
 
-Run migrations to set up the database schema:
+The project includes a complete Docker-based development environment.
+
+Start services:
+
+```bash
+docker compose up -d
+```
+
+Build containers:
+
+```bash
+docker compose build
+```
+
+Stop containers:
+
+```bash
+docker compose down
+```
+
+Services available:
+
+* Laravel Application
+* MySQL
+* Redis
+
+---
+
+# Database
+
+Run migrations:
 
 ```bash
 php artisan migrate
 ```
 
-(Optional) Seed demo data:
+Run seeders:
 
 ```bash
 php artisan db:seed
 ```
 
----
-
-### 5️⃣ Start the application
-
-Run the local development server:
+Refresh database:
 
 ```bash
-php artisan serve
-```
-
-The API will be available at:
-
-```
-http://localhost:8000
+php artisan migrate:fresh --seed
 ```
 
 ---
 
-## Testing
+# Queue Workers
 
-Run the test suite using PHPUnit or Pest:
+Start queue workers:
+
+```bash
+php artisan queue:work
+```
+
+The platform uses queues extensively for:
+
+* Notifications
+* Payout processing
+* Payment integrations
+* Heavy background jobs
+
+---
+
+# API Documentation
+
+Swagger documentation is available at:
+
+```text
+/api/documentation
+```
+
+Documentation includes:
+
+* Endpoint specifications
+* Authentication flows
+* Request examples
+* Response schemas
+* Error handling
+
+---
+
+# Testing
+
+Run all tests:
 
 ```bash
 php artisan test
 ```
 
-Make sure your testing database is properly configured in `.env.testing`.
+Run coverage:
 
----
-
-## 📖 API Documentation (Swagger)
-
-The API documentation is available via **Swagger / OpenAPI**.
-
-After starting the application, access it at:
-
-```
-http://localhost:8000/api/documentation
+```bash
+php artisan test --coverage
 ```
 
-The documentation provides:
+Testing includes:
 
-* Available endpoints
-* Request/response formats
-* Authentication requirements
-* Error codes and examples
-
----
-
-## Security Notes
-
-* Sensitive data is encrypted at rest
-* OTP verification is rate-limited
-* Transactions are protected against replay attacks
-* Role-based access control (Admin, Partner, Enterprise, Customer)
-
-This API is designed with **financial and fraud risks in mind**.
+* Feature Tests
+* Unit Tests
+* API Tests
+* Business Rule Validation
 
 ---
 
-## Author
+# Continuous Integration
+
+GitHub Actions automatically executes:
+
+* Dependency installation
+* Static checks
+* Test suite execution
+* Build validation
+
+Every pull request must pass CI checks before merging.
+
+---
+
+# Deployment
+
+Production deployment is currently automated through Railway.
+
+Deployment pipeline:
+
+```text
+GitHub
+    ↓
+GitHub Actions
+    ↓
+Railway
+    ↓
+Production Environment
+```
+
+Environment-specific configuration is managed through Railway Variables.
+
+---
+
+# Storage
+
+Files are stored using Amazon S3.
+
+Supported assets:
+
+* User documents
+* Gift card media
+* Generated exports
+
+The application supports direct cloud storage integration.
+
+---
+
+# Monitoring & Logging
+
+The platform provides:
+
+* Laravel Logs
+* Queue Monitoring
+* Failed Job Tracking
+* Exception Reporting
+
+Useful commands:
+
+```bash
+php artisan queue:failed
+
+php artisan queue:retry all
+```
+
+---
+
+# Contributing
+
+1. Create a feature branch
+2. Implement changes
+3. Add tests
+4. Submit Pull Request
+
+---
+
+# Author
 
 **Mohamed Thioune**
-Senior Backend Engineer – Laravel
+
+Senior Backend Engineer
 Software Developer Consultant
+
+Founder of BIRDs 🇸🇳
+
+*"Maxbird codeur a la casquette"*
 
 ---
 
-## License
+# License
 
-This project is licensed under the `MaxBird, Codeur a la casquette`.
+Private and proprietary software.
 
-"Software developer because super hero is not a job title".
+Copyright © Carte Tabé.
+
+---
