@@ -215,7 +215,7 @@ docker compose up -d
 Build containers:
 
 ```bash
-docker compose build
+docker compose build --no-cache
 ```
 
 Stop containers:
